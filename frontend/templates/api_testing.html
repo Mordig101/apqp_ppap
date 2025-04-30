@@ -187,6 +187,39 @@
                         </div>
                     </div>
                     
+                    <!-- Team Endpoints -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="teamHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#teamCollapse" aria-expanded="false" aria-controls="teamCollapse">
+                                Team
+                            </button>
+                        </h2>
+                        <div id="teamCollapse" class="accordion-collapse collapse" aria-labelledby="teamHeading">
+                            <div class="accordion-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/" data-sample="list-teams">
+                                        <span class="badge badge-get method-badge">GET</span> List Teams
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/1/" data-sample="get-team">
+                                        <span class="badge badge-get method-badge">GET</span> Get Team
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/teams/" data-sample="create-team">
+                                        <span class="badge badge-post method-badge">POST</span> Create Team
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/teams/1/" data-sample="update-team">
+                                        <span class="badge badge-put method-badge">PUT</span> Update Team
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="DELETE:/api/teams/1/" data-sample="delete-team">
+                                        <span class="badge badge-delete method-badge">DELETE</span> Delete Team
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/teams/1/assign_members/" data-sample="assign-members">
+                                        <span class="badge badge-post method-badge">POST</span> Assign Members
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- User Endpoints -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="userHeading">
@@ -404,6 +437,50 @@
                     description: 'Updated output description',
                     status: 'In Progress',
                     user_id: 2
+                }
+            },
+            
+            // Team samples
+            'list-teams': {
+                endpoint: 'GET:/api/teams/',
+                body: {}
+            },
+            'get-team': {
+                endpoint: 'GET:/api/teams/1/',
+                body: {}
+            },
+            'create-team': {
+                endpoint: 'POST:/api/teams/',
+                body: {
+                    name: 'Development Team',
+                    description: 'Team responsible for application development',
+                    members: [1, 2, 3],
+                    member_roles: {
+                        "1": "Team Lead",
+                        "2": "Senior Developer",
+                        "3": "Junior Developer"
+                    }
+                }
+            },
+            'update-team': {
+                endpoint: 'PUT:/api/teams/1/',
+                body: {
+                    name: 'Updated Team Name',
+                    description: 'Updated team description'
+                }
+            },
+            'delete-team': {
+                endpoint: 'DELETE:/api/teams/1/',
+                body: {}
+            },
+            'assign-members': {
+                endpoint: 'POST:/api/teams/1/assign_members/',
+                body: {
+                    members: [4, 5],
+                    member_roles: {
+                        "4": "QA Engineer",
+                        "5": "UI/UX Designer"
+                    }
                 }
             },
             

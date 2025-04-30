@@ -10,6 +10,7 @@ from core.models.output.output import Output
 from core.models.output.template import OutputTemplate
 from core.models.output.document import Document
 from core.models.organization.team import Team
+from core.models.organization.team_member_role import TeamMemberRole
 from core.models.organization.department import Department
 from core.models.organization.todo import Todo
 from core.models.organization.user import User
