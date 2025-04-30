@@ -38,7 +38,7 @@
 
 
 
-2. **Membership Management**:
+2. **Membership Management**: 
 
 1. Add new members to team
 2. Remove existing members
