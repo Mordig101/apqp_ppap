@@ -1,0 +1,804 @@
+## Team 
+
+### Team (Create, Edit, Delete, Get)
+
+#### Create Team Process
+
+1. **Basic Information Collection**:
+
+1. Team name and description
+2. Generate unique team ID
+3. Generate historyId using format: `{generated_id}team`
+
+
+
+2. **Member Assignment**:
+
+1. Add existing persons to team
+2. Option to create new persons during team creation
+3. Assign roles within team (optional)
+
+
+
+3. **Department Association**:
+
+1. Link team to one or more departments
+2. Set primary department if applicable
+
+
+
+
+
+#### Edit Team Process
+
+1. **Basic Information Updates**:
+
+1. Modify team name and description
+2. Update department associations
+
+
+
+2. **Membership Management**:
+
+1. Add new members to team
+2. Remove existing members
+3. Change member roles
+
+
+
+3. **History Tracking**:
+
+1. Record all changes in history table
+2. Track who made the changes and when
+
+
+
+
+
+#### Delete Team Process
+
+1. **Dependency Check**:
+
+1. System verifies no active projects are assigned to the team
+2. If dependencies exist, system requires reassignment before deletion
+
+
+
+2. **Member Handling**:
+
+1. Option to keep team members as individuals
+2. Option to reassign members to other teams
+
+
+
+3. **Record Cleanup**:
+
+1. Remove team references from all related records
+2. Update history table with deletion event
+
+
+
+
+
+#### Get Team Process
+
+1. **Team Listing**:
+
+1. List of all teams with member counts
+2. Filtering by department, project involvement
+3. Search by team name
+
+
+
+2. **Team Details View**:
+
+1. Complete team information
+2. Member listing with roles
+3. Project assignments
+4. Activity history
+
+
+
+
+
+## Template 
+
+### Templates (Create, Edit, Delete, Get)
+
+#### Phase Templates
+
+1. **Create Phase Template**:
+
+1. Define template name and description
+2. Set order number for sequencing
+3. Define standard duration
+4. Associate with PPAP levels
+
+
+
+2. **Edit Phase Template**:
+
+1. Modify template details
+2. Update associations
+3. Version control for templates
+
+
+
+3. **Delete Phase Template**:
+
+1. Check for usage in active projects
+2. Provide replacement options if in use
+3. Archive instead of delete option
+
+
+
+4. **Get Phase Templates**:
+
+1. List all templates with filtering options
+2. Detailed view with associated outputs
+3. Usage statistics
+
+
+
+
+
+#### Output Templates
+
+1. **Create Output Template**:
+
+1. Define template name
+2. Associate with phase template
+3. Link to PPAP element
+4. Set configuration options (JSON)
+5. Define document requirements
+
+
+
+2. **Edit Output Template**:
+
+1. Update template details
+2. Modify associations
+3. Update configuration
+4. Version control
+
+
+
+3. **Delete Output Template**:
+
+1. Check for usage in active projects
+2. Provide replacement options if in use
+3. Archive instead of delete option
+
+
+
+4. **Get Output Templates**:
+
+1. List all templates with filtering options
+2. Detailed view with configuration
+3. Usage statistics
+
+
+
+## Contact 
+
+### Contact (Create, Edit, Delete, Get)
+
+#### Create Contact Process
+
+1. **Contact Type Selection**:
+
+1. User selects contact type (user, client, client_member)
+2. System adjusts required fields based on type
+
+
+
+2. **Information Collection**:
+
+1. Address, email, phone
+2. Additional fields based on type
+3. Generate contact ID based on associated entity
+
+
+
+3. **Association Setup**:
+
+1. Link to person, client, or user as appropriate
+2. Set up relationship in database
+
+
+
+
+
+#### Edit Contact Process
+
+1. **Information Updates**:
+
+1. Modify contact details
+2. Update associations
+3. Change contact type if needed
+
+
+
+2. **History Tracking**:
+
+1. Record all changes in history table
+2. Track who made the changes and when
+
+
+
+
+
+#### Delete Contact Process
+
+1. **Dependency Check**:
+
+1. System verifies no active entities depend on this contact
+2. If dependencies exist, system requires reassignment
+
+
+
+2. **Record Cleanup**:
+
+1. Remove contact references from all related records
+2. Update history table with deletion event
+
+
+
+
+
+#### Get Contact Process
+
+1. **Contact Listing**:
+
+1. List of all contacts with type indicators
+2. Filtering by type, association
+3. Search by contact details
+
+
+
+2. **Contact Details View**:
+
+1. Complete contact information
+2. Association details
+3. Communication history (if implemented)
+
+
+
+
+
+## Person 
+
+### Person (Create, Edit, Delete, Get)
+
+#### Create Person Process
+
+1. **Basic Information Collection**:
+
+1. First name, last name
+2. Generate unique person ID
+3. Generate contactId using format: `{id}person`
+4. Set isUser flag based on intended use
+
+
+
+2. **Association Setup**:
+
+1. Assign to team if applicable
+2. Assign to department if applicable
+3. Create contact record with contact details
+
+
+
+3. **History Initialization**:
+
+1. Generate historyId using format: `{generated_id}person`
+2. Record creation date and creator information
+
+
+
+
+
+#### Edit Person Process
+
+1. **Information Updates**:
+
+1. Modify personal details
+2. Update team or department assignments
+3. Update contact information
+4. Change isUser status if needed
+
+
+
+2. **History Tracking**:
+
+1. Record all changes in history table
+2. Track who made the changes and when
+
+
+
+
+
+#### Delete Person Process
+
+1. **Dependency Check**:
+
+1. System verifies no active entities depend on this person
+2. If person is a user, handle user record appropriately
+3. If dependencies exist, system requires reassignment
+
+
+
+2. **Record Cleanup**:
+
+1. Remove person references from all related records
+2. Update history table with deletion event
+3. Delete or archive associated contact record
+
+
+
+
+
+#### Get Person Process
+
+1. **Person Listing**:
+
+1. List of all persons with type indicators (user/non-user)
+2. Filtering by team, department, user status
+3. Search by name
+
+
+
+2. **Person Details View**:
+
+1. Complete personal information
+2. Team and department affiliations
+3. User account details if applicable
+4. Assignment summary (projects, phases, outputs)
+
+
+
+
+
+## Client 
+
+### Client (Create, Edit, Delete, Get)
+
+#### Create Client Process
+
+1. **Basic Information Collection**:
+
+1. Client name, address, description
+2. Code information (Fiscal/DUNS codes)
+3. Generate unique client ID
+4. Generate historyId using format: `{generated_id}client`
+
+
+
+2. **Contact Setup**:
+
+1. Create primary contact record
+2. Generate contactId
+3. Collect contact details (address, email, phone)
+
+
+
+3. **Team Association**:
+
+1. Create or select client team
+2. Add client contacts to team
+3. Set up relationship in database
+
+
+
+
+
+#### Edit Client Process
+
+1. **Information Updates**:
+
+1. Modify client details
+2. Update code information
+3. Change team association
+4. Update contact information
+
+
+
+2. **History Tracking**:
+
+1. Record all changes in history table
+2. Track who made the changes and when
+
+
+
+
+
+#### Delete Client Process
+
+1. **Dependency Check**:
+
+1. System verifies no active projects are assigned to the client
+2. If dependencies exist, system requires reassignment before deletion
+
+
+
+2. **Record Cleanup**:
+
+1. Remove client references from all related records
+2. Update history table with deletion event
+3. Handle associated team and contacts appropriately
+
+
+
+
+
+#### Get Client Process
+
+1. **Client Listing**:
+
+1. List of all clients with project counts
+2. Filtering by various attributes
+3. Search by client name or code
+
+
+
+2. **Client Details View**:
+
+1. Complete client information
+2. Contact details
+3. Team information
+4. Project history
+5. Activity timeline
+
+
+
+
+
+## History Tracking Module
+
+### History (Create, Delete, Get)
+
+#### Create History Process
+
+1. **Automatic Creation**:
+
+1. System automatically creates history records for all CRUD operations
+2. Generated historyId using format: `{generated_id}{tableName}`
+3. Records entity details, event type, user, and timestamp
+
+
+
+2. **Manual Annotations**:
+
+1. Users can add notes to history records
+2. Additional context can be provided for significant events
+
+
+
+3. **Timeline Events**:
+
+1. Special history records for timeline events (start, deadline, completion)
+2. Status change events are highlighted
+
+
+
+
+
+#### Delete History Process
+
+1. **Authorization Check**:
+
+1. Only admin users can delete history records
+2. System warns about compliance implications
+
+
+
+2. **Selective Deletion**:
+
+1. Option to delete specific history records
+2. Option to purge history older than specified date
+3. Permanent deletion with no recovery
+
+
+
+
+
+#### Get History Process
+
+1. **History Listing**:
+
+1. Chronological list of all history records
+2. Filtering by entity, event type, date range, user
+3. Sorting options
+
+
+
+2. **History Details View**:
+
+1. Complete event information
+2. Before/after comparison for edits
+3. User and timestamp details
+
+
+
+3. **Timeline View**:
+
+1. Visual representation of project timeline
+2. Milestone markers
+3. Status change indicators
+
+
+
+
+
+## Department 
+
+### Department (Create, Edit, Delete, Get)
+
+#### Create Department Process
+
+1. **Basic Information Collection**:
+
+1. Department name
+2. Generate unique department ID
+3. Generate historyId using format: `{generated_id}department`
+
+
+
+2. **Responsibility Assignment**:
+
+1. Assign department responsible (from user table)
+2. Set up reporting structure
+
+
+
+3. **Team Association**:
+
+1. Link to existing teams if applicable
+2. Option to create new team for department
+
+
+
+
+
+#### Edit Department Process
+
+1. **Information Updates**:
+
+1. Modify department name
+2. Change responsible person
+3. Update team associations
+
+
+
+2. **History Tracking**:
+
+1. Record all changes in history table
+2. Track who made the changes and when
+
+
+
+
+
+#### Delete Department Process
+
+1. **Dependency Check**:
+
+1. System verifies no active persons are assigned to the department
+2. If dependencies exist, system requires reassignment before deletion
+
+
+
+2. **Record Cleanup**:
+
+1. Remove department references from all related records
+2. Update history table with deletion event
+3. Handle associated teams appropriately
+
+
+
+
+
+#### Get Department Process
+
+1. **Department Listing**:
+
+1. List of all departments with member counts
+2. Filtering by various attributes
+3. Search by department name
+
+
+
+2. **Department Details View**:
+
+1. Complete department information
+2. Responsible person details
+3. Member listing
+4. Team associations
+5. Activity history
+
+
+
+
+
+## Document 
+
+### Document (Create, Edit, Delete, Get)
+
+#### Create Document Process
+
+1. **File Upload**:
+
+1. User selects file to upload
+2. System validates file type and size
+3. File is stored in specified location
+4. System generates unique document ID
+
+
+
+2. **Metadata Collection**:
+
+1. Document name and description
+2. Version information
+3. Association with output
+4. Status setting
+
+
+
+3. **History Initialization**:
+
+1. Generate historyId using format: `{generated_id}document`
+2. Record creation date, uploader, and output association
+
+
+
+
+
+#### Edit Document Process
+
+1. **File Replacement**:
+
+1. Upload new version of document
+2. System retains previous versions
+3. Update version number
+
+
+
+2. **Metadata Updates**:
+
+1. Modify document name or description
+2. Update status
+3. Change output association
+
+
+
+3. **History Tracking**:
+
+1. Record all changes in history table
+2. Track who made the changes and when
+
+
+
+
+
+#### Delete Document Process
+
+1. **Authorization Check**:
+
+1. Verify user has permission to delete document
+2. System checks document status (finalized documents may be protected)
+
+
+
+2. **File Handling**:
+
+1. Remove file from storage or mark as deleted
+2. Option to retain file but mark record as deleted
+
+
+
+3. **Record Cleanup**:
+
+1. Update output record to remove document reference
+2. Update history table with deletion event
+
+
+
+
+
+#### Get Document Process
+
+1. **Document Listing**:
+
+1. List of all documents with filtering options
+2. Sorting by various attributes
+3. Search by document name or content (if indexed)
+
+
+
+2. **Document Details View**:
+
+1. Complete document metadata
+2. Version history
+3. Output association
+4. Download option
+5. Preview capability for supported file types
+
+## Todo 
+
+### Todo (Create, Edit, Delete, Get)
+
+#### Create Todo Process
+
+1. **Assignment Setup**:
+
+1. Link to specific user
+2. Associate with specific output
+3. Set permission level (read, edit)
+
+
+
+2. **Notification**:
+
+1. System notifies assigned user
+2. Adds item to user's todo list
+3. Sets priority level if applicable
+
+
+
+
+
+#### Edit Todo Process
+
+1. **Assignment Updates**:
+
+1. Change assigned user
+2. Modify permission level
+3. Update priority
+
+
+
+2. **Status Tracking**:
+
+1. Mark as in progress
+2. Mark as completed
+3. Record completion date
+
+
+
+
+
+#### Delete Todo Process
+
+1. **Authorization Check**:
+
+1. Only creator or admin can delete todos
+2. System checks if todo is completed
+
+
+
+2. **Record Cleanup**:
+
+1. Remove todo references
+2. Notify assigned user of cancellation
+
+
+
+
+
+#### Get Todo Process
+
+1. **Todo Listing**:
+
+1. Personal todo list for current user
+2. Admin view of all todos
+3. Filtering by status, output, user
+4. Sorting by priority, deadline
+
+
+
+2. **Todo Details View**:
+
+1. Complete todo information
+2. Output context
+3. Permission details
+4. Status history

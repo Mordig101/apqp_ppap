@@ -2,7 +2,7 @@ APQP/PPAP Manager Software for Project Management
 details about project :
 
 
-## Project Management Module
+## Project 
 
 ### Project (Create, Edit, Delete, Get)
 
@@ -210,7 +210,7 @@ details about project :
 
 
 
-## User Management Module
+## User 
 
 ### User (Create, Edit, Delete, Get)
 
@@ -319,7 +319,7 @@ details about project :
 
 
 
-## PPAP Management Module
+## PPAP 
 
 ### PPAP (Generate, Edit, Delete, Get)
 
@@ -427,7 +427,7 @@ details about project :
 
 
 
-## Team Management Module
+## Team 
 
 ### Team (Create, Edit, Delete, Get)
 
@@ -530,7 +530,7 @@ details about project :
 
 
 
-## Template Management Module
+## Template 
 
 ### Templates (Create, Edit, Delete, Get)
 
@@ -608,9 +608,7 @@ details about project :
 
 
 
-
-
-## Contact Management Module
+## Contact 
 
 ### Contact (Create, Edit, Delete, Get)
 
@@ -697,7 +695,7 @@ details about project :
 
 
 
-## Person Management Module
+## Person 
 
 ### Person (Create, Edit, Delete, Get)
 
@@ -790,7 +788,7 @@ details about project :
 
 
 
-## Client Management Module
+## Client 
 
 ### Client (Create, Edit, Delete, Get)
 
@@ -961,7 +959,7 @@ details about project :
 
 
 
-## Department Management Module
+## Department 
 
 ### Department (Create, Edit, Delete, Get)
 
@@ -1051,7 +1049,7 @@ details about project :
 
 
 
-## Document Management Module
+## Document 
 
 ### Document (Create, Edit, Delete, Get)
 
@@ -1158,7 +1156,7 @@ details about project :
 
 
 
-## Output Management Module
+## Output 
 
 ### Output (Create, Edit, Delete, Get)
 
@@ -1271,7 +1269,7 @@ details about project :
 
 
 
-## Todo Management Module
+## Todo 
 
 ### Todo (Create, Edit, Delete, Get)
 
