@@ -1,0 +1,50 @@
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from core.models import History, Project
+from core.serializers.history_serializer import HistorySerializer
+
+class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = History.objects.all()
+    serializer_class = HistorySerializer
+    
+    @action(detail=False, methods=['get'])
+    def project(self, request, project_id=None):
+        project_id = request.query_params.get('project_id')
+        if not project_id:
+            return Response(
+                {"error": "Missing required parameter: project_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            project = Project.objects.get(id=project_id)
+            history_records = History.objects.filter(id=project.history_id)
+            
+            # Get related history records
+            if project.ppap:
+                ppap_history = History.objects.filter(id=project.ppap.history_id)
+                history_records = history_records.union(ppap_history)
+                
+                # Get phase history
+                for phase in project.ppap.phases.all():
+                    phase_history = History.objects.filter(id=phase.history_id)
+                    history_records = history_records.union(phase_history)
+                    
+                    # Get output history
+                    for output in phase.outputs.all():
+                        output_history = History.objects.filter(id=output.history_id)
+                        history_records = history_records.union(output_history)
+            
+            serializer = self.get_serializer(history_records, many=True)
+            return Response(serializer.data)
+        except Project.DoesNotExist:
+            return Response(
+                {"error": f"Project with ID {project_id} not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )

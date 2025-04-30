@@ -1,0 +1,100 @@
+apqp_manager/
+├── apqp_manager/                  # Main Django project config
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+│
+├── core/
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── history.py             # Base History model
+│   │   ├── project/               # Directly related to Project
+│   │   │   ├── __init__.py
+│   │   │   ├── project.py         # Project model
+│   │   │   ├── client.py          # Client (1-to-many with Project)
+│   │   │   └── fastquery.py       # FastQuery (1-to-1 with Project)
+│   │   ├── ppap/                  # Directly related to PPAP
+│   │   │   ├── __init__.py
+│   │   │   ├── ppap.py            # PPAP (1-to-1 with Project)
+│   │   │   └── element.py         # PPAP elements (many-to-many)
+│   │   ├── phase/                 # Phase hierarchy
+│   │   │   ├── __init__.py
+│   │   │   ├── phase.py           # Phase (many-to-1 with PPAP)
+│   │   │   └── template.py        # Phase templates
+│   │   ├── output/                # Output hierarchy
+│   │   │   ├── __init__.py
+│   │   │   ├── output.py          # Output (many-to-1 with Phase)
+│   │   │   ├── template.py        # Output templates (many-to-1 with Phase templates)
+│   │   │   └── document.py        # Documents (1-to-many with Output)
+│   │   ├── organization/          # Organizational structure
+│   │   │   ├── __init__.py
+│   │   │   ├── team.py            # Teams (many-to-many with Project)
+│   │   │   ├── department.py      # Departments
+│   │   │   └── todo.py            # Todos (many-to-1 with Output)
+│   │   │   └── user.py            # Users (1-to-1 with Person)
+│   │   └── other/                # People relationships
+│   │       ├── __init__.py
+│   │       ├── person.py          # Persons
+│   │       ├── contact.py         # Contacts (1-to-1 with Person/Client)
+│   │       ├── permission.py         # permission
+│   │       └── authorization.py   # authorization
+│   ├── views/(in sepreted file)
+│   ├── serializers/(in sepreted file)
+│   ├── services/
+│   │   ├── history/               # History tracking services
+│   │   │   ├── __init__.py
+│   │   │   ├── initialization.py     # initialization
+│   │   │   ├── project.py        # Project history tracking
+│   │   │   ├── ppap.py           # PPAP history tracking
+│   │   │   ├── phase.py          # Phase history tracking
+│   │   │   ├── output.py         # Output history tracking
+│   │   │   ├── user.py         # Output history tracking
+│   │   │   ├── api.py          # define all api here 
+│   │   ├── project/               # project services
+│   │   │   ├── __init__.py
+│   │   │   ├── initialization.py     # Project initialization logic
+│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── api.py          # define all api here 
+│   │   ├── ppap/               # ppap services
+│   │   │   ├── __init__.py
+│   │   │   ├── initialization.py     # initialization
+│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── api.py          # define all api here 
+│   │   ├── phase/               # phase services
+│   │   │   ├── __init__.py
+│   │   │   ├── initialization.py     # initialization
+│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── api.py          # define all api here 
+│   │   ├── output/               # ppap services
+│   │   │   ├── __init__.py
+│   │   │   ├── initialization.py     # initialization
+│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── api.py          # define all api here 
+│   │   ├── logic/               # logic services
+│   │   │   ├── __init__.py
+│   │   │   ├── level.py           # define level logic to only display to the user what he needs base on the level
+│   │   │   ├── permission.py           # permission logic
+│   │   │   ├── status.py           # status changes logic (workflow to change status (we will stup the logic later)
+│   │   │   ├── todo.py           # to do logic
+│   │       └── authorization.py   # authorization logic
+├── frontend/
+│   ├── static/
+│   │   ├── js/
+│   │   │   ├── api.js          # API client
+│   │   │   └── auth.js         # Auth handling
+│   │   └── css/
+│   │       └── styles.css
+│   └── templates/
+│       ├── base.html
+│       ├── api_testing.html
+│       └── login.html
+│
+├── migrations/
+├── seeder/
+├── manage.py
+├── seeder.py
+├── requirements.txt
+├── project_structure.txt
+├── setup.(for powershell)

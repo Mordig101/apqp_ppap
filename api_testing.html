@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APQP/PPAP Manager API Testing</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .response-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        pre {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">APQP/PPAP Manager API Testing Interface</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">API Request</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="endpoint">Endpoint</label>
+                <select id="endpoint" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select an endpoint</option>
+                    <optgroup label="Project">
+                        <option value="GET:/api/projects/">GET: List Projects</option>
+                        <option value="GET:/api/projects/1/">GET: Project Detail (ID: 1)</option>
+                        <option value="POST:/api/projects/">POST: Create Project</option>
+                        <option value="PUT:/api/projects/1/">PUT: Update Project (ID: 1)</option>
+                        <option value="DELETE:/api/projects/1/">DELETE: Delete Project (ID: 1)</option>
+                    </optgroup>
+                    <optgroup label="PPAP">
+                        <option value="GET:/api/ppaps/">GET: List PPAPs</option>
+                        <option value="GET:/api/ppaps/1/">GET: PPAP Detail (ID: 1)</option>
+                        <option value="PUT:/api/ppaps/1/">PUT: Update PPAP (ID: 1)</option>
+                    </optgroup>
+                    <optgroup label="Phase">
+                        <option value="GET:/api/phases/">GET: List Phases</option>
+                        <option value="GET:/api/phases/1/">GET: Phase Detail (ID: 1)</option>
+                        <option value="PUT:/api/phases/1/">PUT: Update Phase (ID: 1)</option>
+                    </optgroup>
+                    <optgroup label="Output">
+                        <option value="GET:/api/outputs/">GET: List Outputs</option>
+                        <option value="GET:/api/outputs/1/">GET: Output Detail (ID: 1)</option>
+                        <option value="PUT:/api/outputs/1/">PUT: Update Output (ID: 1)</option>
+                        <option value="POST:/api/outputs/">POST: Create Output</option>
+                    </optgroup>
+                    <optgroup label="User">
+                        <option value="GET:/api/users/">GET: List Users</option>
+                        <option value="POST:/api/users/">POST: Create User</option>
+                        <option value="GET:/api/users/1/">GET: User Detail (ID: 1)</option>
+                    </optgroup>
+                    <optgroup label="Client">
+                        <option value="GET:/api/clients/">GET: List Clients</option>
+                        <option value="POST:/api/clients/">POST: Create Client</option>
+                    </optgroup>
+                    <optgroup label="Team">
+                        <option value="GET:/api/teams/">GET: List Teams</option>
+                        <option value="POST:/api/teams/">POST: Create Team</option>
+                    </optgroup>
+                    <optgroup label="Document">
+                        <option value="GET:/api/documents/">GET: List Documents</option>
+                        <option value="POST:/api/documents/">POST: Upload Document</option>
+                    </optgroup>
+                    <optgroup label="History">
+                        <option value="GET:/api/history/">GET: List History</option>
+                        <option value="GET:/api/history/project/1/">GET: Project History (ID: 1)</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="request-body">Request Body (JSON)</label>
+                <textarea id="request-body" rows="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            
+            <button id="send-request" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Send Request
+            </button>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">API Response</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="status">Status</label>
+                <div id="status" class="px-3 py-2 border border-gray-300 rounded-md bg-gray-50">-</div>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700 mb-2" for="response-body">Response Body</label>
+                <div class="response-container border border-gray-300 rounded-md bg-gray-50 p-3">
+                    <pre id="response-body">-</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Sample Request Bodies</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 mb-2" for="sample-requests">Select a sample</label>
+                <select id="sample-requests" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select a sample request</option>
+                    <option value="create-project">Create Project</option>
+                    <option value="create-user">Create User</option>
+                    <option value="create-client">Create Client</option>
+                    <option value="create-team">Create Team</option>
+                    <option value="update-output">Update Output</option>
+                    <option value="upload-document">Upload Document</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const endpointSelect = document.getElementById('endpoint');
+            const requestBodyTextarea = document.getElementById('request-body');
+            const sendRequestButton = document.getElementById('send-request');
+            const statusDiv = document.getElementById('status');
+            const responseBodyPre = document.getElementById('response-body');
+            const sampleRequestsSelect = document.getElementById('sample-requests');
+            
+            // Sample request bodies
+            const sampleRequests = {
+                'create-project': {
+                    endpoint: 'POST:/api/projects/',
+                    body: {
+                        name: 'New Test Project',
+                        description: 'This is a test project created via API',
+                        client_id: 1,
+                        team_id: 1,
+                        status: 'Planning',
+                        ppap_level: 3
+                    }
+                },
+                'create-user': {
+                    endpoint: 'POST:/api/users/',
+                    body: {
+                        username: 'newuser',
+                        password: 'securepassword123',
+                        first_name: 'New',
+                        last_name: 'User',
+                        email: 'newuser@example.com',
+                        department_id: 1,
+                        team_id: 1,
+                        authorization_id: 2
+                    }
+                },
+                'create-client': {
+                    endpoint: 'POST:/api/clients/',
+                    body: {
+                        name: 'New Client Corp',
+                        address: '123 Business St, Industry City, 12345',
+                        code: {
+                            'DUNS': '123456789',
+                            'Fiscal': 'FC-987654'
+                        },
+                        description: 'A new client company',
+                        contact: {
+                            email: 'contact@newclient.com',
+                            phone: '555-123-4567',
+                            address: '123 Business St, Industry City, 12345'
+                        }
+                    }
+                },
+                'create-team': {
+                    endpoint: 'POST:/api/teams/',
+                    body: {
+                        name: 'New Project Team',
+                        description: 'Team for handling new projects',
+                        members: [1, 2, 3]
+                    }
+                },
+                'update-output': {
+                    endpoint: 'PUT:/api/outputs/1/',
+                    body: {
+                        description: 'Updated output description',
+                        status: 'In Progress',
+                        user_id: 2
+                    }
+                },
+                'upload-document': {
+                    endpoint: 'POST:/api/documents/',
+                    body: {
+                        name: 'Test Document',
+                        description: 'This is a test document',
+                        output_id: 1,
+                        file_type: 'pdf',
+                        file_content: 'base64encodedcontent...'
+                    }
+                }
+            };
+            
+            // Load sample request
+            sampleRequestsSelect.addEventListener('change', function() {
+                const selectedSample = sampleRequestsSelect.value;
+                if (selectedSample && sampleRequests[selectedSample]) {
+                    const sample = sampleRequests[selectedSample];
+                    endpointSelect.value = sample.endpoint;
+                    requestBodyTextarea.value = JSON.stringify(sample.body, null, 2);
+                }
+            });
+            
+            // Send request
+            sendRequestButton.addEventListener('click', function() {
+                const selectedEndpoint = endpointSelect.value;
+                if (!selectedEndpoint) {
+                    alert('Please select an endpoint');
+                    return;
+                }
+                
+                const [method, url] = selectedEndpoint.split(':');
+                
+                // Clear previous response
+                statusDiv.textContent = 'Loading...';
+                responseBodyPre.textContent = '';
+                
+                // Prepare request
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                };
+                
+                // Add request body for POST, PUT methods
+                if (method === 'POST' || method === 'PUT') {
+                    try {
+                        options.body = requestBodyTextarea.value;
+                    } catch (e) {
+                        alert('Invalid JSON in request body');
+                        statusDiv.textContent = 'Error: Invalid JSON';
+                        return;
+                    }
+                }
+                
+                // Send request
+                fetch(url, options)
+                    .then(response => {
+                        statusDiv.textContent = `${response.status} ${response.statusText}`;
+                        return response.json();
+                    })
+                    .then(data => {
+                        responseBodyPre.textContent = JSON.stringify(data, null, 2);
+                    })
+                    .catch(error => {
+                        statusDiv.textContent = 'Error';
+                        responseBodyPre.textContent = error.toString();
+                    });
+            });
+            
+            // Helper function to get CSRF token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</body>
+</html>

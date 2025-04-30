@@ -1,0 +1,273 @@
+database : this database is capable of creating users/templates and projects with there elements and capable of tracking history of all the things  . objectif of tracking to know exactly the problems when it happened .
+###Project
+
+-int id (id generated)
+
+-string name 
+
+-string description
+
+-int ClientID (fk)
+
+-int teamId (fk)
+
+-string status
+
+-int ppapId (initialise the id here)
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+
+###ppap
+
+-int id
+
+-int projectId
+
+-int level
+
+-int status
+
+-string review
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+
+#ppap_element
+-int id
+-string name
+
+
+### Client
+
+-int id
+
+-string name
+
+-string address
+
+-string code (name(Fiscal/CODE **DUNS , ...) , code)
+
+-string description
+
+-int teamID (the clien also have a team with their contact ( this team doesn't use the software ) we use this table so we dont create other duplicate )
+
+-string contactId (a fk that shoud b generated here with id(id of the person)+per (for exemple if the id=0 then contactId=0person))
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+
+### contact (this contac)
+
+-string id (the id is initialise in the tables who use it (exemple if used in the project table : its the id generated + name of the table 
+
+-string address
+
+-string email
+
+-string phone
+
+-string type(user(user of the softwar) , client (company) , client_member )
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+### Person
+
+-int id
+
+-string first_name
+
+-string last_name
+
+-string contactId (a fk that shoud b generated here with id(id of the person)+per (for exemple if the id=0 then contactId=0person))
+
+-int teamId (fk)
+
+-int departmentId (fk)
+
+-boolen isUser
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+### departement
+
+-int id
+
+-string name
+
+-int responsableID (from user id)
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+###team
+Team database table
+
+-int id
+
+-string name
+
+-string description
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+### User
+
+-int id
+
+-string username
+
+-string password
+
+-int personId (fk from person table id)
+
+-id authorizationId (fk from authorization table id)
+
+-DateTime lastLogin
+
+-boolean isActive
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+#### todo
+
+-int id
+
+-int permissionId ((fk from person table id)) (r(read) ,e(edit) : he can edit the specific output and he can read the the outputs that in the same phase and the previous phase (for exemple if he is in phase3 : he can edit a specific output and can read all the output of the phase 3 and he can also read all the output of phase 2))
+
+-int userId
+
+-int outputId (fk from outputId)
+
+####output
+
+-int id
+
+-int templateId(from output_template table (have name there and level ( level make use to filter the dashboard and only dispaly in it base on the level chosen in the ppap )))
+
+-string description
+
+-int documentId
+
+-int userId
+
+-int phaseId (fk from phase table)
+
+-string status
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+###Document
+
+-int id
+
+-string name
+
+-string description
+
+-string filePath
+
+-string fileType
+
+-long fileSize
+
+-int uploaderId (from user)
+
+-int outputId
+
+-string version
+
+-string status
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+###output_template
+
+-int id
+
+-string name
+
+-json configuration(I will not use it now for future purpos)
+
+-int phaseId (fk from phase_template)
+
+-int ppap_elementId(fk from ppap_element)
+
+##ppap_element
+
+-int id
+-string name
+-string level (exemple :1,4,custom)
+
+##Phase
+
+-int id
+
+-int templateId (id from phase_template)
+
+-int responsibleId
+
+-int ppapId
+
+-string status
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+
+###Phase_template
+
+-int id
+
+-string name
+
+-string description
+
+-int order
+
+### permissions
+
+-int id
+
+-string name  ( r(read only ) , e(edit and read) )
+
+-string description
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+### authorization
+
+-int id
+
+-string	 name ( admin(he can do wtf he want and have all the permission (he can edit and read and delete all the phases and outputs ) and have all the authorization ana he have no limite ) , create (can create/delete user and can also control it (who have this can do anything he want for example like the admin but he cant delete the admin )) , edit(read and edit everything and also be like approver (c))  )
+
+-string historyId ((initialise the id here) id=id generated + name of the table)
+
+
+
+###history (contient all date attribues needed)
+
+-string id (the id is initialise in the tables who use it (exemple if used in the project table : its the id generated + name of the table (project)) )
+
+-string title (for exemple : outputName (I sepreted the saving so I can make a query (group by title) to see all the updates about a specific thing for exemple a specific ouputid changes ))
+
+-string event ( details about what happend)
+
+-string tableName (the name of the table used)
+
+-DateTime createdAt
+
+-DateTime startedAt
+
+-DateTime updatedAt
+
+-DateTime deadline
+
+-DateTime finishedAt
+
+
+###fastquery (when a project initialise it shoud be intialising all the keys of table and save them here for fast search )
+
+-int id
+
+-int projectId
+
+-json index (here it saves all the ids that is relevant to the projectId , table name and the id related (other informations if necessary) , its possible that the table have many id that relevant to the project for exemple in the output (because the project one ppap and its have severale phase and each phase have severale outputs and outputs can have several documents ... ))
