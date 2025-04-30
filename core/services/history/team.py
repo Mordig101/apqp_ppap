@@ -63,6 +63,7 @@ def get_team_history(team_id):
     """
     try:
         team = Team.objects.get(id=team_id)
+        # Updated to filter by history_id field instead of id
         history_records = History.objects.filter(history_id=team.history_id).order_by('-created_at')
         
         # Convert to a list of dictionaries for API response
