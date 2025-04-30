@@ -6,6 +6,7 @@ class Team(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     history_id = models.CharField(max_length=100, unique=True)
+    department = models.ForeignKey('Department', null=True, blank=True, on_delete=models.SET_NULL, related_name='teams')
 
     class Meta:
         db_table = 'team'

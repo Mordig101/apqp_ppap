@@ -200,14 +200,29 @@
                                     <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/" data-sample="list-teams">
                                         <span class="badge badge-get method-badge">GET</span> List Teams
                                     </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/?search=dev" data-sample="search-teams">
+                                        <span class="badge badge-get method-badge">GET</span> Search Teams
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/?department_id=1" data-sample="filter-teams-by-department">
+                                        <span class="badge badge-get method-badge">GET</span> Filter by Department
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/?project_id=1" data-sample="filter-teams-by-project">
+                                        <span class="badge badge-get method-badge">GET</span> Filter by Project
+                                    </a>
                                     <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/teams/1/" data-sample="get-team">
-                                        <span class="badge badge-get method-badge">GET</span> Get Team
+                                        <span class="badge badge-get method-badge">GET</span> Get Team Details
                                     </a>
                                     <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/teams/" data-sample="create-team">
                                         <span class="badge badge-post method-badge">POST</span> Create Team
                                     </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/teams/1/" data-sample="update-team">
-                                        <span class="badge badge-put method-badge">PUT</span> Update Team
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/teams/1/" data-sample="update-team-basic">
+                                        <span class="badge badge-put method-badge">PUT</span> Update Team Basic
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/teams/1/" data-sample="update-team-with-members">
+                                        <span class="badge badge-put method-badge">PUT</span> Update Team with Members
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PATCH:/api/teams/1/" data-sample="update-team-roles">
+                                        <span class="badge badge-put method-badge">PATCH</span> Update Member Roles
                                     </a>
                                     <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="DELETE:/api/teams/1/" data-sample="delete-team">
                                         <span class="badge badge-delete method-badge">DELETE</span> Delete Team
@@ -445,6 +460,18 @@
                 endpoint: 'GET:/api/teams/',
                 body: {}
             },
+            'search-teams': {
+                endpoint: 'GET:/api/teams/?search=dev',
+                body: {}
+            },
+            'filter-teams-by-department': {
+                endpoint: 'GET:/api/teams/?department_id=1',
+                body: {}
+            },
+            'filter-teams-by-project': {
+                endpoint: 'GET:/api/teams/?project_id=1',
+                body: {}
+            },
             'get-team': {
                 endpoint: 'GET:/api/teams/1/',
                 body: {}
@@ -454,6 +481,7 @@
                 body: {
                     name: 'Development Team',
                     description: 'Team responsible for application development',
+                    department_id: 1,
                     members: [1, 2, 3],
                     member_roles: {
                         "1": "Team Lead",
@@ -462,11 +490,34 @@
                     }
                 }
             },
-            'update-team': {
+            'update-team-basic': {
                 endpoint: 'PUT:/api/teams/1/',
                 body: {
                     name: 'Updated Team Name',
-                    description: 'Updated team description'
+                    description: 'Updated team description',
+                    department_id: 2
+                }
+            },
+            'update-team-with-members': {
+                endpoint: 'PUT:/api/teams/1/',
+                body: {
+                    name: 'Engineering Team',
+                    description: 'Team responsible for engineering tasks',
+                    department_id: 1,
+                    add_members: [
+                        { "id": 4, "role": "QA Engineer" },
+                        { "id": 5, "role": "UX Designer" }
+                    ],
+                    remove_members: [2, 3]
+                }
+            },
+            'update-team-roles': {
+                endpoint: 'PATCH:/api/teams/1/',
+                body: {
+                    update_member_roles: [
+                        { "id": 1, "role": "Engineering Manager" },
+                        { "id": 4, "role": "Senior QA Engineer" }
+                    ]
                 }
             },
             'delete-team': {

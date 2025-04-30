@@ -61,6 +61,24 @@ def get_team_history(team_id):
     """
     Get complete history for a team
     """
-    team = Team.objects.get(id=team_id)
-    history_records = History.objects.filter(id=team.history_id).order_by('-created_at')
-    return history_records
+    try:
+        team = Team.objects.get(id=team_id)
+        history_records = History.objects.filter(history_id=team.history_id).order_by('-created_at')
+        
+        # Convert to a list of dictionaries for API response
+        history_data = []
+        for record in history_records:
+            history_data.append({
+                'id': record.id,
+                'title': record.title,
+                'event': record.event,
+                'created_at': record.created_at,
+                'created_by': record.created_by,
+                'table_name': record.table_name
+            })
+        
+        return history_data
+    except Team.DoesNotExist:
+        return []
+    except Exception as e:
+        return []
