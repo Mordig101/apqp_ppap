@@ -16,14 +16,14 @@ Write-Host "You may need to update the database settings in apqp_manager/setting
 
 # Run migrations
 Write-Host "Running migrations..." -ForegroundColor Green
-python manage.py makemigrations
+python manage.py makemigrations # if doesnt work python manage.py makemigrations core
 python manage.py migrate
 
 # Seed the database
 Write-Host "Seeding the database with initial data..." -ForegroundColor Green
-python seeder.py
+python core/seeder/run_all.py # check the admin user in the seeder 
 
 # Run the development server
 Write-Host "Starting development server..." -ForegroundColor Green
-Write-Host "Access the API testing interface at http://localhost:8000/api-testing/"
+Write-Host "Access the API testing interface at http://localhost:8000/login/"
 python manage.py runserver
