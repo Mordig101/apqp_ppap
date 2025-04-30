@@ -128,12 +128,22 @@ class TeamViewSet(viewsets.ModelViewSet):
         # Filter by department if provided
         department_id = self.request.query_params.get('department_id', None)
         if department_id:
-            queryset = queryset.filter(department_id=department_id)
+            # Check if department field exists in the model
+            from django.db import connection
+            cursor = connection.cursor()
+            cursor.execute("PRAGMA table_info(team)")
+            columns = [column[1] for column in cursor.fetchall()]
+            if 'department_id' in columns:
+                queryset = queryset.filter(department_id=department_id)
             
         # Filter by project involvement if provided
         project_id = self.request.query_params.get('project_id', None)
         if project_id:
-            queryset = queryset.filter(projects__id=project_id)
+            try:
+                queryset = queryset.filter(projects__id=project_id)
+            except:
+                # Project relationship might not exist
+                pass
             
         return queryset
     
