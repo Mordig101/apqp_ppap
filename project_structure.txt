@@ -60,28 +60,33 @@ apqp_manager/
 │   │   ├── ppap/               # ppap services
 │   │   │   ├── __init__.py
 │   │   │   ├── initialization.py     # initialization
-│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── functions.py           # define ppap possible action and services
 │   │   │   ├── api.py          # define all api here 
 │   │   ├── phase/               # phase services
 │   │   │   ├── __init__.py
 │   │   │   ├── initialization.py     # initialization
-│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── functions.py           # define phase possible action and services
 │   │   │   ├── api.py          # define all api here 
 │   │   ├── output/               # ppap services
 │   │   │   ├── __init__.py
 │   │   │   ├── initialization.py     # initialization
-│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── functions.py           # define output possible action and services
 │   │   │   ├── api.py          # define all api here
 │   │   ├── team/               # ppap services
 │   │   │   ├── __init__.py
 │   │   │   ├── initialization.py     # initialization
-│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── functions.py           # define team possible action and services
 │   │   │   ├── api.py          # define all api here
 │   │   ├── person/               # person services
 │   │   │   ├── __init__.py
 │   │   │   ├── initialization.py     # initialization
-│   │   │   ├── functions.py           # define project possible action and services
+│   │   │   ├── functions.py           # define person possible action and services
 │   │   │   ├── api.py          # define all api here
+│   │   ├── user/               # person services
+│   │   │   ├── __init__.py
+│   │   │   ├── initialization.py     # initialization
+│   │   │   ├── functions.py           # define user possible action and services
+│   │   │   ├── api.py  
 │   │   ├── contact/               # contact services
 │   │   │   ├── __init__.py
 │   │   │   ├── initialization.py     # initialization

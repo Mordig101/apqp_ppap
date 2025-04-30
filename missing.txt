@@ -1,6 +1,6 @@
 ## Team 
 
-### Team (Create, Edit, Delete, Get)
+### Team (Create, Edit, Delete, Get )
 
 #### Create Team Process
 
