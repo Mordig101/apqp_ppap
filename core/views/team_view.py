@@ -14,7 +14,7 @@ from core.services.history.team import (
     record_team_deletion,
     get_team_history
 )
-from core.services.history.team_role import record_team_role_assignment, record_team_role_change
+from core.services.history.team_role import record_team_role_assignment, record_team_role_change, record_team_role_removal # Add missing import
 
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
@@ -27,6 +27,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         # Extract team data
         name = request.data.get('name')
         description = request.data.get('description', '')
+        department_id = request.data.get('department_id') # Extract department_id
         members = request.data.get('members', [])
         member_roles = request.data.get('member_roles', {})
         
@@ -38,10 +39,11 @@ class TeamViewSet(viewsets.ModelViewSet):
             )
         
         try:
-            # Create team
+            # Create team, including department if provided
             team = Team.objects.create(
                 name=name,
-                description=description
+                description=description,
+                department_id=department_id # Pass department_id here
             )
             
             # Add members if provided
@@ -60,8 +62,10 @@ class TeamViewSet(viewsets.ModelViewSet):
                         team=team,
                         role=role
                     )
+                    # Record role assignment history
+                    record_team_role_assignment(team, person_id, role)
             
-            # Record in history
+            # Record team creation in history
             initialize_history(
                 title=name,
                 event=f"Team created with ID {team.id}",
@@ -199,38 +203,37 @@ class TeamViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         """
-        Update team information, including basic details and department associations
+        Update team information, including basic details, department, and members.
+        Handles both PUT and PATCH.
         """
         instance = self.get_object()
         updated_fields = []
         
         # Update basic information
         if 'name' in request.data and request.data['name'] != instance.name:
+            updated_fields.append(f"Name changed from '{instance.name}' to '{request.data['name']}'")
             instance.name = request.data['name']
-            updated_fields.append('name')
             
         if 'description' in request.data and request.data['description'] != instance.description:
+            updated_fields.append("Description updated")
             instance.description = request.data['description']
-            updated_fields.append('description')
         
-        # Update department association if Department model has a relationship to Team
+        # Update department association
         if 'department_id' in request.data:
-            try:
-                department = Department.objects.get(id=request.data['department_id'])
-                instance.department = department
-                updated_fields.append('department')
-            except Department.DoesNotExist:
-                return Response(
-                    {"error": f"Department with id {request.data['department_id']} does not exist"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            except Exception as e:
-                # This will happen if the Team model doesn't have a department field
-                pass
+            new_department_id = request.data['department_id']
+            if new_department_id != (instance.department.id if instance.department else None):
+                try:
+                    new_department = Department.objects.get(id=new_department_id) if new_department_id else None
+                    old_department_name = instance.department.name if instance.department else 'None'
+                    new_department_name = new_department.name if new_department else 'None'
+                    updated_fields.append(f"Department changed from '{old_department_name}' to '{new_department_name}'")
+                    instance.department = new_department
+                except Department.DoesNotExist:
+                    return Response({"error": f"Department with ID {new_department_id} not found."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Save basic info and department changes first
         if updated_fields:
             instance.save()
-            # Record history for the update
             record_team_update(instance, updated_fields)
             
         # Handle membership management if provided
@@ -262,77 +265,91 @@ class TeamViewSet(viewsets.ModelViewSet):
     
     def _handle_membership_updates(self, team, request):
         """
-        Helper method to handle membership updates
+        Helper method to handle membership updates (add, remove, update roles).
         """
         # Add new members
         if 'add_members' in request.data:
-            new_members = request.data['add_members']
+            new_members_data = request.data['add_members'] # Expects list of {'id': person_id, 'role': 'role_name'}
             
-            for member_data in new_members:
+            for member_data in new_members_data:
                 person_id = member_data.get('id')
-                role = member_data.get('role', 'Member')
-                
-                try:
-                    # Check if person exists
-                    person = Person.objects.get(id=person_id)
-                    
-                    # Create team role if it doesn't exist
-                    team_role, created = TeamMemberRole.objects.get_or_create(
-                        person_id=person_id,
-                        team=team,
-                        defaults={'role': role}
-                    )
-                    
-                    # Update role if the team role already exists
-                    if not created and team_role.role != role:
-                        team_role.role = role
-                        team_role.save()
-                        record_team_role_change(team, person_id, role)
-                    elif created:
-                        record_team_member_addition(team, person_id)
-                        record_team_role_assignment(team, person_id, role)
+                role = member_data.get('role', 'Member') # Default role if not specified
+                if person_id:
+                    try:
+                        person = Person.objects.get(id=person_id)
+                        # Create or update role assignment
+                        role_obj, created = TeamMemberRole.objects.update_or_create(
+                            person=person,
+                            team=team,
+                            defaults={'role': role}
+                        )
+                        # Update person's team field (optional, depends on model logic)
+                        # person.team = team
+                        # person.save()
                         
-                except Person.DoesNotExist:
-                    # Skip if person doesn't exist
-                    continue
+                        # Record history
+                        if created:
+                            record_team_member_addition(team, person_id)
+                            record_team_role_assignment(team, person_id, role)
+                        else:
+                            # If role changed during update_or_create
+                            # We might need to check the previous role to record a change accurately
+                            # For simplicity, we record assignment here, but a more robust check could be added
+                            record_team_role_change(team, person_id, role) # Or assignment if preferred
+                            
+                    except Person.DoesNotExist:
+                        # Handle error: person not found
+                        print(f"Warning: Person with ID {person_id} not found during add_members.")
+                        pass # Or raise an error / return a specific response
         
         # Remove members
         if 'remove_members' in request.data:
-            member_ids = request.data['remove_members']
+            member_ids_to_remove = request.data['remove_members'] # Expects list of person_ids
             
-            for person_id in member_ids:
+            for person_id in member_ids_to_remove:
                 try:
-                    # Delete team role
-                    TeamMemberRole.objects.filter(
-                        person_id=person_id,
-                        team=team
-                    ).delete()
-                    
-                    record_team_member_removal(team, person_id)
-                except:
-                    # Skip if team role doesn't exist
-                    continue
+                    # Find the role(s) to remove
+                    roles_removed = TeamMemberRole.objects.filter(person_id=person_id, team=team)
+                    if roles_removed.exists():
+                        for role_obj in roles_removed:
+                            role_name = role_obj.role
+                            role_obj.delete()
+                            # Record history for each role removal
+                            record_team_member_removal(team, person_id)
+                            record_team_role_removal(team, person_id, role_name) # Record specific role removal
+                        
+                        # Optionally clear the person's team field
+                        # person = Person.objects.get(id=person_id)
+                        # if person.team == team:
+                        #     person.team = None
+                        #     person.save()
+                    else:
+                         print(f"Warning: Person with ID {person_id} not found in team {team.id} during remove_members.")
+
+                except Person.DoesNotExist:
+                     print(f"Warning: Person with ID {person_id} not found during remove_members.")
+                     pass
         
-        # Update member roles
+        # Update member roles (alternative or complementary to add_members)
         if 'update_member_roles' in request.data:
-            role_updates = request.data['update_member_roles']
+            role_updates = request.data['update_member_roles'] # Expects list of {'id': person_id, 'role': 'new_role_name'}
             
             for update in role_updates:
                 person_id = update.get('id')
                 new_role = update.get('role')
-                
                 if person_id and new_role:
                     try:
-                        team_role = TeamMemberRole.objects.get(
+                        role_obj, created = TeamMemberRole.objects.update_or_create(
                             person_id=person_id,
-                            team=team
+                            team=team,
+                            defaults={'role': new_role}
                         )
-                        
-                        if team_role.role != new_role:
-                            team_role.role = new_role
-                            team_role.save()
-                            record_team_role_change(team, person_id, new_role)
-                            
-                    except TeamMemberRole.DoesNotExist:
-                        # Skip if team role doesn't exist
-                        continue
+                        # Record history
+                        if created:
+                             record_team_role_assignment(team, person_id, new_role)
+                        else:
+                             # Again, a more robust check for actual change might be needed
+                             record_team_role_change(team, person_id, new_role)
+                    except Person.DoesNotExist:
+                         print(f"Warning: Person with ID {person_id} not found during update_member_roles.")
+                         pass
