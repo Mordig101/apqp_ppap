@@ -1,79 +1,3 @@
-## Team 
-
-### Team (Create, Edit, Delete, Get)
-
-#### Create Team Process
-
-1. **Basic Information Collection**:
-
-1. Team name and description
-2. Generate unique team ID
-3. Generate historyId using format: `{generated_id}team`
-
-
-
-2. **Member Assignment**:
-
-1. Add existing persons to team
-3. Assign roles within team (optional)
-
-
-
-
-#### Edit Team Process
-
-1. **Basic Information Updates**:
-
-1. Modify team name and description
-2. Update department associations
-
-
-
-2. **Membership Management**: 
-
-1. Add new members to team
-2. Remove existing members
-3. Change member roles
-
-
-
-3. **History Tracking**:
-
-1. Record all changes in history table
-2. Track who made the changes and when
-
-
-
-
-
-#### Delete Team Process
-
-simple team delete
-
-
-
-
-
-#### Get Team Process
-
-1. **Team Listing**:
-
-1. List of all teams with member counts
-2. Filtering by department, project involvement
-3. Search by team name
-
-
-
-2. **Team Details View**:
-
-1. Complete team information
-2. Member listing with roles
-3. Project assignments
-4. Activity history
-
-
-
-
 
 ## Template 
 
@@ -241,7 +165,6 @@ simple team delete
 
 
 ## Person 
-
 ### Person (Create, Edit, Delete, Get)
 
 #### Create Person Process
@@ -494,25 +417,6 @@ simple team delete
 
 
 
-3. **Timeline View**:
-
-1. Visual representation of project timeline
-2. Milestone markers
-3. Status change indicators
-
-
-
-
-
-## Department 
-
-### Department (Create, Edit, Delete, Get)
-
-#### Create Department Process
-
-1. **Basic Information Collection**:
-
-1. Department name
 2. Generate unique department ID
 3. Generate historyId using format: `{generated_id}department`
 
@@ -559,40 +463,6 @@ simple team delete
 
 1. System verifies no active persons are assigned to the department
 2. If dependencies exist, system requires reassignment before deletion
-
-
-
-2. **Record Cleanup**:
-
-1. Remove department references from all related records
-2. Update history table with deletion event
-3. Handle associated teams appropriately
-
-
-
-
-
-#### Get Department Process
-
-1. **Department Listing**:
-
-1. List of all departments with member counts
-2. Filtering by various attributes
-3. Search by department name
-
-
-
-2. **Department Details View**:
-
-1. Complete department information
-2. Responsible person details
-3. Member listing
-4. Team associations
-5. Activity history
-
-
-
-
 
 ## Document 
 
