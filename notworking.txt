@@ -1,0 +1,51 @@
+APQP API Issues Tasklist:
+
+1. Department Model/Serializer Mismatch
+   - Issue: Field name 'description' is not valid for model Department
+   - Affected APIs: /api/projects/, /api/ppaps/, /api/outputs/, /api/teams/, /api/users/, /api/departments/, /api/persons/
+   - Root cause: DepartmentSerializer includes 'description' field but Department model doesn't have it
+   - Fix steps:
+    a. remove description from DepartmentSerializer fields
+
+2. Team QuerySet Warning
+   - Issue: Pagination may yield inconsistent results with unordered object_list
+   - Affected API: /api/teams/
+   - Fix steps:
+     a. Add default ordering in Team model Meta class
+     b. Add ordering in TeamViewSet
+     hint : choose the easyist to impilment and that will give something that will work and not cause a lot of troble
+
+3. Bad Request Issues
+   - Issue: Bad Request on POST /api/teams/
+   - Fix steps:
+     a. Review TeamSerializer validation
+     b. Check required fields in request payload
+     c. Add proper error handling in view
+
+Priority Order for Fixes:
+1. Fix Department model/serializer mismatch - this affects multiple APIs
+2. Fix Team pagination ordering
+3. Address Bad Request issues in Team API
+
+Technical Implementation Plan:
+1. Department Fix Options:
+   Option A - Add description field:
+   - Modify Department model to include description
+   - Create and run migration
+   - No serializer changes needed
+
+   Option B - Remove description field:
+   - Update DepartmentSerializer to remove description
+   - Update any dependent serializers
+   - No database changes needed
+
+2. Team Ordering Fix:
+   - Add ordering = ['field_name'] to Team model Meta class
+   - Update TeamViewSet if custom ordering is needed
+
+3. Team API Error Handling:
+   - Add proper validation in TeamSerializer
+   - Enhance error responses in TeamViewSet
+   - Document required fields in API documentation
+
+Note: Select Option A or B for Department fix based on business requirements - whether description field is needed for departments or not.

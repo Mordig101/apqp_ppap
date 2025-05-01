@@ -5,4 +5,4 @@ class DepartmentSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Department
-        fields = ['id', 'name', 'description']
+        fields = ['id', 'name', 'responsible', 'history_id']

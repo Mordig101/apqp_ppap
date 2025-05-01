@@ -2,6 +2,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
+from rest_framework.filters import OrderingFilter
 from django.db.models import Count, Q
 from core.models import Team, Person, TeamMemberRole, Department
 from core.serializers.team_serializer import TeamSerializer
@@ -19,23 +20,82 @@ from core.services.history.team_role import record_team_role_assignment, record_
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, OrderingFilter]
     search_fields = ['name']
+    ordering_fields = ['name', 'id']
+    ordering = ['name']  # default ordering
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # Extract team data
-        name = request.data.get('name')
-        description = request.data.get('description', '')
-        department_id = request.data.get('department_id') # Extract department_id
-        members = request.data.get('members', [])
-        member_roles = request.data.get('member_roles', {})
-        
-        # Validate required fields
-        if not name:
+        try:
+            # First validate the incoming data using the serializer
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(
+                    {"errors": serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Extract validated data
+            validated_data = serializer.validated_data
+            name = validated_data.get('name')
+            description = validated_data.get('description', '')
+            department = validated_data.get('department')
+            members = request.data.get('members', [])
+            member_roles = request.data.get('member_roles', {})
+            
+            # Create team with validated data
+            team = Team.objects.create(
+                name=name,
+                description=description,
+                department=department
+            )
+            
+            # Handle member assignments
+            for member_id in members:
+                try:
+                    person = Person.objects.get(pk=member_id)
+                    team.members.add(person)
+                    
+                    # Add member role if specified
+                    role_id = member_roles.get(str(member_id))
+                    if role_id:
+                        try:
+                            role = TeamMemberRole.objects.create(
+                                team=team,
+                                person=person,
+                                role_id=role_id
+                            )
+                            record_team_role_assignment(role)
+                        except Exception as e:
+                            return Response(
+                                {"error": f"Failed to assign role to member {member_id}: {str(e)}"},
+                                status=status.HTTP_400_BAD_REQUEST
+                            )
+                            
+                    record_team_member_addition(team, person)
+                except Person.DoesNotExist:
+                    return Response(
+                        {"error": f"Person with id {member_id} does not exist"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            
+            # Return the created team
+            serializer = self.get_serializer(team)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            # Rollback is automatic due to @transaction.atomic
             return Response(
-                {"error": "Missing required field: name"},
+                {"error": f"Failed to create team: {str(e)}"},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+            
+            # Create team with validated data
+            team = Team.objects.create(
+                name=name,
+                description=description,
+                department=department
             )
         
         try:

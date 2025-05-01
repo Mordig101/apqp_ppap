@@ -256,6 +256,120 @@
                         </div>
                     </div>
                     
+                    <!-- Department Endpoints -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="departmentHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#departmentCollapse" aria-expanded="false" aria-controls="departmentCollapse">
+                                Department
+                            </button>
+                        </h2>
+                        <div id="departmentCollapse" class="accordion-collapse collapse" aria-labelledby="departmentHeading">
+                            <div class="accordion-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/departments/" data-sample="list-departments">
+                                        <span class="badge badge-get method-badge">GET</span> List Departments
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/departments/1/" data-sample="get-department">
+                                        <span class="badge badge-get method-badge">GET</span> Get Department
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/departments/" data-sample="create-department">
+                                        <span class="badge badge-post method-badge">POST</span> Create Department
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/departments/1/" data-sample="update-department">
+                                        <span class="badge badge-put method-badge">PUT</span> Update Department
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="DELETE:/api/departments/1/" data-sample="delete-department">
+                                        <span class="badge badge-delete method-badge">DELETE</span> Delete Department
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Person Endpoints -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="personHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#personCollapse" aria-expanded="false" aria-controls="personCollapse">
+                                Person
+                            </button>
+                        </h2>
+                        <div id="personCollapse" class="accordion-collapse collapse" aria-labelledby="personHeading">
+                            <div class="accordion-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/persons/" data-sample="list-persons">
+                                        <span class="badge badge-get method-badge">GET</span> List Persons
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/persons/1/" data-sample="get-person">
+                                        <span class="badge badge-get method-badge">GET</span> Get Person
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/persons/" data-sample="create-person">
+                                        <span class="badge badge-post method-badge">POST</span> Create Person
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/persons/1/" data-sample="update-person">
+                                        <span class="badge badge-put method-badge">PUT</span> Update Person
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="DELETE:/api/persons/1/" data-sample="delete-person">
+                                        <span class="badge badge-delete method-badge">DELETE</span> Delete Person
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client Endpoints -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="clientHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#clientCollapse" aria-expanded="false" aria-controls="clientCollapse">
+                                Client
+                            </button>
+                        </h2>
+                        <div id="clientCollapse" class="accordion-collapse collapse" aria-labelledby="clientHeading">
+                            <div class="accordion-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/clients/" data-sample="list-clients">
+                                        <span class="badge badge-get method-badge">GET</span> List Clients
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/clients/1/" data-sample="get-client">
+                                        <span class="badge badge-get method-badge">GET</span> Get Client
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/clients/" data-sample="create-client">
+                                        <span class="badge badge-post method-badge">POST</span> Create Client
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/clients/1/" data-sample="update-client">
+                                        <span class="badge badge-put method-badge">PUT</span> Update Client
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="DELETE:/api/clients/1/" data-sample="delete-client">
+                                        <span class="badge badge-delete method-badge">DELETE</span> Delete Client
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History Endpoints -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="historyHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#historyCollapse" aria-expanded="false" aria-controls="historyCollapse">
+                                History
+                            </button>
+                        </h2>
+                        <div id="historyCollapse" class="accordion-collapse collapse" aria-labelledby="historyHeading">
+                            <div class="accordion-body p-0">
+                                <div class="list-group list-group-flush">
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/history/" data-sample="list-history">
+                                        <span class="badge badge-get method-badge">GET</span> List History
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/history/1/" data-sample="get-history">
+                                        <span class="badge badge-get method-badge">GET</span> Get History Entry
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/history/?entity_type=project&entity_id=1" data-sample="filter-history">
+                                        <span class="badge badge-get method-badge">GET</span> Filter History
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Custom API Endpoints -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="customApiHeading">
@@ -620,6 +734,122 @@
             },
             'get-timeline': {
                 endpoint: 'GET:/api/timeline/1/',
+                body: {}
+            },
+            
+            // Department samples
+            'list-departments': {
+                endpoint: 'GET:/api/departments/',
+                body: {}
+            },
+            'get-department': {
+                endpoint: 'GET:/api/departments/1/',
+                body: {}
+            },
+            'create-department': {
+                endpoint: 'POST:/api/departments/',
+                body: {
+                    name: 'Engineering',
+                    description: 'Engineering department',
+                    manager_id: 1
+                }
+            },
+            'update-department': {
+                endpoint: 'PUT:/api/departments/1/',
+                body: {
+                    name: 'R&D Department',
+                    description: 'Research and Development department',
+                    manager_id: 2
+                }
+            },
+            'delete-department': {
+                endpoint: 'DELETE:/api/departments/1/',
+                body: {}
+            },
+
+            // Person samples
+            'list-persons': {
+                endpoint: 'GET:/api/persons/',
+                body: {}
+            },
+            'get-person': {
+                endpoint: 'GET:/api/persons/1/',
+                body: {}
+            },
+            'create-person': {
+                endpoint: 'POST:/api/persons/',
+                body: {
+                    first_name: 'John',
+                    last_name: 'Doe',
+                    email: 'john.doe@example.com',
+                    phone: '+1234567890',
+                    department_id: 1,
+                    position: 'Engineer'
+                }
+            },
+            'update-person': {
+                endpoint: 'PUT:/api/persons/1/',
+                body: {
+                    first_name: 'John',
+                    last_name: 'Smith',
+                    email: 'john.smith@example.com',
+                    phone: '+1234567890',
+                    department_id: 2,
+                    position: 'Senior Engineer'
+                }
+            },
+            'delete-person': {
+                endpoint: 'DELETE:/api/persons/1/',
+                body: {}
+            },
+
+            // Client samples
+            'list-clients': {
+                endpoint: 'GET:/api/clients/',
+                body: {}
+            },
+            'get-client': {
+                endpoint: 'GET:/api/clients/1/',
+                body: {}
+            },
+            'create-client': {
+                endpoint: 'POST:/api/clients/',
+                body: {
+                    name: 'ABC Corporation',
+                    description: 'Manufacturing client',
+                    contact_person: 'Jane Smith',
+                    email: 'jane.smith@abccorp.com',
+                    phone: '+1234567890',
+                    address: '123 Business St, Industry City'
+                }
+            },
+            'update-client': {
+                endpoint: 'PUT:/api/clients/1/',
+                body: {
+                    name: 'ABC Corporation Updated',
+                    description: 'Updated client description',
+                    contact_person: 'John Smith',
+                    email: 'john.smith@abccorp.com',
+                    phone: '+1987654321',
+                    address: '456 Commerce Ave, Business City'
+                }
+            },
+            'delete-client': {
+                endpoint: 'DELETE:/api/clients/1/',
+                body: {}
+            },
+
+            // History samples
+            'list-history': {
+                endpoint: 'GET:/api/history/',
+                body: {}
+            },
+            'get-history': {
+                endpoint: 'GET:/api/history/1/',
+                body: {}
+            },
+            'filter-history': {
+                endpoint: 'GET:/api/history/?entity_type=project&entity_id=1',
                 body: {}
             }
         };

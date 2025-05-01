@@ -41,10 +41,11 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class DepartmentSerializer(serializers.ModelSerializer):
     members = PersonSerializer(many=True, read_only=True)
+    responsible_details = UserSerializer(source='responsible', read_only=True)
     
     class Meta:
         model = Department
-        fields = '__all__'
+        fields = ['id', 'name', 'responsible', 'responsible_details', 'history_id', 'members']
 
 class ClientSerializer(serializers.ModelSerializer):
     contact = ContactSerializer(read_only=True)
