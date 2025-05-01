@@ -6,6 +6,7 @@ from core.views import (
     HistoryViewSet
 )
 from core.views.department_view import DepartmentViewSet
+from core.views.person_view import PersonViewSet
 from core.views.api_view import (
     dashboard_view,
     user_permissions_view,
@@ -30,6 +31,7 @@ router.register(r'clients', ClientViewSet)
 router.register(r'teams', TeamViewSet)
 router.register(r'history', HistoryViewSet)
 router.register(r'departments', DepartmentViewSet)
+router.register(r'persons', PersonViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
