@@ -1,51 +1,37 @@
-APQP API Issues Tasklist:
+Task List for API Fixes:
 
-1. Department Model/Serializer Mismatch
-   - Issue: Field name 'description' is not valid for model Department
-   - Affected APIs: /api/projects/, /api/ppaps/, /api/outputs/, /api/teams/, /api/users/, /api/departments/, /api/persons/
-   - Root cause: DepartmentSerializer includes 'description' field but Department model doesn't have it
-   - Fix steps:
-    a. remove description from DepartmentSerializer fields
+1. Detail View Issues (404 Errors):
+   - Projects: GET/PUT/DELETE /api/projects/1/ not found
+   - PPAPs: GET/PUT /api/ppaps/1/ not found
+   - Phases: GET/PUT /api/phases/1/ not found
+   - Outputs: GET/PUT /api/outputs/1/ not found
+   - Teams: All detail operations (GET/PUT/PATCH/DELETE) /api/teams/1/ not found
+   - Departments: All detail operations /api/departments/1/ not found
+   - Persons: All detail operations /api/persons/1/ not found
+   - Clients: All detail operations /api/clients/1/ not found
+   - History: GET /api/history/1/ not found
 
-2. Team QuerySet Warning
-   - Issue: Pagination may yield inconsistent results with unordered object_list
-   - Affected API: /api/teams/
-   - Fix steps:
-     a. Add default ordering in Team model Meta class
-     b. Add ordering in TeamViewSet
-     hint : choose the easyist to impilment and that will give something that will work and not cause a lot of troble
+2. Foreign Key Constraint Failures (500 Errors):
+   - POST /api/projects/ - Foreign key constraint failed
+   - POST /api/documents/ - Foreign key constraint failed
+   - POST /api/users/ - Foreign key constraint failed
 
-3. Bad Request Issues
-   - Issue: Bad Request on POST /api/teams/
-   - Fix steps:
-     a. Review TeamSerializer validation
-     b. Check required fields in request payload
-     c. Add proper error handling in view
+3. Missing API Endpoints (404 Errors):
+   - POST /api/teams/1/assign_members/
+
+4. Bad Request Issues (400 Errors):
+   - POST /api/teams/ - Bad request
+   - POST /api/departments/ - Bad request
 
 Priority Order for Fixes:
-1. Fix Department model/serializer mismatch - this affects multiple APIs
-2. Fix Team pagination ordering
-3. Address Bad Request issues in Team API
+1. Fix Foreign Key Constraint Issues (Most Critical - causing 500 errors)
+2. Implement Missing API Endpoints (Important for core functionality)
+3. Add Detail View Support (Required for CRUD operations)
+4. Fix Bad Request Issues (Input validation/serialization issues)
 
-Technical Implementation Plan:
-1. Department Fix Options:
-   Option A - Add description field:
-   - Modify Department model to include description
-   - Create and run migration
-   - No serializer changes needed
-
-   Option B - Remove description field:
-   - Update DepartmentSerializer to remove description
-   - Update any dependent serializers
-   - No database changes needed
-
-2. Team Ordering Fix:
-   - Add ordering = ['field_name'] to Team model Meta class
-   - Update TeamViewSet if custom ordering is needed
-
-3. Team API Error Handling:
-   - Add proper validation in TeamSerializer
-   - Enhance error responses in TeamViewSet
-   - Document required fields in API documentation
-
-Note: Select Option A or B for Department fix based on business requirements - whether description field is needed for departments or not.
+Next Steps:
+1. Review models to ensure foreign key relationships are properly defined
+2. Add detail view methods in ViewSets
+3. Implement missing API endpoints from api_view.py
+4. Add proper validation in serializers for teams and departments
+5. Test each endpoint after fixing to ensure proper functionality

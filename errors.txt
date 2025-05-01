@@ -1,90 +1,27 @@
-list me all the problem that could make the api not working because when i test those api  : (venv) imad@imad:~/Projects/Python/APQP/apqp_ppap$ python manage.py runserver
+(venv) imad@imad:~/Projects/Python/APQP/apqp_ppap$ python manage.py runserver
 Watching for file changes with StatReloader
 Performing system checks...
 
 System check identified no issues (0 silenced).
-May 01, 2025 - 15:42:53
+May 01, 2025 - 16:16:45
 Django version 4.2.7, using settings 'apqp_manager.settings'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 
-[01/May/2025 15:42:56] "GET / HTTP/1.1" 200 51379
+[01/May/2025 16:16:47] "GET / HTTP/1.1" 200 51379
+[01/May/2025 16:16:52] "GET /api/projects/ HTTP/1.1" 200 293627
+Not Found: /api/projects/1/
+[01/May/2025 16:16:55] "GET /api/projects/1/ HTTP/1.1" 404 23
+[01/May/2025 16:17:03] "GET /api/projects/ HTTP/1.1" 200 293627
 Internal Server Error: /api/projects/
 Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 43, in list
-    return self.get_paginated_response(serializer.data)
-                                       ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:01] "GET /api/projects/ HTTP/1.1" 500 176164
-Internal Server Error: /api/ppaps/
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 313, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
     response = get_response(request)
@@ -108,70 +45,53 @@ Traceback (most recent call last):
   File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
     response = handler(request, *args, **kwargs)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 43, in list
-    return self.get_paginated_response(serializer.data)
-                                       ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:06] "GET /api/ppaps/ HTTP/1.1" 500 199100
-Internal Server Error: /api/outputs/
+  File "/usr/lib/python3.11/contextlib.py", line 80, in inner
+    with self._recreate_cm():
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/transaction.py", line 263, in __exit__
+    connection.commit()
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 337, in commit
+    self._commit()
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 312, in _commit
+    with debug_transaction(self, "COMMIT"), self.wrap_database_errors:
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 313, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: FOREIGN KEY constraint failed
+[01/May/2025 16:17:07] "POST /api/projects/ HTTP/1.1" 500 126939
+Not Found: /api/projects/1/
+[01/May/2025 16:17:12] "PUT /api/projects/1/ HTTP/1.1" 404 23
+Not Found: /api/projects/1/
+[01/May/2025 16:17:15] "DELETE /api/projects/1/ HTTP/1.1" 404 23
+[01/May/2025 16:17:17] "GET /api/ppaps/ HTTP/1.1" 200 281718
+Not Found: /api/ppaps/1/
+[01/May/2025 16:17:19] "GET /api/ppaps/1/ HTTP/1.1" 404 23
+Not Found: /api/ppaps/1/
+[01/May/2025 16:17:21] "PUT /api/ppaps/1/ HTTP/1.1" 404 23
+[01/May/2025 16:17:24] "GET /api/phases/ HTTP/1.1" 200 94576
+Not Found: /api/phases/1/
+[01/May/2025 16:17:26] "GET /api/phases/1/ HTTP/1.1" 404 23
+Not Found: /api/phases/1/
+[01/May/2025 16:17:28] "PUT /api/phases/1/ HTTP/1.1" 404 23
+[01/May/2025 16:17:31] "GET /api/outputs/ HTTP/1.1" 200 13695
+Not Found: /api/outputs/1/
+[01/May/2025 16:17:34] "GET /api/outputs/1/ HTTP/1.1" 404 23
+Not Found: /api/outputs/1/
+[01/May/2025 16:17:36] "PUT /api/outputs/1/ HTTP/1.1" 404 23
+[01/May/2025 16:17:39] "GET /api/documents/ HTTP/1.1" 200 8878
+Internal Server Error: /api/documents/
+Traceback (most recent call last):
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 313, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
     response = get_response(request)
@@ -195,193 +115,56 @@ Traceback (most recent call last):
   File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
     response = handler(request, *args, **kwargs)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 43, in list
-    return self.get_paginated_response(serializer.data)
-                                       ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:11] "GET /api/outputs/ HTTP/1.1" 500 168843
-/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/pagination.py:200: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'core.models.organization.team.Team'> QuerySet.
-  paginator = self.django_paginator_class(queryset, page_size)
-Internal Server Error: /api/teams/
-Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/apqp_ppap/core/views/team_view.py", line 190, in list
-    data = serializer.data
-           ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:15] "GET /api/teams/ HTTP/1.1" 500 169522 also : Bad Request: /api/teams/
-[01/May/2025 15:43:33] "POST /api/teams/ HTTP/1.1" 400 73
+  File "/usr/lib/python3.11/contextlib.py", line 80, in inner
+    with self._recreate_cm():
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/transaction.py", line 263, in __exit__
+    connection.commit()
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 337, in commit
+    self._commit()
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 312, in _commit
+    with debug_transaction(self, "COMMIT"), self.wrap_database_errors:
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 313, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: FOREIGN KEY constraint failed
+[01/May/2025 16:17:47] "POST /api/documents/ HTTP/1.1" 500 126986
+[01/May/2025 16:17:54] "GET /api/teams/ HTTP/1.1" 200 8578
+[01/May/2025 16:17:55] "GET /api/teams/?search=dev HTTP/1.1" 200 52
+[01/May/2025 16:17:58] "GET /api/teams/?department_id=1 HTTP/1.1" 200 52
+[01/May/2025 16:18:01] "GET /api/teams/?project_id=1 HTTP/1.1" 200 52
+Not Found: /api/teams/1/
+[01/May/2025 16:18:04] "GET /api/teams/1/ HTTP/1.1" 404 23
+Bad Request: /api/teams/
+[01/May/2025 16:18:07] "POST /api/teams/ HTTP/1.1" 400 53
+Not Found: /api/teams/1/
+[01/May/2025 16:18:11] "PUT /api/teams/1/ HTTP/1.1" 404 23
+Not Found: /api/teams/1/
+[01/May/2025 16:18:13] "PUT /api/teams/1/ HTTP/1.1" 404 23
+Not Found: /api/teams/1/
+[01/May/2025 16:18:17] "PATCH /api/teams/1/ HTTP/1.1" 404 23
+Not Found: /api/teams/1/
+[01/May/2025 16:18:18] "PATCH /api/teams/1/ HTTP/1.1" 404 23
+Not Found: /api/teams/1/
+[01/May/2025 16:18:21] "DELETE /api/teams/1/ HTTP/1.1" 404 23
+Not Found: /api/teams/1/
+[01/May/2025 16:18:22] "DELETE /api/teams/1/ HTTP/1.1" 404 23
+Not Found: /api/teams/1/assign_members/
+[01/May/2025 16:18:25] "POST /api/teams/1/assign_members/ HTTP/1.1" 404 23
+[01/May/2025 16:18:31] "GET /api/users/ HTTP/1.1" 200 5047
 Internal Server Error: /api/users/
 Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 43, in list
-    return self.get_paginated_response(serializer.data)
-                                       ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:38] "GET /api/users/ HTTP/1.1" 500 161488
-Internal Server Error: /api/departments/
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 313, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
   File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
     response = get_response(request)
@@ -405,321 +188,60 @@ Traceback (most recent call last):
   File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
     response = handler(request, *args, **kwargs)
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 43, in list
-    return self.get_paginated_response(serializer.data)
-                                       ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:44] "GET /api/departments/ HTTP/1.1" 500 150513
-Internal Server Error: /api/departments/1/
-Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 56, in retrieve
-    return Response(serializer.data)
-                    ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 555, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:47] "GET /api/departments/1/ HTTP/1.1" 500 141670
-Internal Server Error: /api/departments/
-Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 18, in create
-    serializer.is_valid(raise_exception=True)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 227, in is_valid
-    self._validated_data = self.run_validation(self.initial_data)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 426, in run_validation
-    value = self.to_internal_value(data)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 479, in to_internal_value
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 362, in _writable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:49] "POST /api/departments/ HTTP/1.1" 500 142373
-Internal Server Error: /api/departments/1/
-Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 67, in update
-    serializer.is_valid(raise_exception=True)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 227, in is_valid
-    self._validated_data = self.run_validation(self.initial_data)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 426, in run_validation
-    value = self.to_internal_value(data)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 479, in to_internal_value
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 362, in _writable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:51] "PUT /api/departments/1/ HTTP/1.1" 500 143261
-Internal Server Error: /api/persons/
-Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 43, in list
-    return self.get_paginated_response(serializer.data)
-                                       ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 768, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 686, in to_representation
-    return [
-           ^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 687, in <listcomp>
-    self.child.to_representation(item) for item in iterable
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:56] "GET /api/persons/ HTTP/1.1" 500 156744
-Internal Server Error: /api/persons/1/
-Traceback (most recent call last):
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/exception.py", line 55, in inner
-    response = get_response(request)
-               ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/core/handlers/base.py", line 197, in _get_response
-    response = wrapped_callback(request, *callback_args, **callback_kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/views/decorators/csrf.py", line 56, in wrapper_view
-    return view_func(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/viewsets.py", line 125, in view
-    return self.dispatch(request, *args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 509, in dispatch
-    response = self.handle_exception(exc)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 469, in handle_exception
-    self.raise_uncaught_exception(exc)
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 480, in raise_uncaught_exception
-    raise exc
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/views.py", line 506, in dispatch
-    response = handler(request, *args, **kwargs)
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/mixins.py", line 56, in retrieve
-    return Response(serializer.data)
-                    ^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 555, in data
-    ret = super().data
-          ^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 253, in data
-    self._data = self.to_representation(self.instance)
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 522, in to_representation
-    ret[field.field_name] = field.to_representation(attribute)
-                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 507, in to_representation
-    for field in fields:
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 368, in _readable_fields
-    for field in self.fields.values():
-                 ^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/functional.py", line 57, in __get__
-    res = instance.__dict__[self.name] = self.func(instance)
-                                         ^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 356, in fields
-    for key, value in self.get_fields().items():
-                      ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1076, in get_fields
-    field_class, field_kwargs = self.build_field(
-                                ^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1222, in build_field
-    return self.build_unknown_field(field_name, model_class)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/rest_framework/serializers.py", line 1340, in build_unknown_field
-    raise ImproperlyConfigured(
-django.core.exceptions.ImproperlyConfigured: Field name `description` is not valid for model `Department`.
-[01/May/2025 15:43:58] "GET /api/persons/1/ HTTP/1.1" 500 146899
-[01/May/2025 15:44:00] "POST /api/persons/ HTTP/1.1" 201 197
- and also the old api are not working to work smartly genearet a tasklist whe th max details you could have in the notworking.txt 
+  File "/usr/lib/python3.11/contextlib.py", line 80, in inner
+    with self._recreate_cm():
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/transaction.py", line 263, in __exit__
+    connection.commit()
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/utils/asyncio.py", line 26, in inner
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 337, in commit
+    self._commit()
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 312, in _commit
+    with debug_transaction(self, "COMMIT"), self.wrap_database_errors:
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/home/imad/Projects/Python/APQP/venv/lib/python3.11/site-packages/django/db/backends/base/base.py", line 313, in _commit
+    return self.connection.commit()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: FOREIGN KEY constraint failed
+[01/May/2025 16:18:35] "POST /api/users/ HTTP/1.1" 500 126798
+[01/May/2025 16:18:41] "GET /api/departments/ HTTP/1.1" 200 575
+Not Found: /api/departments/1/
+[01/May/2025 16:18:45] "GET /api/departments/1/ HTTP/1.1" 404 23
+Bad Request: /api/departments/
+[01/May/2025 16:18:49] "POST /api/departments/ HTTP/1.1" 400 42
+Not Found: /api/departments/1/
+[01/May/2025 16:18:52] "PUT /api/departments/1/ HTTP/1.1" 404 23
+Not Found: /api/departments/1/
+[01/May/2025 16:18:56] "DELETE /api/departments/1/ HTTP/1.1" 404 23
+[01/May/2025 16:19:11] "GET /api/persons/ HTTP/1.1" 200 3348
+Not Found: /api/persons/1/
+[01/May/2025 16:19:13] "GET /api/persons/1/ HTTP/1.1" 404 23
+[01/May/2025 16:19:14] "POST /api/persons/ HTTP/1.1" 201 197
+Not Found: /api/persons/1/
+[01/May/2025 16:19:16] "PUT /api/persons/1/ HTTP/1.1" 404 23
+Not Found: /api/persons/1/
+[01/May/2025 16:19:18] "DELETE /api/persons/1/ HTTP/1.1" 404 23
+[01/May/2025 16:19:21] "GET /api/clients/ HTTP/1.1" 200 1641
+Not Found: /api/clients/1/
+[01/May/2025 16:19:23] "GET /api/clients/1/ HTTP/1.1" 404 23
+[01/May/2025 16:19:25] "POST /api/clients/ HTTP/1.1" 201 206
+Not Found: /api/clients/1/
+[01/May/2025 16:19:28] "PUT /api/clients/1/ HTTP/1.1" 404 23
+Not Found: /api/clients/1/
+[01/May/2025 16:19:30] "DELETE /api/clients/1/ HTTP/1.1" 404 23
+[01/May/2025 16:19:33] "GET /api/history/ HTTP/1.1" 200 2968
+Not Found: /api/history/1/
+[01/May/2025 16:19:36] "GET /api/history/1/ HTTP/1.1" 404 23
+[01/May/2025 16:19:38] "GET /api/history/?entity_type=project&entity_id=1 HTTP/1.1" 200 3000
+Not Found: /api/dashboard/
+[01/May/2025 16:19:41] "GET /api/dashboard/ HTTP/1.1" 404 19392
+Not Found: /api/user-permissions/
+[01/May/2025 16:19:49] "GET /api/user-permissions/ HTTP/1.1" 404 19413
+Not Found: /api/change-status/
+[01/May/2025 16:19:51] "POST /api/change-status/ HTTP/1.1" 404 19405
+Not Found: /api/assign-permission/
+[01/May/2025 16:19:53] "POST /api/assign-permission/ HTTP/1.1" 404 19417
+Not Found: /api/assign-phase-responsible/
+[01/May/2025 16:19:54] "POST /api/assign-phase-responsible/ HTTP/1.1" 404 19438
