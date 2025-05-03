@@ -3,11 +3,12 @@ import uuid
 
 class Person(models.Model):
     id = models.AutoField(primary_key=True)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     contact_id = models.CharField(max_length=100, unique=True)
-    team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, related_name='members')
-    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, related_name='members')
+    # Change from ForeignKey to ManyToManyField to allow a person to be in multiple teams
+    teams = models.ManyToManyField('Team', related_name='members', blank=True)
+    department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='persons')
     is_user = models.BooleanField(default=False)
     history_id = models.CharField(max_length=100, unique=True)
 
@@ -24,7 +25,7 @@ class Person(models.Model):
             self.history_id = f"{uuid.uuid4().hex}person"
         
         # Generate contact_id if not provided
-        if not self.contact_id and self.id:
-            self.contact_id = f"{self.id}person"
+        if not self.contact_id:
+            self.contact_id = f"{uuid.uuid4().hex}person"
         
         super().save(*args, **kwargs)

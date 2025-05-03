@@ -3,10 +3,26 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from core.models import History, Project
 from core.serializers.history_serializer import HistorySerializer
+import json
 
 class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = History.objects.all()
     serializer_class = HistorySerializer
+    
+    @action(detail=True, methods=['get'])
+    def events(self, request, pk=None):
+        """Get all events for a specific history record"""
+        history = self.get_object()
+        
+        try:
+            events = json.loads(history.event)
+            return Response(events)
+        except (json.JSONDecodeError, TypeError):
+            return Response([{
+                "type": "unknown",
+                "details": history.event or "No details available",
+                "timestamp": history.created_at.isoformat() if history.created_at else None
+            }])
     
     @action(detail=False, methods=['get'])
     def project(self, request, project_id=None):

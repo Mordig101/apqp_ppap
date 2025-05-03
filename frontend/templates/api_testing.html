@@ -1,578 +1,538 @@
-{% extends "base.html" %}
-
-{% block title %}API Testing - APQP/PPAP Manager{% endblock %}
-
-{% block extra_css %}
-<style>
-    .response-container {
-        max-height: 400px;
-        overflow-y: auto;
-        background-color: #f8f9fa;
-        border-radius: 0.25rem;
-    }
-    pre {
-        white-space: pre-wrap;
-        padding: 1rem;
-        margin-bottom: 0;
-    }
-    .nav-tabs .nav-link {
-        cursor: pointer;
-    }
-    .endpoint-group {
-        margin-bottom: 1rem;
-    }
-    .endpoint-item {
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        transition: background-color 0.2s;
-    }
-    .endpoint-item:hover {
-        background-color: #f8f9fa;
-    }
-    .endpoint-item.active {
-        background-color: #e9ecef;
-    }
-    .method-badge {
-        width: 60px;
-        display: inline-block;
-        text-align: center;
-    }
-    .badge-get {
-        background-color: #28a745;
-    }
-    .badge-post {
-        background-color: #007bff;
-    }
-    .badge-put {
-        background-color: #fd7e14;
-    }
-    .badge-delete {
-        background-color: #dc3545;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<h1 class="mb-4">APQP/PPAP Manager API Testing Interface</h1>
-
-<div class="row">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Endpoints</h5>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .api-section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .api-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .endpoint-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .endpoint-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .endpoint-item:hover {
+            background-color: #e0e0e0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .response-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>APQP Manager API Testing</h1>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab(event, 'project-tab')">Project</div>
+            <div class="tab" onclick="openTab(event, 'ppap-tab')">PPAP</div>
+            <div class="tab" onclick="openTab(event, 'phase-tab')">Phase</div>
+            <div class="tab" onclick="openTab(event, 'output-tab')">Output</div>
+            <div class="tab" onclick="openTab(event, 'document-tab')">Document</div>
+            <div class="tab" onclick="openTab(event, 'user-tab')">User</div>
+            <div class="tab" onclick="openTab(event, 'client-tab')">Client</div>
+            <div class="tab" onclick="openTab(event, 'team-tab')">Team</div>
+            <div class="tab" onclick="openTab(event, 'person-tab')">Person</div>
+            <div class="tab" onclick="openTab(event, 'contact-tab')">Contact</div>
+            <div class="tab" onclick="openTab(event, 'department-tab')">Department</div>
+            <div class="tab" onclick="openTab(event, 'template-tab')">Template</div>
+            <div class="tab" onclick="openTab(event, 'todo-tab')">Todo</div>
+            <div class="tab" onclick="openTab(event, 'history-tab')">History</div>
+        </div>
+        
+        <!-- Project Tab -->
+        <div id="project-tab" class="tab-content active">
+            <div class="api-section">
+                <div class="api-title">Project Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/projects/')">GET /api/projects/ - List all projects</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/projects/{id}/')">GET /api/projects/{id}/ - Get project details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/projects/', {'name': 'New Project', 'description': 'Project description', 'client_id': 1})">POST /api/projects/ - Create new project</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/projects/{id}/', {'name': 'Updated Project', 'description': 'Updated description'})">PUT /api/projects/{id}/ - Update project</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/projects/{id}/')">DELETE /api/projects/{id}/ - Delete project</li>
+                </ul>
             </div>
-            <div class="card-body p-0">
-                <div class="accordion" id="endpointAccordion">
-                    <!-- Project Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="projectHeading">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#projectCollapse" aria-expanded="true" aria-controls="projectCollapse">
-                                Project
-                            </button>
-                        </h2>
-                        <div id="projectCollapse" class="accordion-collapse collapse show" aria-labelledby="projectHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/projects/" data-sample="list-projects">
-                                        <span class="badge badge-get method-badge">GET</span> List Projects
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/projects/1/" data-sample="get-project">
-                                        <span class="badge badge-get method-badge">GET</span> Get Project
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/projects/" data-sample="create-project">
-                                        <span class="badge badge-post method-badge">POST</span> Create Project
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/projects/1/" data-sample="update-project">
-                                        <span class="badge badge-put method-badge">PUT</span> Update Project
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="DELETE:/api/projects/1/" data-sample="delete-project">
-                                        <span class="badge badge-delete method-badge">DELETE</span> Delete Project
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- PPAP Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="ppapHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ppapCollapse" aria-expanded="false" aria-controls="ppapCollapse">
-                                PPAP
-                            </button>
-                        </h2>
-                        <div id="ppapCollapse" class="accordion-collapse collapse" aria-labelledby="ppapHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/ppaps/" data-sample="list-ppaps">
-                                        <span class="badge badge-get method-badge">GET</span> List PPAPs
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/ppaps/1/" data-sample="get-ppap">
-                                        <span class="badge badge-get method-badge">GET</span> Get PPAP
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/ppaps/1/" data-sample="update-ppap">
-                                        <span class="badge badge-put method-badge">PUT</span> Update PPAP
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Phase Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="phaseHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#phaseCollapse" aria-expanded="false" aria-controls="phaseCollapse">
-                                Phase
-                            </button>
-                        </h2>
-                        <div id="phaseCollapse" class="accordion-collapse collapse" aria-labelledby="phaseHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/phases/" data-sample="list-phases">
-                                        <span class="badge badge-get method-badge">GET</span> List Phases
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/phases/1/" data-sample="get-phase">
-                                        <span class="badge badge-get method-badge">GET</span> Get Phase
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/phases/1/" data-sample="update-phase">
-                                        <span class="badge badge-put method-badge">PUT</span> Update Phase
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Output Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="outputHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#outputCollapse" aria-expanded="false" aria-controls="outputCollapse">
-                                Output
-                            </button>
-                        </h2>
-                        <div id="outputCollapse" class="accordion-collapse collapse" aria-labelledby="outputHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/outputs/" data-sample="list-outputs">
-                                        <span class="badge badge-get method-badge">GET</span> List Outputs
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/outputs/1/" data-sample="get-output">
-                                        <span class="badge badge-get method-badge">GET</span> Get Output
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="PUT:/api/outputs/1/" data-sample="update-output">
-                                        <span class="badge badge-put method-badge">PUT</span> Update Output
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Document Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="documentHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#documentCollapse" aria-expanded="false" aria-controls="documentCollapse">
-                                Document
-                            </button>
-                        </h2>
-                        <div id="documentCollapse" class="accordion-collapse collapse" aria-labelledby="documentHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/documents/" data-sample="list-documents">
-                                        <span class="badge badge-get method-badge">GET</span> List Documents
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/documents/" data-sample="upload-document">
-                                        <span class="badge badge-post method-badge">POST</span> Upload Document
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- User Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="userHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#userCollapse" aria-expanded="false" aria-controls="userCollapse">
-                                User
-                            </button>
-                        </h2>
-                        <div id="userCollapse" class="accordion-collapse collapse" aria-labelledby="userHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/users/" data-sample="list-users">
-                                        <span class="badge badge-get method-badge">GET</span> List Users
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/users/" data-sample="create-user">
-                                        <span class="badge badge-post method-badge">POST</span> Create User
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Custom API Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="customApiHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#customApiCollapse" aria-expanded="false" aria-controls="customApiCollapse">
-                                Custom APIs
-                            </button>
-                        </h2>
-                        <div id="customApiCollapse" class="accordion-collapse collapse" aria-labelledby="customApiHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/dashboard/" data-sample="dashboard">
-                                        <span class="badge badge-get method-badge">GET</span> Dashboard
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/user-permissions/" data-sample="user-permissions">
-                                        <span class="badge badge-get method-badge">GET</span> User Permissions
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/change-status/" data-sample="change-status">
-                                        <span class="badge badge-post method-badge">POST</span> Change Status
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/assign-permission/" data-sample="assign-permission">
-                                        <span class="badge badge-post method-badge">POST</span> Assign Permission
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/assign-phase-responsible/" data-sample="assign-phase-responsible">
-                                        <span class="badge badge-post method-badge">POST</span> Assign Phase Responsible
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Timeline Endpoints -->
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="timelineHeading">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#timelineCollapse" aria-expanded="false" aria-controls="timelineCollapse">
-                                Timeline
-                            </button>
-                        </h2>
-                        <div id="timelineCollapse" class="accordion-collapse collapse" aria-labelledby="timelineHeading">
-                            <div class="accordion-body p-0">
-                                <div class="list-group list-group-flush">
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/set-project-timeline/" data-sample="set-project-timeline">
-                                        <span class="badge badge-post method-badge">POST</span> Set Project Timeline
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="POST:/api/set-phase-timeline/" data-sample="set-phase-timeline">
-                                        <span class="badge badge-post method-badge">POST</span> Set Phase Timeline
-                                    </a>
-                                    <a href="#" class="list-group-item list-group-item-action endpoint-item" data-endpoint="GET:/api/timeline/1/" data-sample="get-timeline">
-                                        <span class="badge badge-get method-badge">GET</span> Get Timeline
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+        
+        <!-- PPAP Tab -->
+        <div id="ppap-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">PPAP Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppaps/')">GET /api/ppaps/ - List all PPAPs</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppaps/{id}/')">GET /api/ppaps/{id}/ - Get PPAP details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppaps/', {'project_id': 1, 'level': 3})">POST /api/ppaps/ - Create new PPAP</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/ppaps/{id}/', {'level': 4})">PUT /api/ppaps/{id}/ - Update PPAP</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/ppaps/{id}/')">DELETE /api/ppaps/{id}/ - Delete PPAP</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Phase Tab -->
+        <div id="phase-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Phase Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phases/')">GET /api/phases/ - List all phases</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phases/{id}/')">GET /api/phases/{id}/ - Get phase details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phases/', {'ppap_id': 1, 'name': 'New Phase', 'order': 1})">POST /api/phases/ - Create new phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/phases/{id}/', {'name': 'Updated Phase', 'status': 'in_progress'})">PUT /api/phases/{id}/ - Update phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/phases/{id}/')">DELETE /api/phases/{id}/ - Delete phase</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Output Tab -->
+        <div id="output-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Output Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/outputs/')">GET /api/outputs/ - List all outputs</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/outputs/{id}/')">GET /api/outputs/{id}/ - Get output details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/outputs/', {'phase_id': 1, 'name': 'New Output', 'ppap_element_id': 1})">POST /api/outputs/ - Create new output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/outputs/{id}/', {'name': 'Updated Output', 'status': 'in_progress'})">PUT /api/outputs/{id}/ - Update output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/outputs/{id}/')">DELETE /api/outputs/{id}/ - Delete output</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Document Tab -->
+        <div id="document-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Document Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/documents/')">GET /api/documents/ - List all documents</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/documents/{id}/')">GET /api/documents/{id}/ - Get document details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/documents/', {'name': 'New Document', 'file_path': '/path/to/file.pdf', 'output_id': 1})">POST /api/documents/ - Create new document</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/documents/{id}/', {'name': 'Updated Document', 'status': 'review'})">PUT /api/documents/{id}/ - Update document</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/documents/{id}/')">DELETE /api/documents/{id}/ - Delete document</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- User Tab -->
+        <div id="user-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">User Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/users/')">GET /api/users/ - List all users</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/users/{id}/')">GET /api/users/{id}/ - Get user details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/users/', {'username': 'newuser', 'password': 'password123', 'person_id': 1})">POST /api/users/ - Create new user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/users/{id}/', {'username': 'updateduser'})">PUT /api/users/{id}/ - Update user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/users/{id}/')">DELETE /api/users/{id}/ - Delete user</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Client Tab -->
+        <div id="client-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Client Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/clients/')">GET /api/clients/ - List all clients</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/clients/{id}/')">GET /api/clients/{id}/ - Get client details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/clients/', {'name': 'New Client', 'address': '123 Main St', 'code': {'fiscal': 'ABC123'}})">POST /api/clients/ - Create new client</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/clients/{id}/', {'name': 'Updated Client'})">PUT /api/clients/{id}/ - Update client</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/clients/{id}/')">DELETE /api/clients/{id}/ - Delete client</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Team Tab -->
+        <div id="team-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Team Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/teams/')">GET /api/teams/ - List all teams</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/teams/{id}/')">GET /api/teams/{id}/ - Get team details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/teams/', {'name': 'New Team', 'description': 'Team description'})">POST /api/teams/ - Create new team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/teams/{id}/', {'name': 'Updated Team'})">PUT /api/teams/{id}/ - Update team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/teams/{id}/')">DELETE /api/teams/{id}/ - Delete team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/teams/{id}/add_member/', {'person_id': 1})">POST /api/teams/{id}/add_member/ - Add member to team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/teams/{id}/remove_member/', {'person_id': 1})">POST /api/teams/{id}/remove_member/ - Remove member from team</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Person Tab -->
+        <div id="person-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Person Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/')">GET /api/persons/ - List all persons</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/{id}/')">GET /api/persons/{id}/ - Get person details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/', {'first_name': 'John', 'last_name': 'Doe'})">POST /api/persons/ - Create new person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/persons/{id}/', {'first_name': 'Jane'})">PUT /api/persons/{id}/ - Update person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/persons/{id}/')">DELETE /api/persons/{id}/ - Delete person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/{id}/add_to_team/', {'team_id': 1})">POST /api/persons/{id}/add_to_team/ - Add person to team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/{id}/remove_from_team/', {'team_id': 1})">POST /api/persons/{id}/remove_from_team/ - Remove person from team</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Department Tab -->
+        <div id="department-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Department Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/')">GET /api/departments/ - List all departments</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/{id}/')">GET /api/departments/{id}/ - Get department details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/departments/', {'name': 'New Department'})">POST /api/departments/ - Create new department</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/departments/{id}/', {'name': 'Updated Department'})">PUT /api/departments/{id}/ - Update department</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/departments/{id}/')">DELETE /api/departments/{id}/ - Delete department</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/{id}/members/')">GET /api/departments/{id}/members/ - Get department members</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/{id}/teams/')">GET /api/departments/{id}/teams/ - Get department teams</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Contact Tab -->
+        <div id="contact-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Contact Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/')">GET /api/contacts/ - List all contacts</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/{id}/')">GET /api/contacts/{id}/ - Get contact details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/contacts/', {'address': '123 Main St', 'email': 'contact@example.com', 'phone': '555-1234', 'type': 'person'})">POST /api/contacts/ - Create new contact</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/contacts/{id}/', {'email': 'updated@example.com'})">PUT /api/contacts/{id}/ - Update contact</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/contacts/{id}/')">DELETE /api/contacts/{id}/ - Delete contact</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/by_type/?type=person')">GET /api/contacts/by_type/ - Get contacts by type</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Template Tab -->
+        <div id="template-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Template Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phase-templates/')">GET /api/phase-templates/ - List all phase templates</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phase-templates/{id}/')">GET /api/phase-templates/{id}/ - Get phase template details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phase-templates/', {'name': 'New Phase Template', 'description': 'Template description', 'order': 1})">POST /api/phase-templates/ - Create new phase template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/phase-templates/{id}/', {'name': 'Updated Phase Template'})">PUT /api/phase-templates/{id}/ - Update phase template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/phase-templates/{id}/')">DELETE /api/phase-templates/{id}/ - Delete phase template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phase-templates/by_level/?level=3')">GET /api/phase-templates/by_level/ - Get templates by PPAP level</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phase-templates/{id}/clone/', {'name': 'Cloned Template'})">POST /api/phase-templates/{id}/clone/ - Clone template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/')">GET /api/output-templates/ - List all output templates</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/{id}/')">GET /api/output-templates/{id}/ - Get output template details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/output-templates/', {'name': 'New Output Template', 'phase_id': 1, 'ppap_element_id': 1})">POST /api/output-templates/ - Create new output template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/output-templates/{id}/', {'name': 'Updated Output Template'})">PUT /api/output-templates/{id}/ - Update output template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/output-templates/{id}/')">DELETE /api/output-templates/{id}/ - Delete output template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/by_phase/?phase_id=1')">GET /api/output-templates/by_phase/ - Get templates by phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/by_element/?element_id=1')">GET /api/output-templates/by_element/ - Get templates by PPAP element</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/output-templates/{id}/clone/', {'name': 'Cloned Template'})">POST /api/output-templates/{id}/clone/ - Clone template</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Todo Tab -->
+        <div id="todo-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Todo Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/')">GET /api/todos/ - List all todos</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/{id}/')">GET /api/todos/{id}/ - Get todo details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/', {'title': 'New Todo', 'description': 'Todo description', 'assigned_to_id': 1})">POST /api/todos/ - Create new todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/todos/{id}/', {'title': 'Updated Todo'})">PUT /api/todos/{id}/ - Update todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/todos/{id}/')">DELETE /api/todos/{id}/ - Delete todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/{id}/change_status/', {'status': 'completed'})">POST /api/todos/{id}/change_status/ - Change todo status</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/{id}/reassign/', {'person_id': 2})">POST /api/todos/{id}/reassign/ - Reassign todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_person/?person_id=1')">GET /api/todos/by_person/ - Get todos by person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_output/?output_id=1')">GET /api/todos/by_output/ - Get todos by output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_status/?status=pending')">GET /api/todos/by_status/ - Get todos by status</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- History Tab -->
+        <div id="history-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">History Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/')">GET /api/history/ - List all history records</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/{id}/')">GET /api/history/{id}/ - Get history record details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/project/?project_id=1')">GET /api/history/project/ - Get project history</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- API Request Form -->
+        <div class="api-section">
+            <div class="api-title">API Request</div>
+            <div class="form-group">
+                <label for="method">Method</label>
+                <select id="method" class="form-control">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="endpoint">Endpoint</label>
+                <input type="text" id="endpoint" class="form-control" placeholder="/api/...">
+            </div>
+            <div class="form-group">
+                <label for="request-body">Request Body (JSON)</label>
+                <textarea id="request-body" class="form-control" rows="5" placeholder='{"key": "value"}'></textarea>
+            </div>
+            <button id="send-request" class="btn">Send Request</button>
+        </div>
+        
+        <!-- API Response -->
+        <div class="api-section">
+            <div class="api-title">API Response</div>
+            <div id="response-container" class="response-container">
+                <pre id="response-data">No response yet</pre>
             </div>
         </div>
     </div>
     
-    <div class="col-md-9">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">API Request</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label" for="endpoint">Endpoint</label>
-                    <input type="text" id="endpoint" class="form-control" readonly>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label" for="request-body">Request Body (JSON)</label>
-                    <textarea id="request-body" rows="10" class="form-control"></textarea>
-                </div>
-                
-                <button id="send-request" class="btn btn-primary">
-                    Send Request
-                </button>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">API Response</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label" for="status">Status</label>
-                    <div id="status" class="form-control">-</div>
-                </div>
-                
-                <div>
-                    <label class="form-label" for="response-body">Response Body</label>
-                    <div class="response-container">
-                        <pre id="response-body">-</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const endpointItems = document.querySelectorAll('.endpoint-item');
-        const endpointInput = document.getElementById('endpoint');
-        const requestBodyTextarea = document.getElementById('request-body');
-        const sendRequestButton = document.getElementById('send-request');
-        const statusDiv = document.getElementById('status');
-        const responseBodyPre = document.getElementById('response-body');
-        
-        // Sample request bodies
-        const sampleRequests = {
-            // Project samples
-            'list-projects': {
-                endpoint: 'GET:/api/projects/',
-                body: {}
-            },
-            'get-project': {
-                endpoint: 'GET:/api/projects/1/',
-                body: {}
-            },
-            'create-project': {
-                endpoint: 'POST:/api/projects/',
-                body: {
-                    name: 'New Test Project',
-                    description: 'This is a test project created via API',
-                    client_id: 1,
-                    team_id: 1,
-                    ppap_level: 3
-                }
-            },
-            'update-project': {
-                endpoint: 'PUT:/api/projects/1/',
-                body: {
-                    name: 'Updated Project Name',
-                    description: 'Updated project description',
-                    status: 'In Progress'
-                }
-            },
-            'delete-project': {
-                endpoint: 'DELETE:/api/projects/1/',
-                body: {}
-            },
+    <script src="/static/js/auth.js"></script>
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabContent, tabLinks;
             
-            // PPAP samples
-            'list-ppaps': {
-                endpoint: 'GET:/api/ppaps/',
-                body: {}
-            },
-            'get-ppap': {
-                endpoint: 'GET:/api/ppaps/1/',
-                body: {}
-            },
-            'update-ppap': {
-                endpoint: 'PUT:/api/ppaps/1/',
-                body: {
-                    level: 4,
-                    status: 'In Progress',
-                    review: 'Updated PPAP review comments'
-                }
-            },
-            
-            // Phase samples
-            'list-phases': {
-                endpoint: 'GET:/api/phases/',
-                body: {}
-            },
-            'get-phase': {
-                endpoint: 'GET:/api/phases/1/',
-                body: {}
-            },
-            'update-phase': {
-                endpoint: 'PUT:/api/phases/1/',
-                body: {
-                    status: 'In Progress',
-                    responsible_id: 2
-                }
-            },
-            
-            // Output samples
-            'list-outputs': {
-                endpoint: 'GET:/api/outputs/',
-                body: {}
-            },
-            'get-output': {
-                endpoint: 'GET:/api/outputs/1/',
-                body: {}
-            },
-            'update-output': {
-                endpoint: 'PUT:/api/outputs/1/',
-                body: {
-                    description: 'Updated output description',
-                    status: 'In Progress',
-                    user_id: 2
-                }
-            },
-            
-            // Document samples
-            'list-documents': {
-                endpoint: 'GET:/api/documents/',
-                body: {}
-            },
-            'upload-document': {
-                endpoint: 'POST:/api/documents/',
-                body: {
-                    name: 'Test Document',
-                    description: 'This is a test document',
-                    output_id: 1,
-                    file_type: 'pdf',
-                    file_content: 'base64encodedcontent...'
-                }
-            },
-            
-            // User samples
-            'list-users': {
-                endpoint: 'GET:/api/users/',
-                body: {}
-            },
-            'create-user': {
-                endpoint: 'POST:/api/users/',
-                body: {
-                    username: 'newuser',
-                    password: 'securepassword123',
-                    first_name: 'New',
-                    last_name: 'User',
-                    email: 'newuser@example.com',
-                    department_id: 1,
-                    team_id: 1,
-                    authorization_id: 2
-                }
-            },
-            
-            // Custom API samples
-            'dashboard': {
-                endpoint: 'GET:/api/dashboard/',
-                body: {}
-            },
-            'user-permissions': {
-                endpoint: 'GET:/api/user-permissions/',
-                body: {}
-            },
-            'change-status': {
-                endpoint: 'POST:/api/change-status/',
-                body: {
-                    entity_type: 'output',
-                    entity_id: 1,
-                    status: 'In Progress'
-                }
-            },
-            'assign-permission': {
-                endpoint: 'POST:/api/assign-permission/',
-                body: {
-                    user_id: 2,
-                    output_id: 1,
-                    permission_type: 'e'
-                }
-            },
-            'assign-phase-responsible': {
-                endpoint: 'POST:/api/assign-phase-responsible/',
-                body: {
-                    phase_id: 1,
-                    responsible_id: 2
-                }
-            },
-            
-            // Timeline samples
-            'set-project-timeline': {
-                endpoint: 'POST:/api/set-project-timeline/',
-                body: {
-                    project_id: 1,
-                    deadline: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
-                }
-            },
-            'set-phase-timeline': {
-                endpoint: 'POST:/api/set-phase-timeline/',
-                body: {
-                    phase_id: 1,
-                    deadline: new Date(new Date().getTime() + 15 * 24 * 60 * 60 * 1000).toISOString()
-                }
-            },
-            'get-timeline': {
-                endpoint: 'GET:/api/timeline/1/',
-                body: {}
-            }
-        };
-        
-        // Set active endpoint
-        endpointItems.forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Remove active class from all items
-                endpointItems.forEach(i => i.classList.remove('active'));
-                
-                // Add active class to clicked item
-                this.classList.add('active');
-                
-                // Get endpoint and sample
-                const endpoint = this.getAttribute('data-endpoint');
-                const sample = this.getAttribute('data-sample');
-                
-                // Set endpoint input
-                endpointInput.value = endpoint;
-                
-                // Set request body
-                if (sample && sampleRequests[sample]) {
-                    requestBodyTextarea.value = JSON.stringify(sampleRequests[sample].body, null, 2);
-                } else {
-                    requestBodyTextarea.value = '';
-                }
-            });
-        });
-        
-        // Send request
-        sendRequestButton.addEventListener('click', function() {
-            const selectedEndpoint = endpointInput.value;
-            if (!selectedEndpoint) {
-                alert('Please select an endpoint');
-                return;
+            // Hide all tab content
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].className = tabContent[i].className.replace(" active", "");
             }
             
-            const [method, url] = selectedEndpoint.split(':');
+            // Remove active class from all tabs
+            tabLinks = document.getElementsByClassName("tab");
+            for (i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+            }
             
-            // Clear previous response
-            statusDiv.textContent = 'Loading...';
-            responseBodyPre.textContent = '';
+            // Show the current tab and add active class
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+        
+        function loadEndpoint(method, endpoint, body = null) {
+            document.getElementById('method').value = method;
             
-            // Prepare request
-            const options = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
+            // Replace {id} with a placeholder
+            let formattedEndpoint = endpoint.replace(/{id}/g, '1');
+            document.getElementById('endpoint').value = formattedEndpoint;
+            
+            if (body) {
+                document.getElementById('request-body').value = JSON.stringify(body, null, 2);
+            } else {
+                document.getElementById('request-body').value = '';
+            }
+        }
+        
+        document.getElementById('send-request').addEventListener('click', function() {
+            const method = document.getElementById('method').value;
+            const endpoint = document.getElementById('endpoint').value;
+            let body = null;
+            
+            if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
+                const bodyText = document.getElementById('request-body').value;
+                if (bodyText) {
+                    try {
+                        body = JSON.parse(bodyText);
+                    } catch (e) {
+                        alert('Invalid JSON in request body');
+                        return;
+                    }
                 }
+            }
+            
+            // Get the CSRF token
+            const csrftoken = getCookie('csrftoken');
+            
+            // Set up headers
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
             };
             
-            // Add request body for POST, PUT methods
-            if (method === 'POST' || method === 'PUT') {
-                try {
-                    const requestBody = JSON.parse(requestBodyTextarea.value);
-                    options.body = JSON.stringify(requestBody);
-                } catch (e) {
-                    alert('Invalid JSON in request body');
-                    statusDiv.textContent = 'Error: Invalid JSON';
-                    return;
-                }
+            // Prepare the request options
+            const options = {
+                method: method,
+                headers: headers,
+                credentials: 'include' // THIS IS CRITICAL - Include cookies with request
+            };
+            
+            if (body && (method === 'POST' || method === 'PUT' || method === 'DELETE')) {
+                options.body = JSON.stringify(body);
             }
             
-            // Send request
-            fetch(url, options)
+            // Make the request
+            fetch(endpoint, options)
                 .then(response => {
-                    statusDiv.textContent = `${response.status} ${response.statusText}`;
-                    return response.json().catch(() => {
-                        return { message: 'No content or invalid JSON response' };
+                    // Get the status code
+                    const status = response.status;
+                    
+                    // Try to parse as JSON, but fall back to text if that fails
+                    return response.text().then(text => {
+                        try {
+                            return { status, data: JSON.parse(text) };
+                        } catch (e) {
+                            return { status, data: text };
+                        }
                     });
                 })
-                .then(data => {
-                    responseBodyPre.textContent = JSON.stringify(data, null, 2);
+                .then(({ status, data }) => {
+                    // Format the response
+                    const formattedResponse = `Status: ${status}\n\n${typeof data === 'object' ? JSON.stringify(data, null, 2) : data}`;
+                    
+                    // Display the response
+                    document.getElementById('response-data').textContent = formattedResponse;
                 })
                 .catch(error => {
-                    statusDiv.textContent = 'Error';
-                    responseBodyPre.textContent = error.toString();
+                    document.getElementById('response-data').textContent = `Error: ${error.message}`;
                 });
+        });
+        
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Try to get user permissions to check if logged in
+                await makeApiRequest('GET', '/api/user-permissions/');
+                console.log('User is logged in');
+            } catch (error) {
+                console.error('Not logged in:', error);
+                // Don't redirect, just show a login form
+                document.querySelector('.container').innerHTML = `
+                    <h1>APQP Manager API Testing</h1>
+                    <div class="api-section">
+                        <div class="api-title">Login</div>
+                        <form id="login-form" class="login-form">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn">Login</button>
+                        </form>
+                    </div>
+                `;
+                
+                // Add login form handler
+                document.getElementById('login-form').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    
+                    // First get a fresh CSRF token
+                    await refreshCsrfToken();
+                    const csrftoken = getCookie('csrftoken');
+                    
+                    const formData = new FormData();
+                    formData.append('username', username);
+                    formData.append('password', password);
+                    formData.append('csrfmiddlewaretoken', csrftoken);
+                    
+                    try {
+                        const response = await fetch('/login/', {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'include',
+                            headers: {
+                                'X-CSRFToken': csrftoken
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            // Check if we were redirected to login page (failed login)
+                            if (response.url.includes('login')) {
+                                throw new Error('Invalid credentials');
+                            }
+                            
+                            // Successfully logged in, reload the page
+                            window.location.reload();
+                        } else {
+                            alert('Login failed');
+                        }
+                    } catch (error) {
+                        console.error('Login error:', error);
+                        alert('Login failed: ' + error.message);
+                    }
+                });
+            }
         });
         
         // Helper function to get CSRF token
@@ -590,6 +550,61 @@
             }
             return cookieValue;
         }
-    });
-</script>
-{% endblock %}
+        
+        // Add this function to add CSRF token to the end of your script
+        function refreshCsrfToken() {
+            // Make a GET request to your CSRF token endpoint
+            return fetch('/api/csrf-token/', {
+                method: 'GET',
+                credentials: 'include'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to refresh CSRF token');
+                }
+                console.log('CSRF token refreshed successfully');
+                return getCookie('csrftoken');
+            })
+            .catch(error => {
+                console.error('Error refreshing CSRF token:', error);
+                return null;
+            });
+        }
+        
+        // Add this helper to make logged-in API requests
+        async function makeApiRequest(method, endpoint, data = null) {
+            // Get fresh CSRF token for non-GET requests
+            if (method !== 'GET' && method !== 'HEAD') {
+                await refreshCsrfToken();
+            }
+            
+            const csrftoken = getCookie('csrftoken');
+            
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                credentials: 'include'
+            };
+            
+            if (data && (method === 'POST' || method === 'PUT' || method === 'DELETE')) {
+                options.body = JSON.stringify(data);
+            }
+            
+            const response = await fetch(endpoint, options);
+            
+            // For status codes that are not ok
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ 
+                    error: `HTTP error ${response.status}` 
+                }));
+                throw new Error(errorData.error || `HTTP error ${response.status}`);
+            }
+            
+            return await response.json().catch(() => ({}));
+        }
+    </script>
+</body>
+</html>

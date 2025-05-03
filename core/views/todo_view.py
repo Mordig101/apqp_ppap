@@ -1,0 +1,214 @@
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.db import transaction
+from core.models import Todo, Person, Output
+from core.serializers.todo_serializer import TodoSerializer
+from core.services.todo.api import (
+    initialize_todo,
+    update_todo,
+    delete_todo,
+    get_todos_by_person,
+    get_todos_by_output,
+    get_todos_by_status,
+    change_todo_status,
+    reassign_todo
+)
+
+class TodoViewSet(viewsets.ModelViewSet):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
+    
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        # Extract todo data
+        title = request.data.get('title')
+        description = request.data.get('description', '')
+        assigned_to_id = request.data.get('assigned_to_id')
+        output_id = request.data.get('output_id')
+        priority = request.data.get('priority', 'medium')
+        
+        # Validate required fields
+        if not all([title, assigned_to_id]):
+            return Response(
+                {"error": "Missing required fields: title, assigned_to_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            # Get assigned person
+            assigned_to = Person.objects.get(id=assigned_to_id)
+            
+            # Get output if provided
+            output = None
+            if output_id:
+                try:
+                    output = Output.objects.get(id=output_id)
+                except Output.DoesNotExist:
+                    return Response(
+                        {"error": f"Output with ID {output_id} not found"},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+            
+            # Create todo
+            todo = initialize_todo(
+                title=title,
+                description=description,
+                assigned_to=assigned_to,
+                output=output,
+                priority=priority
+            )
+            
+            serializer = self.get_serializer(todo)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Person.DoesNotExist:
+            return Response(
+                {"error": f"Person with ID {assigned_to_id} not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        todo = self.get_object()
+        
+        # Extract todo data
+        title = request.data.get('title')
+        description = request.data.get('description')
+        priority = request.data.get('priority')
+        
+        try:
+            # Update todo
+            updated_todo = update_todo(
+                todo=todo,
+                title=title,
+                description=description,
+                priority=priority
+            )
+            
+            serializer = self.get_serializer(updated_todo)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=True, methods=['post'])
+    def change_status(self, request, pk=None):
+        todo = self.get_object()
+        status_value = request.data.get('status')
+        
+        if not status_value:
+            return Response(
+                {"error": "Missing required field: status"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        valid_statuses = ['pending', 'in_progress', 'completed', 'cancelled']
+        if status_value not in valid_statuses:
+            return Response(
+                {"error": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            updated_todo = change_todo_status(todo, status_value)
+            serializer = self.get_serializer(updated_todo)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=True, methods=['post'])
+    def reassign(self, request, pk=None):
+        todo = self.get_object()
+        person_id = request.data.get('person_id')
+        
+        if not person_id:
+            return Response(
+                {"error": "Missing required field: person_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            person = Person.objects.get(id=person_id)
+            updated_todo = reassign_todo(todo, person)
+            serializer = self.get_serializer(updated_todo)
+            return Response(serializer.data)
+        except Person.DoesNotExist:
+            return Response(
+                {"error": f"Person with ID {person_id} not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=False, methods=['get'])
+    def by_person(self, request):
+        person_id = request.query_params.get('person_id')
+        
+        if not person_id:
+            return Response(
+                {"error": "Missing required parameter: person_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            todos = get_todos_by_person(person_id)
+            serializer = self.get_serializer(todos, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=False, methods=['get'])
+    def by_output(self, request):
+        output_id = request.query_params.get('output_id')
+        
+        if not output_id:
+            return Response(
+                {"error": "Missing required parameter: output_id"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            todos = get_todos_by_output(output_id)
+            serializer = self.get_serializer(todos, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    
+    @action(detail=False, methods=['get'])
+    def by_status(self, request):
+        status_value = request.query_params.get('status')
+        
+        if not status_value:
+            return Response(
+                {"error": "Missing required parameter: status"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            todos = get_todos_by_status(status_value)
+            serializer = self.get_serializer(todos, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )

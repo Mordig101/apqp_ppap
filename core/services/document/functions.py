@@ -1,119 +1,147 @@
-# Define document possible actions and services
-from django.db import transaction
-from core.models import Document
-from core.services.history.api import (
+from core.models import Document, Output, History
+from core.services.history.document import (
+    record_document_creation,
     record_document_update,
     record_document_version_change,
     record_document_status_change,
     record_document_deletion
 )
+import os
+import shutil
+from django.utils import timezone
 
-@transaction.atomic
-def update_document(document_id, data):
+def get_document_by_id(document_id):
     """
-    Update document details
+    Get document by ID
+    
+    Args:
+        document_id (int): Document ID
+    
+    Returns:
+        Document: The document object
     """
-    document = Document.objects.get(id=document_id)
+    return Document.objects.get(id=document_id)
+
+def get_documents_by_output(output_id):
+    """
+    Get documents for a specific output
     
-    # Check for version change
-    old_version = document.version
-    new_version = data.get('version', old_version)
+    Args:
+        output_id (int): Output ID
     
-    # Check for status change
-    old_status = document.status
-    new_status = data.get('status', old_status)
+    Returns:
+        QuerySet: Documents for the specified output
+    """
+    return Document.objects.filter(output_id=output_id)
+
+def get_documents_by_status(status):
+    """
+    Get documents with a specific status
     
-    # Update fields
+    Args:
+        status (str): Document status
+    
+    Returns:
+        QuerySet: Documents with the specified status
+    """
+    return Document.objects.filter(status=status)
+
+def update_document(document, name=None, status=None):
+    """
+    Update document information
+    
+    Args:
+        document: Document object
+        name (str): New name (if None, keep existing)
+        status (str): New status (if None, keep existing)
+    
+    Returns:
+        Document: The updated document
+    """
     updated_fields = []
-    for field, value in data.items():
-        if hasattr(document, field) and getattr(document, field) != value:
-            setattr(document, field, value)
-            updated_fields.append(field)
+    
+    if name is not None and name != document.name:
+        document.name = name
+        updated_fields.append('name')
+    
+    if status is not None and status != document.status:
+        old_status = document.status
+        document.status = status
+        updated_fields.append('status')
+        record_document_status_change(document, old_status, status)
     
     if updated_fields:
         document.save()
         record_document_update(document, updated_fields)
     
-    # Handle version change
-    if 'version' in updated_fields and old_version != new_version:
-        record_document_version_change(document, old_version, new_version)
+    return document
+
+def update_document_file(document, new_file_path):
+    """
+    Update document file (create new version)
     
-    # Handle status change
-    if 'status' in updated_fields and old_status != new_status:
-        record_document_status_change(document, old_status, new_status)
+    Args:
+        document: Document object
+        new_file_path: Path to the new file
+    
+    Returns:
+        Document: The updated document
+    """
+    old_version = document.version
+    new_version = old_version + 1
+    
+    # Extract file name from path
+    file_name = os.path.basename(new_file_path)
+    
+    document.file_path = new_file_path
+    document.file_name = file_name
+    document.version = new_version
+    document.save()
+    
+    record_document_version_change(document, old_version, new_version)
     
     return document
 
-@transaction.atomic
-def delete_document(document_id):
+def delete_document(document, delete_file=True):
     """
     Delete a document
-    """
-    document = Document.objects.get(id=document_id)
     
-    # Record deletion in history
+    Args:
+        document: Document object
+        delete_file (bool): Whether to delete the physical file
+    """
     record_document_deletion(document)
     
-    # Delete document
+    # Delete physical file if requested
+    if delete_file and document.file_path and os.path.exists(document.file_path):
+        if os.path.isfile(document.file_path):
+            os.remove(document.file_path)
+        else:
+            shutil.rmtree(document.file_path)
+    
     document.delete()
-    
-    return True
 
-def get_document_details(document_id):
+def change_document_output(document, output):
     """
-    Get comprehensive document details
-    """
-    document = Document.objects.get(id=document_id)
+    Change the output associated with a document
     
-    # Get history records
-    from core.services.history.document import get_document_history
-    history_records = get_document_history(document_id)
+    Args:
+        document: Document object
+        output: Output object
     
-    # Compile document details
-    document_details = {
-        'id': document.id,
-        'name': document.name,
-        'description': document.description,
-        'file_path': document.file_path,
-        'file_type': document.file_type,
-        'file_size': document.file_size,
-        'uploader': {
-            'id': document.uploader.id,
-            'username': document.uploader.username
-        } if document.uploader else None,
-        'output': {
-            'id': document.output.id,
-            'name': document.output.template.name
-        },
-        'version': document.version,
-        'status': document.status,
-        'history': [
-            {
-                'event': record.event,
-                'created_at': record.created_at
-            } for record in history_records
-        ]
-    }
+    Returns:
+        Document: The updated document
+    """
+    old_output_id = document.output.id if document.output else None
     
-    return document_details
-
-def get_documents_by_output(output_id):
-    """
-    Get all documents for an output
-    """
-    documents = Document.objects.filter(output_id=output_id).order_by('-id')
-    return documents
-
-def get_documents_by_uploader(uploader_id):
-    """
-    Get all documents uploaded by a user
-    """
-    documents = Document.objects.filter(uploader_id=uploader_id).order_by('-id')
-    return documents
-
-def get_documents_by_status(status):
-    """
-    Get all documents with a specific status
-    """
-    documents = Document.objects.filter(status=status).order_by('-id')
-    return documents
+    document.output = output
+    document.save()
+    
+    History.objects.create(
+        id=document.history_id,
+        title=document.name,
+        event=f"Document moved from output ID {old_output_id} to output ID {output.id}",
+        table_name='document',
+    )
+    
+    return document

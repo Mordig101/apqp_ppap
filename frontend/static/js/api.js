@@ -99,6 +99,10 @@ class ApiClient {
     return this.request("GET", `/api/ppaps/${id}/`)
   }
 
+  async createPPAP(data) {
+    return this.request("POST", "/api/ppaps/", data)
+  }
+
   async updatePPAP(id, data) {
     return this.request("PUT", `/api/ppaps/${id}/`, data)
   }
@@ -110,6 +114,10 @@ class ApiClient {
 
   async getPhase(id) {
     return this.request("GET", `/api/phases/${id}/`)
+  }
+
+  async createPhase(data) {
+    return this.request("POST", "/api/phases/", data)
   }
 
   async updatePhase(id, data) {
@@ -125,6 +133,10 @@ class ApiClient {
     return this.request("GET", `/api/outputs/${id}/`)
   }
 
+  async createOutput(data) {
+    return this.request("POST", "/api/outputs/", data)
+  }
+
   async updateOutput(id, data) {
     return this.request("PUT", `/api/outputs/${id}/`, data)
   }
@@ -134,55 +146,175 @@ class ApiClient {
     return this.request("GET", "/api/documents/")
   }
 
-  async uploadDocument(data) {
+  async getDocument(id) {
+    return this.request("GET", `/api/documents/${id}/`)
+  }
+
+  async createDocument(data) {
     return this.request("POST", "/api/documents/", data)
   }
 
-  // User API methods
-  async getUsers() {
-    return this.request("GET", "/api/users/")
+  async updateDocument(id, data) {
+    return this.request("PUT", `/api/documents/${id}/`, data)
   }
 
-  async createUser(data) {
-    return this.request("POST", "/api/users/", data)
+  // Team API methods
+  async getTeams() {
+    return this.request("GET", "/api/teams/")
   }
 
-  // Custom API methods
-  async getDashboard() {
-    return this.request("GET", "/api/dashboard/")
+  async getTeam(id) {
+    return this.request("GET", `/api/teams/${id}/`)
+  }
+
+  async createTeam(data) {
+    return this.request("POST", "/api/teams/", data)
+  }
+
+  async updateTeam(id, data) {
+    return this.request("PUT", `/api/teams/${id}/`, data)
+  }
+
+  async addTeamMember(teamId, personId) {
+    return this.request("POST", `/api/teams/${teamId}/add_member/`, { person_id: personId })
+  }
+
+  async removeTeamMember(teamId, personId) {
+    return this.request("POST", `/api/teams/${teamId}/remove_member/`, { person_id: personId })
+  }
+
+  // Person API methods
+  async getPersons() {
+    return this.request("GET", "/api/persons/")
+  }
+
+  async getPerson(id) {
+    return this.request("GET", `/api/persons/${id}/`)
+  }
+
+  async createPerson(data) {
+    return this.request("POST", "/api/persons/", data)
+  }
+
+  async updatePerson(id, data) {
+    return this.request("PUT", `/api/persons/${id}/`, data)
+  }
+
+  // Department API methods
+  async getDepartments() {
+    return this.request("GET", "/api/departments/")
+  }
+
+  async getDepartment(id) {
+    return this.request("GET", `/api/departments/${id}/`)
+  }
+
+  async createDepartment(data) {
+    return this.request("POST", "/api/departments/", data)
+  }
+
+  async updateDepartment(id, data) {
+    return this.request("PUT", `/api/departments/${id}/`, data)
+  }
+
+  async getDepartmentMembers(id) {
+    return this.request("GET", `/api/departments/${id}/members/`)
+  }
+
+  // Contact API methods
+  async getContacts() {
+    return this.request("GET", "/api/contacts/")
+  }
+
+  async getContact(id) {
+    return this.request("GET", `/api/contacts/${id}/`)
+  }
+
+  async createContact(data) {
+    return this.request("POST", "/api/contacts/", data)
+  }
+
+  async updateContact(id, data) {
+    return this.request("PUT", `/api/contacts/${id}/`, data)
+  }
+
+  // Client API methods
+  async getClients() {
+    return this.request("GET", "/api/clients/")
+  }
+
+  async getClient(id) {
+    return this.request("GET", `/api/clients/${id}/`)
+  }
+
+  async createClient(data) {
+    return this.request("POST", "/api/clients/", data)
+  }
+
+  async updateClient(id, data) {
+    return this.request("PUT", `/api/clients/${id}/`, data)
+  }
+
+  // Template API methods
+  async getPhaseTemplates() {
+    return this.request("GET", "/api/phase-templates/")
+  }
+
+  async getPhaseTemplate(id) {
+    return this.request("GET", `/api/phase-templates/${id}/`)
+  }
+
+  async createPhaseTemplate(data) {
+    return this.request("POST", "/api/phase-templates/", data)
+  }
+
+  async getOutputTemplates() {
+    return this.request("GET", "/api/output-templates/")
+  }
+
+  async getOutputTemplate(id) {
+    return this.request("GET", `/api/output-templates/${id}/`)
+  }
+
+  async createOutputTemplate(data) {
+    return this.request("POST", "/api/output-templates/", data)
+  }
+
+  // Todo API methods
+  async getTodos() {
+    return this.request("GET", "/api/todos/")
+  }
+
+  async getTodo(id) {
+    return this.request("GET", `/api/todos/${id}/`)
+  }
+
+  async createTodo(data) {
+    return this.request("POST", "/api/todos/", data)
+  }
+
+  async updateTodo(id, data) {
+    return this.request("PUT", `/api/todos/${id}/`, data)
+  }
+
+  // History API methods
+  async getHistory() {
+    return this.request("GET", "/api/history/")
+  }
+
+  async getProjectHistory(projectId) {
+    return this.request("GET", `/api/history/project/?project_id=${projectId}`)
   }
 
   async getUserPermissions() {
-    return this.request("GET", "/api/user-permissions/")
-  }
-
-  async changeStatus(data) {
-    return this.request("POST", "/api/change-status/", data)
-  }
-
-  async assignPermission(data) {
-    return this.request("POST", "/api/assign-permission/", data)
-  }
-
-  async assignPhaseResponsible(data) {
-    return this.request("POST", "/api/assign-phase-responsible/", data)
-  }
-
-  // Timeline API methods
-  async setProjectTimeline(data) {
-    return this.request("POST", "/api/set-project-timeline/", data)
-  }
-
-  async setPhaseTimeline(data) {
-    return this.request("POST", "/api/set-phase-timeline/", data)
-  }
-
-  async getTimeline(projectId) {
-    return this.request("GET", `/api/timeline/${projectId}/`)
+    return this.request("GET", `/api/user_permissions/`)
   }
 }
 
-// Create global API client instance
+// Create and export API client instance
 const api = new ApiClient()
+
+// Make API client available globally
+window.api = api
 
 export { api }

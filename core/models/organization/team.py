@@ -6,6 +6,7 @@ class Team(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     history_id = models.CharField(max_length=100, unique=True)
+    # Remove the related_name='persons' since we're now using ManyToManyField in Person model
 
     class Meta:
         db_table = 'team'

@@ -8,7 +8,7 @@ class Project(models.Model):
     client = models.ForeignKey('Client', on_delete=models.CASCADE, related_name='projects')
     team = models.ForeignKey('Team', on_delete=models.CASCADE, related_name='projects')
     status = models.CharField(max_length=50, default='Planning')
-    ppap = models.OneToOneField('PPAP', on_delete=models.CASCADE, related_name='related_project', null=True, blank=True)
+    ppap = models.OneToOneField('PPAP', on_delete=models.SET_NULL, null=True, blank=True, related_name='associated_project')
     history_id = models.CharField(max_length=100, unique=True)
 
     class Meta:

@@ -128,3 +128,19 @@ AUTH_USER_MODEL = 'core.User'
 # Authentication settings
 LOGIN_REDIRECT_URL = '/'  # Redirect to homepage after login
 LOGOUT_REDIRECT_URL = '/login/'
+
+# CSRF settings
+CSRF_COOKIE_SAMESITE = 'Lax'  # Use 'None' for cross-origin requests
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1', 'http://localhost:8000']  # Add your frontend origin
+SESSION_COOKIE_SAMESITE = 'Lax'  # Use 'None' for cross-origin requests
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+
+# CORS settings (if you're using django-cors-headers)
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    # Add other origins as needed
+]
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']

@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from core.services import (
@@ -188,3 +188,15 @@ def assign_phase_responsible_view(request):
             {"error": str(e)},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(['GET'])
+@permission_classes([AllowAny])  # Allow access without authentication for testing
+def test_api(request):
+    """
+    Test API endpoint to verify the API is working
+    """
+    return Response({
+        "status": "success",
+        "message": "API is working correctly",
+        "version": "1.0"
+    })

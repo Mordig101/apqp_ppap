@@ -1,42 +1,66 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from core.views import (
-    ProjectViewSet, PPAPViewSet, PhaseViewSet, OutputViewSet,
-    DocumentViewSet, UserViewSet, ClientViewSet, TeamViewSet,
-    HistoryViewSet
-)
-from core.views.api_view import (
-    dashboard_view,
-    user_permissions_view,
-    change_status_view,
-    assign_permission_view,
-    assign_phase_responsible_view
-)
-from core.views.timeline_view import (
-    set_project_timeline_view,
-    set_phase_timeline_view,
-    get_timeline_overview_view
+    project_view, ppap_view, phase_view, output_view, document_view, 
+    user_view, client_view, team_view, history_view, api_view, timeline_view,
+    person_view, contact_view, department_view, template_view, todo_view
 )
 
+# Set up the REST API router
 router = DefaultRouter()
-router.register(r'projects', ProjectViewSet)
-router.register(r'ppaps', PPAPViewSet)
-router.register(r'phases', PhaseViewSet)
-router.register(r'outputs', OutputViewSet)
-router.register(r'documents', DocumentViewSet)
-router.register(r'users', UserViewSet)
-router.register(r'clients', ClientViewSet)
-router.register(r'teams', TeamViewSet)
-router.register(r'history', HistoryViewSet)
+router.register(r'projects', project_view.ProjectViewSet)
+router.register(r'ppaps', ppap_view.PPAPViewSet)
+router.register(r'phases', phase_view.PhaseViewSet)
+router.register(r'outputs', output_view.OutputViewSet)
+router.register(r'documents', document_view.DocumentViewSet)
+router.register(r'users', user_view.UserViewSet)
+router.register(r'clients', client_view.ClientViewSet)
+router.register(r'teams', team_view.TeamViewSet)
+router.register(r'history', history_view.HistoryViewSet)
+router.register(r'timeline', timeline_view.TimelineViewSet, basename='timeline')
+router.register(r'persons', person_view.PersonViewSet)
+router.register(r'contacts', contact_view.ContactViewSet)
+router.register(r'departments', department_view.DepartmentViewSet)
+router.register(r'phase-templates', template_view.PhaseTemplateViewSet)
+router.register(r'output-templates', template_view.OutputTemplateViewSet)
+router.register(r'todos', todo_view.TodoViewSet)
 
+# Get a reference to the ViewSet class
+timeline_viewset = timeline_view.TimelineViewSet.as_view({
+    'post': 'set_project_timeline'
+})
+phase_timeline_viewset = timeline_view.TimelineViewSet.as_view({
+    'post': 'set_phase_timeline'
+})
+timeline_overview_viewset = timeline_view.TimelineViewSet.as_view({
+    'get': 'overview'
+})
+
+# Define URL patterns
 urlpatterns = [
+    # Include all router URLs
     path('', include(router.urls)),
-    path('api/dashboard/', dashboard_view, name='dashboard'),
-    path('api/user-permissions/', user_permissions_view, name='user-permissions'),
-    path('api/change-status/', change_status_view, name='change-status'),
-    path('api/assign-permission/', assign_permission_view, name='assign-permission'),
-    path('api/assign-phase-responsible/', assign_phase_responsible_view, name='assign-phase-responsible'),
-    path('api/set-project-timeline/', set_project_timeline_view, name='set-project-timeline'),
-    path('api/set-phase-timeline/', set_phase_timeline_view, name='set-phase-timeline'),
-    path('api/timeline/<int:project_id>/', get_timeline_overview_view, name='get-timeline-overview'),
+    
+    # API testing endpoint
+    path('test/', api_view.test_api, name='test_api'),
+    
+    # Dashboard view
+    path('dashboard/', api_view.dashboard_view, name='dashboard'),
+    
+    # User permissions
+    path('user-permissions/', api_view.user_permissions_view, name='user-permissions'),
+    
+    # Status changes
+    path('change-status/', api_view.change_status_view, name='change-status'),
+    
+    # Permission assignment
+    path('assign-permission/', api_view.assign_permission_view, name='assign-permission'),
+    
+    # Phase responsibility
+    path('assign-phase-responsible/', api_view.assign_phase_responsible_view, name='assign-phase-responsible'),
+    
+    # Timeline management
+    path('set-project-timeline/', timeline_viewset, name='set-project-timeline'),
+    path('set-phase-timeline/', phase_timeline_viewset, name='set-phase-timeline'),
+    path('timeline/<int:pk>/overview/', timeline_overview_viewset, name='get-timeline-overview'),
 ]

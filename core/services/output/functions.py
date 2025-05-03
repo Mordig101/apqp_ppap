@@ -5,7 +5,6 @@ from core.services.history.api import (
     record_output_update,
     record_output_status_change
 )
-import uuid
 
 @transaction.atomic
 def update_output(output_id, data):
