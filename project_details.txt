@@ -1506,4 +1506,5 @@ details about project :
 
 1. ACID compliance for all critical operations
 2. Transaction isolation for concurrent operations
-3. Rollback capability for failed operations
+3. Rollback capability for failed operations  
+sdfsd
