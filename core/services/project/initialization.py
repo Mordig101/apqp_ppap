@@ -22,14 +22,6 @@ def initialize_project(name, description, client_id, team_id, ppap_level=3):
         history_id=history_id
     )
     
-    # Initialize history record
-    initialize_history(
-        title=name,
-        event=f"Project created with ID {project.id}",
-        table_name='project',
-        history_id=history_id
-    )
-    
     # Initialize PPAP
     ppap = initialize_ppap(project.id, ppap_level)
     

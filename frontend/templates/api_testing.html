@@ -122,8 +122,21 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/projects/')">GET /api/projects/ - List all projects</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/projects/{id}/')">GET /api/projects/{id}/ - Get project details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/projects/', {'name': 'New Project', 'description': 'Project description', 'client_id': 1})">POST /api/projects/ - Create new project</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/projects/{id}/', {'name': 'Updated Project', 'description': 'Updated description'})">PUT /api/projects/{id}/ - Update project</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/projects/', {
+  'name': 'Dashboard Redesign',
+  'description': 'Redesign the dashboard UI/UX',
+  'client_id': 1,
+  'team_id': 2,
+  'manager_id': 5,
+  'start_date': '2025-06-01',
+  'target_end_date': '2025-08-31',
+  'status': 'planning'
+})">POST /api/projects/ - Create new project</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/projects/{id}/', {
+  'name': 'Dashboard Redesign V2',
+  'status': 'in_progress',
+  'manager_id': 8
+})">PUT /api/projects/{id}/ - Update project</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/projects/{id}/')">DELETE /api/projects/{id}/ - Delete project</li>
                 </ul>
             </div>
@@ -136,8 +149,17 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppaps/')">GET /api/ppaps/ - List all PPAPs</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppaps/{id}/')">GET /api/ppaps/{id}/ - Get PPAP details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppaps/', {'project_id': 1, 'level': 3})">POST /api/ppaps/ - Create new PPAP</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/ppaps/{id}/', {'level': 4})">PUT /api/ppaps/{id}/ - Update PPAP</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppaps/', {
+  'project_id': 1,
+  'level': 3,
+  'description': 'Production Part Approval Process for new component',
+  'status': 'planning'
+})">POST /api/ppaps/ - Create new PPAP</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/ppaps/{id}/', {
+  'level': 4,
+  'status': 'in_progress',
+  'description': 'Updated PPAP requirements'
+})">PUT /api/ppaps/{id}/ - Update PPAP</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/ppaps/{id}/')">DELETE /api/ppaps/{id}/ - Delete PPAP</li>
                 </ul>
             </div>
@@ -150,9 +172,25 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phases/')">GET /api/phases/ - List all phases</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/phases/{id}/')">GET /api/phases/{id}/ - Get phase details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phases/', {'ppap_id': 1, 'name': 'New Phase', 'order': 1})">POST /api/phases/ - Create new phase</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/phases/{id}/', {'name': 'Updated Phase', 'status': 'in_progress'})">PUT /api/phases/{id}/ - Update phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phases/', {
+  'ppap_id': 1,
+  'name': 'Design Verification',
+  'description': 'Verify that the design meets all requirements',
+  'order': 1,
+  'status': 'planning',
+  'start_date': '2025-06-15',
+  'target_end_date': '2025-07-15'
+})">POST /api/phases/ - Create new phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/phases/{id}/', {
+  'name': 'Design Validation',
+  'status': 'in_progress',
+  'target_end_date': '2025-07-30'
+})">PUT /api/phases/{id}/ - Update phase</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/phases/{id}/')">DELETE /api/phases/{id}/ - Delete phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/assign_phase_responsible/', {
+  'phase_id': 1,
+  'responsible_id': 5
+})">POST /api/assign_phase_responsible/ - Assign responsible person to a phase</li>
                 </ul>
             </div>
         </div>
@@ -164,9 +202,27 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/outputs/')">GET /api/outputs/ - List all outputs</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/outputs/{id}/')">GET /api/outputs/{id}/ - Get output details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/outputs/', {'phase_id': 1, 'name': 'New Output', 'ppap_element_id': 1})">POST /api/outputs/ - Create new output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/outputs/', {
+  'phase_id': 1,
+  'name': 'New Output',
+  'ppap_element_id': 1
+})">POST /api/outputs/ - Create new output</li>
                     <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/outputs/{id}/', {'name': 'Updated Output', 'status': 'in_progress'})">PUT /api/outputs/{id}/ - Update output</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/outputs/{id}/')">DELETE /api/outputs/{id}/ - Delete output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/outputs/', {
+  'phase_id': 1,
+  'name': 'Design Specifications',
+  'description': 'Complete design specifications document',
+  'ppap_element_id': 1,
+  'status': 'pending',
+  'assigned_to_id': 5,
+  'due_date': '2025-07-01'
+})">POST /api/outputs/ - Create new output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/outputs/{id}/', {
+  'name': 'Design Specifications v2',
+  'status': 'in_progress',
+  'assigned_to_id': 7
+})">PUT /api/outputs/{id}/ - Update output</li>
                 </ul>
             </div>
         </div>
@@ -178,8 +234,19 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/documents/')">GET /api/documents/ - List all documents</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/documents/{id}/')">GET /api/documents/{id}/ - Get document details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/documents/', {'name': 'New Document', 'file_path': '/path/to/file.pdf', 'output_id': 1})">POST /api/documents/ - Create new document</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/documents/{id}/', {'name': 'Updated Document', 'status': 'review'})">PUT /api/documents/{id}/ - Update document</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/documents/', {
+  'output_id': 1,
+  'name': 'Design Specifications.pdf',
+  'file_path': '/uploads/documents/spec_v1.pdf',
+  'version': '1.0',
+  'status': 'draft',
+  'uploaded_by_id': 5
+})">POST /api/documents/ - Create new document</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/documents/{id}/', {
+  'name': 'Design Specifications Final.pdf',
+  'version': '1.1',
+  'status': 'review'
+})">PUT /api/documents/{id}/ - Update document</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/documents/{id}/')">DELETE /api/documents/{id}/ - Delete document</li>
                 </ul>
             </div>
@@ -192,8 +259,37 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/users/')">GET /api/users/ - List all users</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/users/{id}/')">GET /api/users/{id}/ - Get user details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/users/', {'username': 'newuser', 'password': 'password123', 'person_id': 1})">POST /api/users/ - Create new user</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/users/{id}/', {'username': 'updateduser'})">PUT /api/users/{id}/ - Update user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/users/', {
+  'username': 'newuser',
+  'password': 'password123',
+  'authorization_id': 1,
+  'is_active': true,
+  'is_staff': false,
+  'is_superuser': false,
+  'first_name': 'New',
+  'last_name': 'User',
+  'email': 'new.user@example.com',
+  'department_id': 1
+})">POST /api/users/ - Create new user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/users/{id}/', {
+  'username': 'updateduser',
+  'authorization_id': 2,
+  'is_active': true,
+  'is_staff': true,
+  'is_superuser': false,
+  'person_data': {
+    'first_name': 'Updated',
+    'last_name': 'User',
+    'department_id': 3,
+    'email': 'updated@example.com'
+  }
+})">PUT /api/users/{id}/ - Update user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PATCH', '/api/users/{id}/', {
+  'username': 'patcheduser',
+  'person_data': {
+    'email': 'patched@example.com'
+  }
+})">PATCH /api/users/{id}/ - Partially update user</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/users/{id}/')">DELETE /api/users/{id}/ - Delete user</li>
                 </ul>
             </div>
@@ -206,9 +302,27 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/clients/')">GET /api/clients/ - List all clients</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/clients/{id}/')">GET /api/clients/{id}/ - Get client details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/clients/', {'name': 'New Client', 'address': '123 Main St', 'code': {'fiscal': 'ABC123'}})">POST /api/clients/ - Create new client</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/clients/{id}/', {'name': 'Updated Client'})">PUT /api/clients/{id}/ - Update client</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/clients/', {
+  'name': 'Acme Corporation',
+  'address': '123 Business Ave, City',
+  'code': {'fiscal': 'ABC123', 'duns': '987654321'},
+  'description': 'Manufacturing company',
+  'team_id': 2,
+  'contact': {
+    'email': 'info@acme.com',
+    'phone': '555-ACME'
+  }
+})">POST /api/clients/ - Create new client</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/clients/{id}/', {
+  'name': 'Updated Acme Corp',
+  'address': '456 Enterprise Blvd',
+  'description': 'Global manufacturing leader',
+  'contact': {
+    'email': 'contact@acme.com'
+  }
+})">PUT /api/clients/{id}/ - Update client</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/clients/{id}/')">DELETE /api/clients/{id}/ - Delete client</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/clients/{id}/projects/')">GET /api/clients/{id}/projects/ - Get client projects</li>
                 </ul>
             </div>
         </div>
@@ -225,6 +339,17 @@
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/teams/{id}/')">DELETE /api/teams/{id}/ - Delete team</li>
                     <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/teams/{id}/add_member/', {'person_id': 1})">POST /api/teams/{id}/add_member/ - Add member to team</li>
                     <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/teams/{id}/remove_member/', {'person_id': 1})">POST /api/teams/{id}/remove_member/ - Remove member from team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/teams/', {
+  'name': 'Quality Assurance',
+  'description': 'QA team for product testing',
+  'department_id': 3,
+  'member_ids': [1, 5, 8]
+})">POST /api/teams/ - Create new team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/teams/{id}/', {
+  'name': 'Quality Control',
+  'description': 'QC team focused on process verification',
+  'department_id': 4
+})">PUT /api/teams/{id}/ - Update team</li>
                 </ul>
             </div>
         </div>
@@ -236,11 +361,34 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/')">GET /api/persons/ - List all persons</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/{id}/')">GET /api/persons/{id}/ - Get person details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/', {'first_name': 'John', 'last_name': 'Doe'})">POST /api/persons/ - Create new person</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/persons/{id}/', {'first_name': 'Jane'})">PUT /api/persons/{id}/ - Update person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/', {
+  'first_name': 'John',
+  'last_name': 'Doe',
+  'department_id': 2,
+  'team_ids': [1, 3],
+  'contact': {
+    'address': '123 Main St',
+    'email': 'john.doe@example.com',
+    'phone': '555-1234'
+  }
+})">POST /api/persons/ - Create new person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/persons/{id}/', {
+  'first_name': 'Jane',
+  'last_name': 'Smith',
+  'department_id': 3,
+  'team_ids': [2, 4],
+  'contact': {
+    'email': 'jane.smith@example.com',
+    'phone': '555-5678'
+  }
+})">PUT /api/persons/{id}/ - Update person</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/persons/{id}/')">DELETE /api/persons/{id}/ - Delete person</li>
                     <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/{id}/add_to_team/', {'team_id': 1})">POST /api/persons/{id}/add_to_team/ - Add person to team</li>
                     <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/persons/{id}/remove_from_team/', {'team_id': 1})">POST /api/persons/{id}/remove_from_team/ - Remove person from team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/?name=John')">GET /api/persons/?name=John - Search persons by name</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/?department_id=2')">GET /api/persons/?department_id=2 - Filter persons by department</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/?team_id=3')">GET /api/persons/?team_id=3 - Filter persons by team</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/persons/?is_user=true')">GET /api/persons/?is_user=true - Filter persons who are users</li>
                 </ul>
             </div>
         </div>
@@ -252,8 +400,14 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/')">GET /api/departments/ - List all departments</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/{id}/')">GET /api/departments/{id}/ - Get department details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/departments/', {'name': 'New Department'})">POST /api/departments/ - Create new department</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/departments/{id}/', {'name': 'Updated Department'})">PUT /api/departments/{id}/ - Update department</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/departments/', {
+  'name': 'Engineering',
+  'responsible_id': 5
+})">POST /api/departments/ - Create new department</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/departments/{id}/', {
+  'name': 'Research & Development',
+  'responsible_id': 7
+})">PUT /api/departments/{id}/ - Update department</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/departments/{id}/')">DELETE /api/departments/{id}/ - Delete department</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/{id}/members/')">GET /api/departments/{id}/members/ - Get department members</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/departments/{id}/teams/')">GET /api/departments/{id}/teams/ - Get department teams</li>
@@ -268,10 +422,21 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/')">GET /api/contacts/ - List all contacts</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/{id}/')">GET /api/contacts/{id}/ - Get contact details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/contacts/', {'address': '123 Main St', 'email': 'contact@example.com', 'phone': '555-1234', 'type': 'person'})">POST /api/contacts/ - Create new contact</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/contacts/{id}/', {'email': 'updated@example.com'})">PUT /api/contacts/{id}/ - Update contact</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/contacts/', {
+  'address': '123 Main St, Suite 400',
+  'email': 'contact@example.com',
+  'phone': '555-123-4567',
+  'type': 'person'
+})">POST /api/contacts/ - Create new contact</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/contacts/{id}/', {
+  'email': 'updated@example.com',
+  'phone': '555-987-6543'
+})">PUT /api/contacts/{id}/ - Update contact</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/contacts/{id}/')">DELETE /api/contacts/{id}/ - Delete contact</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/by_type/?type=person')">GET /api/contacts/by_type/ - Get contacts by type</li>
+                    <!-- Contact Tab - Additional endpoints -->
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/by_type/?type=person')">GET /api/contacts/by_type/?type=person - Get contacts by type (person/client)</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/contacts/by_type/?type=client')">GET /api/contacts/by_type/?type=client - Get client contacts</li>
                 </ul>
             </div>
         </div>
@@ -296,6 +461,35 @@
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/by_phase/?phase_id=1')">GET /api/output-templates/by_phase/ - Get templates by phase</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/by_element/?element_id=1')">GET /api/output-templates/by_element/ - Get templates by PPAP element</li>
                     <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/output-templates/{id}/clone/', {'name': 'Cloned Template'})">POST /api/output-templates/{id}/clone/ - Clone template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phase-templates/', {
+  'name': 'Design Verification Template',
+  'description': 'Standard template for design verification phase',
+  'ppap_level': 3,
+  'order': 1
+})">POST /api/phase-templates/ - Create new phase template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/phase-templates/{id}/', {
+  'name': 'Enhanced Design Verification',
+  'description': 'Updated template with enhanced verification steps'
+})">PUT /api/phase-templates/{id}/ - Update phase template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/phase-templates/{id}/')">DELETE /api/phase-templates/{id}/ - Delete phase template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/phase-templates/{id}/clone/', {'name': 'Cloned Design Verification'})">POST /api/phase-templates/{id}/clone/ - Clone template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/')">GET /api/output-templates/ - List all output templates</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/{id}/')">GET /api/output-templates/{id}/ - Get output template details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/output-templates/', {
+  'name': 'Design Specification Document',
+  'description': 'Template for design specification document',
+  'phase_template_id': 1,
+  'ppap_element_id': 3,
+  'estimated_hours': 8
+})">POST /api/output-templates/ - Create new output template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/output-templates/{id}/', {
+  'name': 'Enhanced Design Specification Document',
+  'estimated_hours': 12
+})">PUT /api/output-templates/{id}/ - Update output template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/output-templates/{id}/')">DELETE /api/output-templates/{id}/ - Delete output template</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/by_phase/?phase_id=1')">GET /api/output-templates/by_phase/ - Get templates by phase</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/output-templates/by_element/?element_id=3')">GET /api/output-templates/by_element/ - Get templates by PPAP element</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/output-templates/{id}/clone/', {'name': 'Cloned Design Specification'})">POST /api/output-templates/{id}/clone/ - Clone template</li>
                 </ul>
             </div>
         </div>
@@ -307,7 +501,11 @@
                 <ul class="endpoint-list">
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/')">GET /api/todos/ - List all todos</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/{id}/')">GET /api/todos/{id}/ - Get todo details</li>
-                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/', {'title': 'New Todo', 'description': 'Todo description', 'assigned_to_id': 1})">POST /api/todos/ - Create new todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/', {
+  'title': 'New Todo',
+  'description': 'Todo description',
+  'assigned_to_id': 1
+})">POST /api/todos/ - Create new todo</li>
                     <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/todos/{id}/', {'title': 'Updated Todo'})">PUT /api/todos/{id}/ - Update todo</li>
                     <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/todos/{id}/')">DELETE /api/todos/{id}/ - Delete todo</li>
                     <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/{id}/change_status/', {'status': 'completed'})">POST /api/todos/{id}/change_status/ - Change todo status</li>
@@ -315,6 +513,27 @@
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_person/?person_id=1')">GET /api/todos/by_person/ - Get todos by person</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_output/?output_id=1')">GET /api/todos/by_output/ - Get todos by output</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_status/?status=pending')">GET /api/todos/by_status/ - Get todos by status</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/', {
+  'title': 'Review Design Specifications',
+  'description': 'Complete review of design specifications document',
+  'assigned_to_id': 5,
+  'output_id': 1,
+  'priority': 'high',
+  'due_date': '2025-06-25',
+  'status': 'pending'
+})">POST /api/todos/ - Create new todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/todos/{id}/', {
+  'title': 'Final Review of Design Specifications',
+  'priority': 'urgent',
+  'status': 'in_progress'
+})">PUT /api/todos/{id}/ - Update todo</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/{id}/reassign/', {'person_id': 7})">POST /api/todos/{id}/reassign/ - Reassign todo</li>
+                    <!-- Todo Tab - Additional endpoints -->
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_person/?person_id=5')">GET /api/todos/by_person/?person_id=5 - Get todos by person</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_output/?output_id=1')">GET /api/todos/by_output/?output_id=1 - Get todos by output</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/todos/by_status/?status=pending')">GET /api/todos/by_status/?status=pending - Get todos by status</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/{id}/change_status/', {'status': 'completed'})">POST /api/todos/{id}/change_status/ - Change todo status</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/todos/{id}/reassign/', {'person_id': 7})">POST /api/todos/{id}/reassign/ - Reassign todo</li>
                 </ul>
             </div>
         </div>
@@ -327,6 +546,8 @@
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/')">GET /api/history/ - List all history records</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/{id}/')">GET /api/history/{id}/ - Get history record details</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/project/?project_id=1')">GET /api/history/project/ - Get project history</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/user/?user_id=5')">GET /api/history/user/ - Get user history</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/ppap/?ppap_id=1')">GET /api/history/ppap/ - Get PPAP history</li>
                 </ul>
             </div>
         </div>

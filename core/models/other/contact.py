@@ -20,10 +20,10 @@ class Contact(models.Model):
     def save(self, *args, **kwargs):
         # Generate history_id if not provided
         if not self.history_id:
-            self.history_id = f"{uuid.uuid4().hex}contact"
+            self.history_id = f"{self.id}contact"
         
         # Ensure id exists
         if not self.id:
-            self.id = f"{uuid.uuid4().hex}contact" 
+            self.id = f"{self.id}contact" 
             
         super().save(*args, **kwargs)

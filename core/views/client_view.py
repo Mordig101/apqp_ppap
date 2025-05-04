@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
-from core.models import Client, Contact, Project
+from core.models import Client, Contact, Project, Team
 from core.serializers.client_serializer import ClientSerializer
 from core.serializers.project_serializer import ProjectSerializer
 from core.services.client.api import (
@@ -24,6 +24,7 @@ class ClientViewSet(viewsets.ModelViewSet):
         address = request.data.get('address', '')
         code = request.data.get('code', {})
         description = request.data.get('description', '')
+        team_id = request.data.get('team_id')
         contact_data = request.data.get('contact', {})
         
         # Validate required fields
@@ -34,23 +35,35 @@ class ClientViewSet(viewsets.ModelViewSet):
             )
         
         try:
-            # Create client
-            client = initialize_client(
-                name=name,
-                address=address,
-                code=code,
-                description=description
-            )
+            # Get team if provided
+            team = None
+            if team_id:
+                try:
+                    team = Team.objects.get(id=team_id)
+                except Team.DoesNotExist:
+                    return Response(
+                        {"error": f"Team with ID {team_id} not found"},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
             
-            # Create contact if provided
-            if contact_data:
-                Contact.objects.create(
-                    id=client.contact_id,
-                    address=contact_data.get('address', ''),
-                    email=contact_data.get('email', ''),
-                    phone=contact_data.get('phone', ''),
-                    type='client'
-                )
+            # Create client in a single save operation to avoid ID conflicts
+            client = Client()
+            client.name = name
+            client.address = address
+            client.code = code
+            client.description = description
+            client.team = team
+            # Don't set contact_id or history_id - let the model's save method handle it
+            client.save()
+            
+            # Create contact 
+            Contact.objects.create(
+                id=client.contact_id,
+                address=contact_data.get('address', '') or address,
+                email=contact_data.get('email', ''),
+                phone=contact_data.get('phone', ''),
+                type='client'
+            )
             
             # Record in history
             record_client_creation(client)

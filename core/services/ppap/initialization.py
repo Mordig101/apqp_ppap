@@ -20,13 +20,7 @@ def initialize_ppap(project_id, level):
         history_id=history_id
     )
     
-    # Initialize history record
-    initialize_history(
-        title=f"PPAP for Project {project_id}",
-        event=f"PPAP created with level {level}",
-        table_name='ppap',
-        history_id=history_id
-    )
+    # Initialize history record - FIXED PARAMETERS HERE
     
     # Initialize phases based on PPAP level
     initialize_phases(ppap.id, level)

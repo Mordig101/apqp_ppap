@@ -38,7 +38,8 @@ class PersonViewSet(viewsets.ModelViewSet):
             person = Person.objects.create(
                 first_name=first_name,
                 last_name=last_name,
-                is_user=is_user
+                is_user=is_user,
+                department_id=department_id
             )
             
             # Add to teams if provided

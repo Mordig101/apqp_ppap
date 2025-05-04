@@ -1,7 +1,7 @@
 from core.models import Client
 import uuid
 
-def initialize_client(name, address, code=None, description=''):
+def initialize_client(name, address, code=None, description='', team=None):
     """
     Initialize a new client
     
@@ -10,24 +10,21 @@ def initialize_client(name, address, code=None, description=''):
         address (str): Client address
         code (dict): Client code information (fiscal code, DUNS, etc.)
         description (str): Client description
+        team (Team, optional): Team associated with the client
     
     Returns:
         Client: The created client
     """
-    # Generate unique IDs
-    history_id = f"{uuid.uuid4().hex}client"
-    contact_id = f"{uuid.uuid4().hex}client"
-    
     if code is None:
         code = {}
     
+    # First create the client - the save() method will generate IDs
     client = Client.objects.create(
         name=name,
         address=address,
         code=code,
         description=description,
-        history_id=history_id,
-        contact_id=contact_id
+        team=team
     )
     
     return client

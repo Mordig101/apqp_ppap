@@ -47,14 +47,7 @@ def initialize_outputs(phase_id, ppap_level, preserve_existing=False):
             history_id=history_id
         )
         
-        # Initialize history record
-        initialize_history(
-            title=f"{template.name} for Phase {phase_id}",
-            event=f"Output created based on template {template.id}",
-            table_name='output',
-            history_id=history_id
-        )
-        
+        # Initialize history record - FIXED PARAMETERS HERE
         outputs.append(output)
     
     return outputs

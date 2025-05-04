@@ -20,13 +20,23 @@ class Client(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        # Generate history_id if not provided
-        if not self.history_id:
-            self.history_id = f"{uuid.uuid4().hex}client"
+        create_new = self.id is None
         
-        # Generate contact_id if not provided
-        if not self.contact_id and self.id:
+        # Generate IDs before first save for new objects
+        if create_new:
+            # Save once to get an ID
+            super().save(*args, **kwargs)
+            
+            # Set the IDs
             self.contact_id = f"{self.id}client"
+            self.history_id = f"{self.id}history"
+            
+            # Update only the specific fields
+            kwargs['update_fields'] = ['contact_id', 'history_id'] if kwargs.get('update_fields') else None
+            super().save(*args, **kwargs)
+        else:
+            # Normal save for updates
+            super().save(*args, **kwargs)
         
         # Ensure code is JSON
         if isinstance(self.code, str):
@@ -34,5 +44,3 @@ class Client(models.Model):
                 self.code = json.loads(self.code)
             except json.JSONDecodeError:
                 self.code = {"value": self.code}
-        
-        super().save(*args, **kwargs)

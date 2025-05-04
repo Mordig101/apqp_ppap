@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
-from core.models import Department, Person, Team
+from core.models import Department, Person, Team, User
 from core.serializers.department_serializer import DepartmentSerializer
 from core.serializers.person_serializer import PersonSerializer
 from core.serializers.team_serializer import TeamSerializer
@@ -21,36 +21,52 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # Extract department data
+        # Extract data
         name = request.data.get('name')
         responsible_id = request.data.get('responsible_id')
         
-        # Validate required fields
         if not name:
             return Response(
-                {"error": "Missing required field: name"},
+                {"error": "Name is required"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         try:
-            # Get responsible user if provided
-            responsible = None
+            # Create department
+            department = Department(name=name)
+            
+            # Handle responsible assignment
             if responsible_id:
                 try:
-                    responsible = Person.objects.get(id=responsible_id, is_user=True)
+                    # Get the Person first
+                    person = Person.objects.get(id=responsible_id)
+                    
+                    # Check if this Person is associated with a User
+                    if person.is_user:
+                        # Get the associated User
+                        try:
+                            user = User.objects.get(person_id=person.id)
+                            department.responsible = user
+                        except User.DoesNotExist:
+                            return Response(
+                                {"error": f"Person with ID {responsible_id} is marked as a user but no User record exists"},
+                                status=status.HTTP_400_BAD_REQUEST
+                            )
+                    else:
+                        return Response(
+                            {"error": f"Person with ID {responsible_id} is not a user and cannot be assigned as responsible"},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
                 except Person.DoesNotExist:
                     return Response(
-                        {"error": f"User with ID {responsible_id} not found"},
+                        {"error": f"Person with ID {responsible_id} not found"},
                         status=status.HTTP_404_NOT_FOUND
                     )
             
-            # Create department
-            department = initialize_department(
-                name=name,
-                responsible=responsible
-            )
+            # Save the department
+            department.save()
             
-            # Record in history
+            # Record creation in history
             record_department_creation(department)
             
             serializer = self.get_serializer(department)

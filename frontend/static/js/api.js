@@ -200,6 +200,18 @@ class ApiClient {
     return this.request("PUT", `/api/persons/${id}/`, data)
   }
 
+  async addPersonToTeam(personId, teamId) {
+    return this.request("POST", `/api/persons/${personId}/add_to_team/`, { team_id: teamId })
+  }
+
+  async removePersonFromTeam(personId, teamId) {
+    return this.request("POST", `/api/persons/${personId}/remove_from_team/`, { team_id: teamId })
+  }
+
+  async deletePerson(id) {
+    return this.request("DELETE", `/api/persons/${id}/`)
+  }
+
   // Department API methods
   async getDepartments() {
     return this.request("GET", "/api/departments/")
@@ -221,6 +233,14 @@ class ApiClient {
     return this.request("GET", `/api/departments/${id}/members/`)
   }
 
+  async deleteDepartment(id) {
+    return this.request("DELETE", `/api/departments/${id}/`)
+  }
+
+  async getDepartmentTeams(id) {
+    return this.request("GET", `/api/departments/${id}/teams/`)
+  }
+
   // Contact API methods
   async getContacts() {
     return this.request("GET", "/api/contacts/")
@@ -236,6 +256,14 @@ class ApiClient {
 
   async updateContact(id, data) {
     return this.request("PUT", `/api/contacts/${id}/`, data)
+  }
+
+  async deleteContact(id) {
+    return this.request("DELETE", `/api/contacts/${id}/`)
+  }
+
+  async getContactsByType(type) {
+    return this.request("GET", `/api/contacts/by_type/?type=${type}`)
   }
 
   // Client API methods
@@ -255,6 +283,14 @@ class ApiClient {
     return this.request("PUT", `/api/clients/${id}/`, data)
   }
 
+  async deleteClient(id) {
+    return this.request("DELETE", `/api/clients/${id}/`)
+  }
+
+  async getClientProjects(id) {
+    return this.request("GET", `/api/clients/${id}/projects/`)
+  }
+
   // Template API methods
   async getPhaseTemplates() {
     return this.request("GET", "/api/phase-templates/")
@@ -268,6 +304,22 @@ class ApiClient {
     return this.request("POST", "/api/phase-templates/", data)
   }
 
+  async updatePhaseTemplate(id, data) {
+    return this.request("PUT", `/api/phase-templates/${id}/`, data)
+  }
+
+  async deletePhaseTemplate(id) {
+    return this.request("DELETE", `/api/phase-templates/${id}/`)
+  }
+
+  async getPhaseTemplatesByLevel(level) {
+    return this.request("GET", `/api/phase-templates/by_level/?level=${level}`)
+  }
+
+  async clonePhaseTemplate(id, data) {
+    return this.request("POST", `/api/phase-templates/${id}/clone/`, data)
+  }
+
   async getOutputTemplates() {
     return this.request("GET", "/api/output-templates/")
   }
@@ -278,6 +330,26 @@ class ApiClient {
 
   async createOutputTemplate(data) {
     return this.request("POST", "/api/output-templates/", data)
+  }
+
+  async updateOutputTemplate(id, data) {
+    return this.request("PUT", `/api/output-templates/${id}/`, data)
+  }
+
+  async deleteOutputTemplate(id) {
+    return this.request("DELETE", `/api/output-templates/${id}/`)
+  }
+
+  async getOutputTemplatesByPhase(phaseId) {
+    return this.request("GET", `/api/output-templates/by_phase/?phase_id=${phaseId}`)
+  }
+
+  async getOutputTemplatesByElement(elementId) {
+    return this.request("GET", `/api/output-templates/by_element/?element_id=${elementId}`)
+  }
+
+  async cloneOutputTemplate(id, data) {
+    return this.request("POST", `/api/output-templates/${id}/clone/`, data)
   }
 
   // Todo API methods
@@ -297,6 +369,30 @@ class ApiClient {
     return this.request("PUT", `/api/todos/${id}/`, data)
   }
 
+  async deleteTodo(id) {
+    return this.request("DELETE", `/api/todos/${id}/`)
+  }
+
+  async changeTodoStatus(id, status) {
+    return this.request("POST", `/api/todos/${id}/change_status/`, { status: status })
+  }
+
+  async reassignTodo(id, personId) {
+    return this.request("POST", `/api/todos/${id}/reassign/`, { person_id: personId })
+  }
+
+  async getTodosByPerson(personId) {
+    return this.request("GET", `/api/todos/by_person/?person_id=${personId}`)
+  }
+
+  async getTodosByOutput(outputId) {
+    return this.request("GET", `/api/todos/by_output/?output_id=${outputId}`)
+  }
+
+  async getTodosByStatus(status) {
+    return this.request("GET", `/api/todos/by_status/?status=${status}`)
+  }
+
   // History API methods
   async getHistory() {
     return this.request("GET", "/api/history/")
@@ -306,8 +402,49 @@ class ApiClient {
     return this.request("GET", `/api/history/project/?project_id=${projectId}`)
   }
 
+  async getHistoryRecord(id) {
+    return this.request("GET", `/api/history/${id}/`)
+  }
+
+  async getUserHistory(userId) {
+    return this.request("GET", `/api/history/user/?user_id=${userId}`)
+  }
+
+  async getPpapHistory(ppapId) {
+    return this.request("GET", `/api/history/ppap/?ppap_id=${ppapId}`)
+  }
+
   async getUserPermissions() {
     return this.request("GET", `/api/user_permissions/`)
+  }
+
+  // User API methods
+  async getUsers() {
+    return this.request("GET", "/api/users/")
+  }
+
+  async getUser(id) {
+    return this.request("GET", `/api/users/${id}/`)
+  }
+
+  async createUser(data) {
+    return this.request("POST", "/api/users/", data)
+  }
+
+  async updateUser(id, data) {
+    return this.request("PUT", `/api/users/${id}/`, data)
+  }
+
+  async deleteUser(id) {
+    return this.request("DELETE", `/api/users/${id}/`)
+  }
+
+  // Phase management methods
+  async assignPhaseResponsible(phaseId, responsibleId) {
+    return this.request("POST", `/api/assign_phase_responsible/`, {
+      phase_id: phaseId,
+      responsible_id: responsibleId
+    })
   }
 }
 

@@ -20,12 +20,37 @@ class Person(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
-        # Generate history_id if not provided
-        if not self.history_id:
-            self.history_id = f"{uuid.uuid4().hex}person"
+        # Prepare for a new record
+        create_new = self.id is None
         
-        # Generate contact_id if not provided
-        if not self.contact_id:
-            self.contact_id = f"{uuid.uuid4().hex}person"
-        
-        super().save(*args, **kwargs)
+        # For new records, set a temporary unique values before first save
+        if create_new:
+            # Generate a temporary unique ID to avoid constraint violation
+            import uuid
+            temp_uuid = uuid.uuid4().hex
+            
+            # Set temporary unique values for constrained fields
+            if not self.contact_id:
+                self.contact_id = f"temp_{temp_uuid}"
+            if not self.history_id:
+                self.history_id = f"temp_{temp_uuid}"
+            
+            # First save to get an ID
+            super().save(*args, **kwargs)
+            
+            # Now set the real IDs based on the person ID
+            new_contact_id = f"{self.id}person"
+            new_history_id = f"{self.id}person"
+            
+            # Use update to avoid another save() call
+            Person.objects.filter(id=self.id).update(
+                contact_id=new_contact_id,
+                history_id=new_history_id
+            )
+            
+            # Update the instance attributes to match the database
+            self.contact_id = new_contact_id
+            self.history_id = new_history_id
+        else:
+            # For existing records, save normally
+            super().save(*args, **kwargs)

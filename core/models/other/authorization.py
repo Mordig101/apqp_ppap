@@ -16,5 +16,5 @@ class Authorization(models.Model):
     def save(self, *args, **kwargs):
         # Generate history_id if not provided
         if not self.history_id:
-            self.history_id = f"{uuid.uuid4().hex}authorization"
+            self.history_id = f"{self.id}authorization"
         super().save(*args, **kwargs)

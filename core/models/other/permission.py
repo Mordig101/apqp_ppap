@@ -17,5 +17,5 @@ class Permission(models.Model):
     def save(self, *args, **kwargs):
         # Generate history_id if not provided
         if not self.history_id:
-            self.history_id = f"{uuid.uuid4().hex}permission"
+            self.history_id = f"{self.id}permission"
         super().save(*args, **kwargs)

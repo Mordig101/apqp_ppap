@@ -27,12 +27,6 @@ def initialize_phases(ppap_id, ppap_level):
         )
         
         # Initialize history record
-        initialize_history(
-            title=f"{template.name} for PPAP {ppap_id}",
-            event=f"Phase created based on template {template.id}",
-            table_name='phase',
-            history_id=history_id
-        )
         
         # Initialize outputs for this phase
         initialize_outputs(phase.id, ppap_level)
