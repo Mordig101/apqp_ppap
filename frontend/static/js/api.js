@@ -634,8 +634,72 @@ async uploadDocumentRevision(documentId, formData) {
   
   return await response.json()
 }
+// Add these methods to ApiClient class in frontend/static/js/api.js
 
+  // Statistics API methods
+  async getStatisticsSummary() {
+    return this.request("GET", "/api/statistics/summary/")
+  }
 
+  async getProjectStats() {
+    return this.request("GET", "/api/statistics/projects/")
+  }
+
+  async getPPAPLevelStats() {
+    return this.request("GET", "/api/statistics/ppap_levels/")
+  }
+
+  async getOutputCompletionStats() {
+    return this.request("GET", "/api/statistics/output_completion/")
+  }
+
+  async getBottleneckStats() {
+    return this.request("GET", "/api/statistics/bottlenecks/")
+  }
+
+  async getTeamPerformanceStats() {
+    return this.request("GET", "/api/statistics/team_performance/")
+  }
+
+  async getDocumentTrends() {
+    return this.request("GET", "/api/statistics/document_trends/")
+  }
+
+  async getResourceSuggestions() {
+    return this.request("GET", "/api/statistics/resource_suggestions/")
+  }
+
+  async getQualityMetrics() {
+    return this.request("GET", "/api/statistics/quality/")
+  }
+
+  async getClientSatisfactionMetrics() {
+    return this.request("GET", "/api/statistics/client_satisfaction/")
+  }
+
+// Add these methods to ApiClient class in your api.js
+
+// Analysis API methods
+async getDeadlineViolations(projectId) {
+  return this.request("GET", `/api/analyse/deadline_violations/?project_id=${projectId}`)
+}
+
+async getCriticalPath(projectId) {
+  return this.request("GET", `/api/analyse/critical_path/?project_id=${projectId}`)
+}
+
+async getResourceAllocation(projectId) {
+  return this.request("GET", `/api/analyse/resource_allocation/?project_id=${projectId}`)
+}
+
+async getEarlyWarnings() {
+  return this.request("GET", "/api/analyse/early_warnings/")
+}
+
+async getHistoricalPatterns(teamId = null) {
+  const query = teamId ? `?team_id=${teamId}` : ""
+  return this.request("GET", `/api/analyse/historical_patterns/${query}`)
+}
 
   // Phase management methods
   async assignPhaseResponsible(phaseId, responsibleId) {
@@ -643,6 +707,39 @@ async uploadDocumentRevision(documentId, formData) {
       phase_id: phaseId,
       responsible_id: responsibleId
     })
+  }
+
+  // Add these methods to your ApiClient class
+
+  // History Editor methods
+  async updateHistoryDates(historyId, { deadline, startedAt, completedAt } = {}) {
+    const data = { history_id: historyId };
+    
+    if (deadline) data.deadline = deadline;
+    if (startedAt) data.started_at = startedAt;
+    if (completedAt) data.completed_at = completedAt;
+    
+    return this.request("POST", "/api/history-editor/update_dates/", data);
+  }
+  
+  async setEntityDeadline(entityType, entityId, deadline) {
+    return this.request("POST", "/api/history-editor/set_deadline/", {
+      entity_type: entityType,
+      entity_id: entityId,
+      deadline: deadline
+    });
+  }
+  
+  async getEntityDeadline(entityType, entityId) {
+    return this.request("GET", `/api/history-editor/get_deadline/?entity_type=${entityType}&entity_id=${entityId}`);
+  }
+  
+  async bulkSetDeadlines(entityType, entityIds, deadline) {
+    return this.request("POST", "/api/history-editor/bulk_set_deadlines/", {
+      entity_type: entityType,
+      entity_ids: entityIds,
+      deadline: deadline
+    });
   }
 }
 

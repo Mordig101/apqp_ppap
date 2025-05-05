@@ -73,6 +73,12 @@ from core.services.history.contact import (
     record_contact_deletion,
     get_contact_history
 )
+from core.services.history.editor import (
+    update_history_dates,
+    set_entity_deadline,
+    get_entity_deadline,
+    bulk_update_entity_deadlines
+)
 
 
 # Export all functions for use in views
@@ -154,4 +160,9 @@ __all__ = [
     'record_contact_deletion',
     'get_contact_history',
     
+    # Editor
+    'update_history_dates',
+    'set_entity_deadline',
+    'get_entity_deadline',
+    'bulk_update_entity_deadlines'
 ]

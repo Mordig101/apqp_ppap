@@ -115,6 +115,9 @@
             <div class="tab" onclick="openTab(event, 'todo-tab')">Todo</div>
             <div class="tab" onclick="openTab(event, 'history-tab')">History</div>
             <div class="tab" onclick="openTab(event, 'authorization-tab')">Authorization</div>
+            <div class="tab" onclick="openTab(event, 'statistics-tab')">Statistics</div>
+            <div class="tab" onclick="openTab(event, 'analyse-tab')">Analysis</div>
+            <div class="tab" onclick="openTab(event, 'history-editor-tab')">History Editor</div>
         </div>
         
         <!-- Project Tab -->
@@ -617,6 +620,76 @@
   'user_id': 3,
   'authorization_id': 3
 })">POST /api/authorizations/assign/ - Assign edit permission to user</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Statistics Tab -->
+        <div id="statistics-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Statistics Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/summary/')">GET /api/statistics/summary/ - Get comprehensive statistics</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/projects/')">GET /api/statistics/projects/ - Get project completion stats</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/ppap_levels/')">GET /api/statistics/ppap_levels/ - Get PPAP level distribution</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/output_completion/')">GET /api/statistics/output_completion/ - Get output completion rates</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/bottlenecks/')">GET /api/statistics/bottlenecks/ - Identify bottleneck phases</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/team_performance/')">GET /api/statistics/team_performance/ - Get team performance metrics</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/document_trends/')">GET /api/statistics/document_trends/ - Get document submission trends</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/resource_suggestions/')">GET /api/statistics/resource_suggestions/ - Get resource allocation suggestions</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/quality/')">GET /api/statistics/quality/ - Get quality metrics</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/statistics/client_satisfaction/')">GET /api/statistics/client_satisfaction/ - Get client satisfaction metrics</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Analysis Tab -->
+        <div id="analyse-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Project Analysis Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/analyse/deadline_violations/?project_id=1')">GET /api/analyse/deadline_violations/ - Identify deadline violations in a project</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/analyse/critical_path/?project_id=1')">GET /api/analyse/critical_path/ - Analyze project critical path</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/analyse/resource_allocation/?project_id=1')">GET /api/analyse/resource_allocation/ - Detect resource allocation problems</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/analyse/early_warnings/')">GET /api/analyse/early_warnings/ - Get early warnings about potential issues</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/analyse/historical_patterns/')">GET /api/analyse/historical_patterns/ - Analyze historical patterns in project delays</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/analyse/historical_patterns/?team_id=1')">GET /api/analyse/historical_patterns/?team_id=1 - Analyze historical patterns for a specific team</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- History Editor Tab -->
+        <div id="history-editor-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">History Editor Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/history-editor/update_dates/', {
+  'history_id': '123e4567-e89b-12d3-a456-426614174000',
+  'deadline': '2025-12-31T23:59:59',
+  'started_at': '2025-01-01T08:00:00'
+})">POST /api/history-editor/update_dates/ - Update history dates</li>
+            
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/history-editor/set_deadline/', {
+  'entity_type': 'phase',
+  'entity_id': 1,
+  'deadline': '2025-12-31T23:59:59'
+})">POST /api/history-editor/set_deadline/ - Set phase deadline</li>
+            
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/history-editor/set_deadline/', {
+  'entity_type': 'output',
+  'entity_id': 1,
+  'deadline': '2025-11-30T23:59:59'
+})">POST /api/history-editor/set_deadline/ - Set output deadline</li>
+            
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history-editor/get_deadline/?entity_type=phase&entity_id=1')">GET /api/history-editor/get_deadline/ - Get phase deadline</li>
+            
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history-editor/get_deadline/?entity_type=output&entity_id=1')">GET /api/history-editor/get_deadline/ - Get output deadline</li>
+            
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/history-editor/bulk_set_deadlines/', {
+  'entity_type': 'output',
+  'entity_ids': [1, 2, 3, 4],
+  'deadline': '2025-10-15T23:59:59'
+})">POST /api/history-editor/bulk_set_deadlines/ - Set deadline for multiple outputs</li>
                 </ul>
             </div>
         </div>

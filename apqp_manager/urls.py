@@ -19,6 +19,7 @@ urlpatterns = [
     # Template URLs
     path('api-testing/', TemplateView.as_view(template_name='api_testing.html'), name='api_testing'),
     path('', TemplateView.as_view(template_name='api_testing.html'), name='home'),
+    path('analyse/', TemplateView.as_view(template_name='analyse_dashboard.html'), name='analyse_dashboard'),
 ]
 
 if settings.DEBUG:
