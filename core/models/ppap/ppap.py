@@ -14,10 +14,36 @@ class PPAP(models.Model):
         ordering = ['-id']
 
     def __str__(self):
-        return f"PPAP for Project {self.project_id} (Level {self.level})"
+        return f"PPAP for Project {self.project} (Level {self.level})"
 
     def save(self, *args, **kwargs):
-        # Generate history_id if not provided
-        if not self.history_id:
-            self.history_id = f"{uuid.uuid4().hex}ppap"
-        super().save(*args, **kwargs)
+        # Prepare for a new record
+        create_new = self.id is None
+        
+        # For new records, set a temporary unique values before first save
+        if create_new:
+            # Generate a temporary unique ID to avoid constraint violation
+            import uuid
+            temp_uuid = uuid.uuid4().hex
+            
+            # Set temporary unique values for constrained fields
+
+            if not self.history_id:
+                self.history_id = f"temp_{temp_uuid}"
+            
+            # First save to get an ID
+            super().save(*args, **kwargs)
+            
+            # Now set the real IDs based on the ppap ID
+            new_history_id = f"{self.id}ppap"
+            
+            # Use update to avoid another save() call
+            PPAP.objects.filter(id=self.id).update(
+                history_id=new_history_id
+            )
+            
+            # Update the instance attributes to match the database
+            self.history_id = new_history_id
+        else:
+            # For existing records, save normally
+            super().save(*args, **kwargs)

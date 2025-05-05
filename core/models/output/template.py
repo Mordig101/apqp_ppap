@@ -15,12 +15,3 @@ class OutputTemplate(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        # Ensure configuration is JSON
-        if isinstance(self.configuration, str):
-            try:
-                self.configuration = json.loads(self.configuration)
-            except json.JSONDecodeError:
-                self.configuration = {"error": "Invalid JSON"}
-        
-        super().save(*args, **kwargs)

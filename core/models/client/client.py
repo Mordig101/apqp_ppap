@@ -1,5 +1,24 @@
-from core.models import Client  # Import the Client model
+from django.db import models
+import uuid
+import json
 
+class Client(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    code = models.JSONField(default=dict)  # Stores code information as JSON
+    description = models.TextField(blank=True, null=True)
+    team = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, related_name='clients')
+    contact_id = models.CharField(max_length=100, unique=True)
+    history_id = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = 'client'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+    
 def save(self, *args, **kwargs):
     # Prepare for a new record
     create_new = self.id is None

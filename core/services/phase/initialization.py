@@ -3,6 +3,7 @@ from django.db import transaction
 from core.models import Phase, PhaseTemplate
 from core.services.history.initialization import initialize_history
 from core.services.output.initialization import initialize_outputs
+from core.services.history.phase import record_phase_creation, record_phase_update
 
 @transaction.atomic
 def initialize_phases(ppap_id, ppap_level):
@@ -14,21 +15,18 @@ def initialize_phases(ppap_id, ppap_level):
     
     phases = []
     
-    for template in phase_templates:
-        # Generate history ID
-        history_id = f"{uuid.uuid4().hex}phase"
-        
+    for template in phase_templates:        
         # Create phase record
         phase = Phase.objects.create(
             template=template,
             ppap_id=ppap_id,
             status='Not Started',
-            history_id=history_id
         )
         
-        # Initialize history record
+        # Record creation in history
+        record_phase_creation(phase)
         
-        # Initialize outputs for this phase
+        # Initialize outputs
         initialize_outputs(phase.id, ppap_level)
         
         phases.append(phase)

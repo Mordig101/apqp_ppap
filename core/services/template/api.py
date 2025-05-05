@@ -15,9 +15,19 @@ from core.services.template.functions import (
     update_phase_template_ppap_levels,
     update_output_template_name,
     update_output_template_configuration,
+    update_output_template_phase,
     clone_phase_template,
-    clone_output_template
+    clone_output_template,
+    delete_phase_template,
+    delete_output_template
 )
+
+__all__ = [
+    'initialize_phase_template',
+    'initialize_output_template',
+    'get_phase_template_by_id',
+    # ... other functions ...
+]
 
 def update_phase_template(template, name=None, description=None, order=None, ppap_levels=None):
     """

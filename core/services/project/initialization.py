@@ -3,6 +3,7 @@ from django.db import transaction
 from core.models import Project, PPAP, FastQuery
 from core.services.history.initialization import initialize_history
 from core.services.ppap.initialization import initialize_ppap
+from core.services.history.project import record_project_creation
 
 @transaction.atomic
 def initialize_project(name, description, client_id, team_id, ppap_level=3):
@@ -19,8 +20,9 @@ def initialize_project(name, description, client_id, team_id, ppap_level=3):
         client_id=client_id,
         team_id=team_id,
         status='Planning',
-        history_id=history_id
     )
+    
+    record_project_creation(project)
     
     # Initialize PPAP
     ppap = initialize_ppap(project.id, ppap_level)

@@ -11,6 +11,7 @@ from core.services.history.person import (
     record_person_department_change,
     record_person_deletion
 )
+from core.services.history.contact import record_contact_creation
 
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
@@ -58,7 +59,7 @@ class PersonViewSet(viewsets.ModelViewSet):
             
             # Create contact
             if contact_data:
-                Contact.objects.create(
+                contact=Contact.objects.create(
                     id=person.contact_id,
                     address=contact_data.get('address', ''),
                     email=contact_data.get('email', ''),
@@ -68,6 +69,7 @@ class PersonViewSet(viewsets.ModelViewSet):
             
             # Record in history
             record_person_creation(person)
+            record_contact_creation(contact)
             
             serializer = self.get_serializer(person)
             return Response(serializer.data, status=status.HTTP_201_CREATED)

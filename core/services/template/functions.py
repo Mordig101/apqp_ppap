@@ -1,5 +1,8 @@
 from core.models import PhaseTemplate, OutputTemplate
 
+
+
+
 def get_phase_template_by_id(template_id):
     """
     Get phase template by ID
@@ -77,8 +80,12 @@ def update_phase_template_name(template, name):
     Returns:
         PhaseTemplate: Updated template
     """
+    old_name = template.name
     template.name = name
     template.save()
+    
+    # Record history
+    
     return template
 
 def update_phase_template_description(template, description):
@@ -94,6 +101,9 @@ def update_phase_template_description(template, description):
     """
     template.description = description
     template.save()
+    
+    # Record history
+    
     return template
 
 def update_phase_template_order(template, order):
@@ -107,8 +117,12 @@ def update_phase_template_order(template, order):
     Returns:
         PhaseTemplate: Updated template
     """
+    old_order = template.order
     template.order = order
     template.save()
+    
+    # Record history
+    
     return template
 
 def update_phase_template_ppap_levels(template, ppap_levels):
@@ -124,6 +138,9 @@ def update_phase_template_ppap_levels(template, ppap_levels):
     """
     template.ppap_levels = ppap_levels
     template.save()
+    
+    # Record history
+    
     return template
 
 def update_output_template_name(template, name):
@@ -137,8 +154,12 @@ def update_output_template_name(template, name):
     Returns:
         OutputTemplate: Updated template
     """
+    old_name = template.name
     template.name = name
     template.save()
+    
+    # Record history
+    
     return template
 
 def update_output_template_configuration(template, configuration):
@@ -152,8 +173,36 @@ def update_output_template_configuration(template, configuration):
     Returns:
         OutputTemplate: Updated template
     """
+    old_config = template.configuration
     template.configuration = configuration
     template.save()
+    
+    # Record history
+    
+    return template
+
+def update_output_template_phase(template, phase_template_id):
+    """
+    Update output template phase
+    
+    Args:
+        template (OutputTemplate): Template to update
+        phase_template_id (int): New phase template ID
+        
+    Returns:
+        OutputTemplate: Updated template
+    """
+    old_phase_id = template.phase_template.id if template.phase_template else None
+    
+    # Get the phase template
+    phase_template = get_phase_template_by_id(phase_template_id)
+    
+    # Update the template
+    template.phase_template = phase_template
+    template.save()
+    
+    # Record history
+    
     return template
 
 def clone_phase_template(template_id, new_name=None):
@@ -176,6 +225,8 @@ def clone_phase_template(template_id, new_name=None):
         order=original.order,
         ppap_levels=original.ppap_levels
     )
+    
+    # Record history
     
     return clone
 
@@ -200,4 +251,98 @@ def clone_output_template(template_id, new_name=None):
         configuration=original.configuration
     )
     
+    # Record history
+    
     return clone
+
+def create_phase_template(name, description=None, order=None, ppap_levels=None):
+    """
+    Create a new phase template
+    
+    Args:
+        name (str): Template name
+        description (str, optional): Template description
+        order (int, optional): Template order
+        ppap_levels (list, optional): PPAP levels
+        
+    Returns:
+        PhaseTemplate: Created template
+    """
+    from core.services.template.initialization import initialize_phase_template
+    return initialize_phase_template(
+        name=name,
+        description=description or "",
+        order=order or 0,
+        ppap_levels=ppap_levels
+    )
+
+def create_output_template(name, phase_template_id, ppap_element_id=None, configuration=None):
+    """
+    Create a new output template
+    
+    Args:
+        name (str): Template name
+        phase_template_id (int): Phase template ID
+        ppap_element_id (int, optional): PPAP element ID
+        configuration (dict, optional): Template configuration
+        
+    Returns:
+        OutputTemplate: Created template
+    """
+    # Get related objects
+    phase_template = get_phase_template_by_id(phase_template_id)
+    
+    ppap_element = None
+    if ppap_element_id:
+        from core.models import PPAPElement
+        ppap_element = PPAPElement.objects.get(id=ppap_element_id)
+    
+    from core.services.template.initialization import initialize_output_template
+    return initialize_output_template(
+        name=name,
+        phase_template=phase_template,
+        ppap_element=ppap_element,
+        configuration=configuration
+    )
+
+def delete_phase_template(template_id):
+    """
+    Delete a phase template
+    
+    Args:
+        template_id (int): Template ID to delete
+        
+    Returns:
+        bool: True if deleted, False otherwise
+    """
+    try:
+        template = get_phase_template_by_id(template_id)
+        
+        # Record history before deletion
+        
+        # Delete the template
+        template.delete()
+        return True
+    except Exception:
+        return False
+
+def delete_output_template(template_id):
+    """
+    Delete an output template
+    
+    Args:
+        template_id (int): Template ID to delete
+        
+    Returns:
+        bool: True if deleted, False otherwise
+    """
+    try:
+        template = get_output_template_by_id(template_id)
+        
+        # Record history before deletion
+        
+        # Delete the template
+        template.delete()
+        return True
+    except Exception:
+        return False

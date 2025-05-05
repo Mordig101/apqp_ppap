@@ -17,12 +17,12 @@ def record_phase_creation(phase):
     Returns:
         History: Created history record
     """
-    # Phase already has a history_id from its save() method
-    # Initialize a new history record
+    from core.services.history.initialization import initialize_history
+    
     history = initialize_history(
-        title=f"{phase.template.name} for PPAP {phase.ppap_id}",
+        title=phase.template.name,  # FIXED
         event_type="create",
-        event_details=f"Phase created with ID {phase.id} for PPAP {phase.ppap_id}",
+        event_details=f"Phase created for PPAP {phase.ppap_id}",
         table_name='phase',
         history_id=phase.history_id
     )

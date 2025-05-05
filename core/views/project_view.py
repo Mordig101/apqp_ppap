@@ -37,6 +37,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+            
     
     @action(detail=True, methods=['get'])
     def history(self, request, pk=None):

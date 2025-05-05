@@ -14,8 +14,9 @@ from core.services.person.functions import (
 )
 from core.services.history.person import (
     record_person_creation,
-    record_person_deletion
+    record_person_deletion,
 )
+from core.services.history.contact import record_contact_creation
 
 # Person service API
 from core.services.person.initialization import initialize_person
@@ -104,9 +105,7 @@ def api_create_person(request):
                 phone=contact_data.get('phone', ''),
                 type='person'
             )
-        
-        # Record in history
-        record_person_creation(person)
+       
         
         serializer = PersonSerializer(person)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

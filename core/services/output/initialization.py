@@ -36,18 +36,23 @@ def initialize_outputs(phase_id, ppap_level, preserve_existing=False):
         if preserve_existing and template.id in existing_template_ids:
             continue
         
-        # Generate history ID
-        history_id = f"{uuid.uuid4().hex}output"
-        
-        # Create output record
+        # Create output record without specifying history_id
+        # Let the model's save method handle history_id generation
         output = Output.objects.create(
             template=template,
             phase=phase,
-            status='Not Started',
-            history_id=history_id
+            status='Not Started'
         )
         
-        # Initialize history record - FIXED PARAMETERS HERE
+        # Initialize history record with the model-generated history_id
+        initialize_history(
+            title=f"{template.name} for Phase {phase.template.name}",  # FIXED
+            event_type="create",
+            event_details=f"Output created based on template {template.id}",
+            table_name='output',
+            history_id=output.history_id
+        )
+        
         outputs.append(output)
     
     return outputs

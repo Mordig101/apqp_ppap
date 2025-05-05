@@ -74,6 +74,7 @@ from core.services.history.contact import (
     get_contact_history
 )
 
+
 # Export all functions for use in views
 __all__ = [
     # Initialization
@@ -151,5 +152,6 @@ __all__ = [
     'record_contact_creation',
     'record_contact_update',
     'record_contact_deletion',
-    'get_contact_history'
+    'get_contact_history',
+    
 ]

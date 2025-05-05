@@ -24,6 +24,8 @@ def initialize_phase_template(name, description='', order=0, ppap_levels=None):
         template.ppap_levels = ppap_levels
         template.save()
     
+    # Record in history
+    
     return template
 
 def initialize_output_template(name, phase_template, ppap_element, configuration=None):
@@ -41,7 +43,7 @@ def initialize_output_template(name, phase_template, ppap_element, configuration
     """
     template = OutputTemplate.objects.create(
         name=name,
-        phase_template=phase_template,
+        phase=phase_template,  # Changed from phase_template to phase
         ppap_element=ppap_element,
         configuration=configuration or {}
     )

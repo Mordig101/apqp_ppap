@@ -100,7 +100,6 @@ def add_document_to_output(output_id, document_data, uploader_id):
         output=output,
         version=document_data.get('version', '1.0'),
         status=document_data.get('status', 'Draft'),
-        history_id=f"{uuid.uuid4().hex}document"
     )
     
     # Record document creation in history
