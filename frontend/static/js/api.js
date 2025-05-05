@@ -352,6 +352,35 @@ class ApiClient {
     return this.request("POST", `/api/output-templates/${id}/clone/`, data)
   }
 
+  // PPAP Element API methods
+  async getPPAPElements() {
+    return this.request("GET", "/api/ppap-elements/")
+  }
+
+  async getPPAPElement(id) {
+    return this.request("GET", `/api/ppap-elements/${id}/`)
+  }
+
+  async createPPAPElement(data) {
+    return this.request("POST", "/api/ppap-elements/", data)
+  }
+
+  async updatePPAPElement(id, data) {
+    return this.request("PUT", `/api/ppap-elements/${id}/`, data)
+  }
+
+  async deletePPAPElement(id) {
+    return this.request("DELETE", `/api/ppap-elements/${id}/`)
+  }
+  
+  async getPPAPElementsByLevel(level) {
+    return this.request("GET", `/api/ppap-elements/by_level/?level=${level}`)
+  }
+
+  async seedPPAPElements() {
+    return this.request("POST", "/api/ppap-elements/seed/")
+  }
+
   // Todo API methods
   async getTodos() {
     return this.request("GET", "/api/todos/")
@@ -438,6 +467,175 @@ class ApiClient {
   async deleteUser(id) {
     return this.request("DELETE", `/api/users/${id}/`)
   }
+
+  // Add these methods to your ApiClient class in frontend/static/js/api.js
+
+// Authorization API methods
+async getAuthorizations() {
+  return this.request("GET", "/api/authorizations/")
+}
+
+async getAuthorization(id) {
+  return this.request("GET", `/api/authorizations/${id}/`)
+}
+
+async createAuthorization(data) {
+  return this.request("POST", "/api/authorizations/", data)
+}
+
+async updateAuthorization(id, data) {
+  return this.request("PUT", `/api/authorizations/${id}/`, data)
+}
+
+async deleteAuthorization(id) {
+  return this.request("DELETE", `/api/authorizations/${id}/`)
+}
+
+async assignUserAuthorization(userId, authorizationId) {
+  return this.request("POST", "/api/authorizations/assign/", {
+    user_id: userId,
+    authorization_id: authorizationId
+  })
+}
+
+// Dashboard and Analytics API methods
+async getDashboardSummary() {
+  return this.request("GET", "/api/dashboard/summary/")
+}
+
+async getProjectMetrics() {
+  return this.request("GET", "/api/dashboard/metrics/projects/")
+}
+
+async getPPAPMetrics() {
+  return this.request("GET", "/api/dashboard/metrics/ppaps/")
+}
+
+async getTeamWorkload() {
+  return this.request("GET", "/api/dashboard/teams/workload/")
+}
+
+async getUpcomingDeadlines(days = 14) {
+  return this.request("GET", `/api/dashboard/deadlines/?days=${days}`)
+}
+// Reporting API methods
+async generateProjectReport(projectId, format = 'pdf') {
+  return this.request("GET", `/api/reports/project/${projectId}/?format=${format}`)
+}
+
+async generatePPAPReport(ppapId, format = 'pdf') {
+  return this.request("GET", `/api/reports/ppap/${ppapId}/?format=${format}`)
+}
+
+async generateCustomReport(filters) {
+  return this.request("POST", "/api/reports/custom/", filters)
+}
+
+// Notifications API methods
+async getNotifications(unreadOnly = false) {
+  return this.request("GET", `/api/notifications/?unread_only=${unreadOnly}`)
+}
+
+async markNotificationRead(notificationId) {
+  return this.request("POST", `/api/notifications/${notificationId}/mark_read/`)
+}
+
+async markAllNotificationsRead() {
+  return this.request("POST", "/api/notifications/mark_all_read/")
+}
+
+async setNotificationPreferences(preferences) {
+  return this.request("PUT", "/api/notifications/preferences/", preferences)
+}
+
+// Advanced PPAP management functions
+async getPPAPTimeline(ppapId) {
+  return this.request("GET", `/api/ppaps/${ppapId}/timeline/`)
+}
+
+async updatePPAPLevel(ppapId, newLevel) {
+  return this.request("POST", `/api/ppaps/${ppapId}/change_level/`, { level: newLevel })
+}
+
+async generatePPAPSubmission(ppapId) {
+  return this.request("POST", `/api/ppaps/${ppapId}/generate_submission/`)
+}
+
+async reviewPPAP(ppapId, reviewData) {
+  return this.request("POST", `/api/ppaps/${ppapId}/review/`, reviewData)
+}
+
+async approvePPAP(ppapId, comments = "") {
+  return this.request("POST", `/api/ppaps/${ppapId}/approve/`, { comments })
+}
+
+async rejectPPAP(ppapId, reasons) {
+  return this.request("POST", `/api/ppaps/${ppapId}/reject/`, { reasons })
+}
+
+// Bulk operations
+async bulkAssignOutputs(outputIds, assigneeId) {
+  return this.request("POST", "/api/outputs/bulk_assign/", {
+    output_ids: outputIds,
+    assignee_id: assigneeId
+  })
+}
+
+async bulkUpdateStatus(entityType, entityIds, status) {
+  return this.request("POST", `/api/bulk/${entityType}/update_status/`, {
+    ids: entityIds,
+    status: status
+  })
+}
+
+async bulkExport(entityType, filters = {}, format = 'xlsx') {
+  return this.request("POST", `/api/bulk/${entityType}/export/?format=${format}`, filters)
+}
+
+// Calendar API methods
+async getCalendarEvents(startDate, endDate) {
+  return this.request("GET", `/api/calendar/events/?start=${startDate}&end=${endDate}`)
+}
+
+async createCalendarEvent(eventData) {
+  return this.request("POST", "/api/calendar/events/", eventData)
+}
+
+async exportCalendar(format = 'ical') {
+  return this.request("GET", `/api/calendar/export/?format=${format}`)
+}
+
+// Enhanced document management
+async getDocumentVersions(documentId) {
+  return this.request("GET", `/api/documents/${documentId}/versions/`)
+}
+
+async compareDocumentVersions(documentId, versionId1, versionId2) {
+  return this.request("GET", `/api/documents/${documentId}/compare/?v1=${versionId1}&v2=${versionId2}`)
+}
+
+async uploadDocumentRevision(documentId, formData) {
+  // Special handling for file uploads
+  const url = this.baseUrl + `/api/documents/${documentId}/revisions/`
+  const options = {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": this.csrfToken
+    },
+    body: formData,  // Note: Content-Type is automatically set by the browser
+    credentials: 'include'
+  }
+  
+  const response = await fetch(url, options)
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.error || `HTTP error ${response.status}`)
+  }
+  
+  return await response.json()
+}
+
+
 
   // Phase management methods
   async assignPhaseResponsible(phaseId, responsibleId) {

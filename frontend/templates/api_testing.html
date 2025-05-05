@@ -111,8 +111,10 @@
             <div class="tab" onclick="openTab(event, 'contact-tab')">Contact</div>
             <div class="tab" onclick="openTab(event, 'department-tab')">Department</div>
             <div class="tab" onclick="openTab(event, 'template-tab')">Template</div>
+            <div class="tab" onclick="openTab(event, 'ppap-element-tab')">PPAP Element</div>
             <div class="tab" onclick="openTab(event, 'todo-tab')">Todo</div>
             <div class="tab" onclick="openTab(event, 'history-tab')">History</div>
+            <div class="tab" onclick="openTab(event, 'authorization-tab')">Authorization</div>
         </div>
         
         <!-- Project Tab -->
@@ -494,6 +496,37 @@
             </div>
         </div>
         
+        <!-- PPAP Element Tab -->
+        <div id="ppap-element-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">PPAP Element Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppap-elements/')">GET /api/ppap-elements/ - List all PPAP elements</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppap-elements/{id}/')">GET /api/ppap-elements/{id}/ - Get PPAP element details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppap-elements/', {
+  'name': 'Design Records',
+  'level': '1,2,3,4,5'
+})">POST /api/ppap-elements/ - Create new PPAP element</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/ppap-elements/{id}/', {
+  'name': 'Updated Design Records',
+  'level': '1,2,3,4,5,custom'
+})">PUT /api/ppap-elements/{id}/ - Update PPAP element</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/ppap-elements/{id}/')">DELETE /api/ppap-elements/{id}/ - Delete PPAP element</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppap-elements/by_level/?level=3')">GET /api/ppap-elements/by_level/?level=3 - Get elements for PPAP level 3</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/ppap-elements/by_level/?level=custom')">GET /api/ppap-elements/by_level/?level=custom - Get elements for custom PPAP level</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppap-elements/seed/')">POST /api/ppap-elements/seed/ - Seed standard PPAP elements</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppap-elements/', {
+  'name': 'Process Capability Study',
+  'level': '3,4,5'
+})">POST /api/ppap-elements/ - Create capability study element</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/ppap-elements/', {
+  'name': 'Custom Quality Verification',
+  'level': 'custom'
+})">POST /api/ppap-elements/ - Create custom element</li>
+                </ul>
+            </div>
+        </div>
+        
         <!-- Todo Tab -->
         <div id="todo-tab" class="tab-content">
             <div class="api-section">
@@ -548,6 +581,42 @@
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/project/?project_id=1')">GET /api/history/project/ - Get project history</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/user/?user_id=5')">GET /api/history/user/ - Get user history</li>
                     <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/history/ppap/?ppap_id=1')">GET /api/history/ppap/ - Get PPAP history</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Authorization Tab -->
+        <div id="authorization-tab" class="tab-content">
+            <div class="api-section">
+                <div class="api-title">Authorization Endpoints</div>
+                <ul class="endpoint-list">
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/authorizations/')">GET /api/authorizations/ - List all authorizations</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('GET', '/api/authorizations/{id}/')">GET /api/authorizations/{id}/ - Get authorization details</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/authorizations/', {
+  'name': 'admin'
+})">POST /api/authorizations/ - Create admin authorization</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/authorizations/', {
+  'name': 'create'
+})">POST /api/authorizations/ - Create create authorization</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/authorizations/', {
+  'name': 'edit'
+})">POST /api/authorizations/ - Create edit authorization</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('PUT', '/api/authorizations/{id}/', {
+  'name': 'admin-updated'
+})">PUT /api/authorizations/{id}/ - Update authorization</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('DELETE', '/api/authorizations/{id}/')">DELETE /api/authorizations/{id}/ - Delete authorization</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/authorizations/assign/', {
+  'user_id': 1,
+  'authorization_id': 1
+})">POST /api/authorizations/assign/ - Assign authorization to user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/authorizations/assign/', {
+  'user_id': 2,
+  'authorization_id': 2
+})">POST /api/authorizations/assign/ - Assign create permission to user</li>
+                    <li class="endpoint-item" onclick="loadEndpoint('POST', '/api/authorizations/assign/', {
+  'user_id': 3,
+  'authorization_id': 3
+})">POST /api/authorizations/assign/ - Assign edit permission to user</li>
                 </ul>
             </div>
         </div>
