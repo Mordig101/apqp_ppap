@@ -1,13 +1,13 @@
 import type React from "react"
+import "./globals.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "APQP/PPAP Manager",
-  description: "Advanced Product Quality Planning and Production Part Approval Process Management System",
+  description: "Advanced Product Quality Planning and Production Part Approval Process",
 }
 
 export default function RootLayout({

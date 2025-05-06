@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-apqp-manager-development-key-change-in-production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # Allow all hosts in development
 
 # Application definition
 INSTALLED_APPS = [
@@ -29,7 +29,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware before CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -111,21 +111,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
 }
-
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only in development
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-]
 
 # Add this to your settings.py if not already present
 AUTH_USER_MODEL = 'core.User'
@@ -137,18 +128,22 @@ LOGOUT_REDIRECT_URL = '/login/'
 # CSRF settings
 CSRF_COOKIE_SAMESITE = 'Lax'  # Use 'None' for cross-origin requests
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1', 'http://localhost:8000']  # Add your frontend origin
+CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1', 'http://localhost:8000', 'http://localhost:3000']  # Add your frontend origin
 SESSION_COOKIE_SAMESITE = 'Lax'  # Use 'None' for cross-origin requests
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 
 # CORS settings (if you're using django-cors-headers)
+CORS_ALLOW_ALL_ORIGINS = True  # Only in development
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
     # Add other origins as needed
 ]
 CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
 # JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),

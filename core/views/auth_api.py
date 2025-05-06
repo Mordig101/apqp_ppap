@@ -9,9 +9,11 @@ import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 from core.models import User, Contact
+from django.views.decorators.csrf import csrf_exempt
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@csrf_exempt  # Add CSRF exemption for login endpoint
 def api_login(request):
     """
     API endpoint for user login
@@ -72,6 +74,7 @@ def api_login(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
+@csrf_exempt  # Add CSRF exemption for logout endpoint
 def api_logout(request):
     """
     API endpoint for user logout

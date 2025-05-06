@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -16,6 +15,23 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token")
+    if (token) {
+      // Verify token validity by fetching user data
+      authApi
+        .getCurrentUser()
+        .then(() => {
+          router.push("/dashboard")
+        })
+        .catch(() => {
+          // If token is invalid, remove it
+          localStorage.removeItem("auth_token")
+        })
+    }
+  }, [router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -24,9 +40,9 @@ export default function LoginPage() {
     try {
       await authApi.login(username, password)
       router.push("/dashboard")
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error:", err)
-      setError("Invalid username or password")
+      setError(err.message || "Invalid username or password")
       setLoading(false)
     }
   }

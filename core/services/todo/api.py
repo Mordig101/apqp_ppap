@@ -1,4 +1,5 @@
-from core.models import Todo
+from core.models import Todo, User, Output, Permission, Person
+from django.utils import timezone
 from core.services.todo.initialization import initialize_todo
 from core.services.todo.functions import (
     get_todo_by_id,
@@ -11,10 +12,40 @@ from core.services.todo.functions import (
     update_todo_status,
     update_todo_assigned_to
 )
+# Import the missing functions from logic.todo
+from core.services.logic.todo import (
+    create_todo,
+    get_user_todos,
+    get_pending_todos,
+    assign_todos_for_phase
+)
+
+# Re-export the functions from functions.py
+__all__ = [
+    'initialize_todo',
+    'get_todo_by_id',
+    'get_todos_by_person',
+    'get_todos_by_output',
+    'get_todos_by_status',
+    'update_todo_title',
+    'update_todo_description',
+    'update_todo_priority',
+    'update_todo_status',
+    'update_todo_assigned_to',
+    'update_todo',
+    'change_todo_status',
+    'reassign_todo',
+    'delete_todo',
+    # Add the missing functions
+    'create_todo',
+    'get_user_todos',
+    'get_pending_todos',
+    'assign_todos_for_phase'
+]
 
 def update_todo(todo, title=None, description=None, priority=None):
     """
-    Update todo
+    Update multiple todo fields at once
     
     Args:
         todo (Todo): Todo to update
@@ -26,14 +57,14 @@ def update_todo(todo, title=None, description=None, priority=None):
         Todo: Updated todo
     """
     if title is not None:
-        update_todo_title(todo, title)
-    
+        todo = update_todo_title(todo, title)
+        
     if description is not None:
-        update_todo_description(todo, description)
-    
+        todo = update_todo_description(todo, description)
+        
     if priority is not None:
-        update_todo_priority(todo, priority)
-    
+        todo = update_todo_priority(todo, priority)
+        
     return todo
 
 def change_todo_status(todo, status):

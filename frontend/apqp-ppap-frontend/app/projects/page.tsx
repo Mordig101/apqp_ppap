@@ -1,18 +1,29 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Search } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Progress } from "@/components/ui/progress"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { projectApi } from "@/config/api-utils"
-import type { Project } from "@/config/api-types"
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Search, PlusCircle } from "lucide-react"
 import { formatDate, getStatusColor } from "@/lib/utils"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -24,10 +35,13 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
       try {
         const data = await projectApi.getAllProjects()
-        setProjects(data)
+        // Ensure we're setting an array (even if the API returns something unexpected)
+        setProjects(Array.isArray(data) ? data : [])
       } catch (err) {
         console.error("Error fetching projects:", err)
         setError("Failed to load projects")
+        // Important: reset to empty array on error
+        setProjects([])
       } finally {
         setLoading(false)
       }
@@ -36,16 +50,19 @@ export default function ProjectsPage() {
     fetchProjects()
   }, [])
 
-  const filteredProjects = projects.filter(
-    (project) =>
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.client_details?.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  // Add a safety check before filtering
+  const filteredProjects = Array.isArray(projects) 
+    ? projects.filter(
+        (project) =>
+          project.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.client_details?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
 
   // Calculate project progress (simplified for now)
-  const getProjectProgress = (project: Project) => {
+  const getProjectProgress = (project) => {
     // This is a placeholder - in a real app, you'd calculate based on completed phases/outputs
-    const statusMap: Record<string, number> = {
+    const statusMap = {
       Planning: 10,
       "In Progress": 50,
       "On Hold": 30,
@@ -55,6 +72,8 @@ export default function ProjectsPage() {
 
     return statusMap[project.status] || 0
   }
+
+  // Rest of your code remains the same
 
   return (
     <DashboardLayout>
