@@ -1,0 +1,1387 @@
+### POST /auth/logout/
+
+- **Description**: Logs out the current user.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "message": "Successfully logged out"
+}
+```
+
+
+
+
+### GET /auth/user/
+
+- **Description**: Retrieves the current user's data. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "username": "admin",
+  "is_staff": true,
+  "is_superuser": true,
+  "first_name": "Admin",
+  "last_name": "User",
+  "email": "admin@example.com"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Not authenticated"
+}
+```
+
+
+
+
+## Projects
+
+### GET /projects/
+
+- **Description**: Lists all projects. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Project Alpha",
+    "description": "Initial project",
+    "client": 1,
+    "team": 1,
+    "status": "Planning",
+    "ppap": null,
+    "history_id": "history_id",
+    "client_details": {
+      "id": 1,
+      "name": "Client A",
+      "address": "123 Main St",
+      "code": {},
+      "description": "Test Client",
+      "contact_id": "contact_id",
+      "history_id": "history_id"
+    },
+    "team_details": {
+      "id": 1,
+      "name": "Engineering Team",
+      "description": "Team responsible for engineering tasks",
+      "history_id": "history_id"
+    },
+    "ppap_details": null
+  }
+]
+```
+
+
+
+
+### POST /projects/
+
+- **Description**: Creates a new project. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "name": "string (required)",
+  "description": "string",
+  "client_id": "integer (required)",
+  "team_id": "integer (required)",
+  "ppap_level": "integer (default: 3)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+  {
+    "id": 1,
+    "name": "Project Alpha",
+    "description": "Initial project",
+    "client": 1,
+    "team": 1,
+    "status": "Planning",
+    "ppap": 1,
+    "history_id": "history_id",
+    "client_details": {
+      "id": 1,
+      "name": "Client A",
+      "address": "123 Main St",
+      "code": {},
+      "description": "Test Client",
+      "contact_id": "contact_id",
+      "history_id": "history_id"
+    },
+    "team_details": {
+      "id": 1,
+      "name": "Engineering Team",
+      "description": "Team responsible for engineering tasks",
+      "history_id": "history_id"
+    },
+    "ppap_details": {
+      "id": 1,
+      "project": 1,
+      "level": 3,
+      "status": "Not Started",
+      "review": null,
+      "history_id": "history_id"
+    }
+  }
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Missing required fields: name, client_id, team_id"
+}
+```
+
+
+
+
+### GET /projects/id/
+
+- **Description**: Retrieves a specific project. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+  {
+    "id": 1,
+    "name": "Project Alpha",
+    "description": "Initial project",
+    "client": 1,
+    "team": 1,
+    "status": "Planning",
+    "ppap": 1,
+    "history_id": "history_id",
+    "client_details": {
+      "id": 1,
+      "name": "Client A",
+      "address": "123 Main St",
+      "code": {},
+      "description": "Test Client",
+      "contact_id": "contact_id",
+      "history_id": "history_id"
+    },
+    "team_details": {
+      "id": 1,
+      "name": "Engineering Team",
+      "description": "Team responsible for engineering tasks",
+      "history_id": "history_id"
+    },
+    "ppap_details": {
+      "id": 1,
+      "project": 1,
+      "level": 3,
+      "status": "Not Started",
+      "review": null,
+      "history_id": "history_id"
+    }
+  }
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Project with ID 1 not found"
+}
+```
+
+
+
+
+### PUT /projects/id/
+
+- **Description**: Updates a specific project. Requires authentication.
+- **Request Body**: (Partial update, any of the following)
+
+```json
+{
+  "name": "string",
+  "description": "string",
+  "client_id": "integer",
+  "team_id": "integer",
+  "status": "string"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+  {
+    "id": 1,
+    "name": "Project Alpha",
+    "description": "Updated project",
+    "client": 1,
+    "team": 1,
+    "status": "In Progress",
+    "ppap": 1,
+    "history_id": "history_id",
+    "client_details": {
+      "id": 1,
+      "name": "Client A",
+      "address": "123 Main St",
+      "code": {},
+      "description": "Test Client",
+      "contact_id": "contact_id",
+      "history_id": "history_id"
+    },
+    "team_details": {
+      "id": 1,
+      "name": "Engineering Team",
+      "description": "Team responsible for engineering tasks",
+      "history_id": "history_id"
+    },
+    "ppap_details": {
+      "id": 1,
+      "project": 1,
+      "level": 3,
+      "status": "Not Started",
+      "review": null,
+      "history_id": "history_id"
+    }
+  }
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Project with ID 1 not found"
+}
+```
+
+
+
+
+### DELETE /projects/id/
+
+- **Description**: Deletes a specific project. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```plaintext
+(204 No Content)
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Project with ID 1 not found"
+}
+```
+
+
+
+
+### GET /projects/id/history/
+
+- **Description**: Retrieves the history for a specific project. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": "history_id",
+    "title": "Project Alpha",
+    "event": "Project created with ID 1",
+    "table_name": "project",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Project with ID 1 not found"
+}
+```
+
+
+
+
+## PPAPs
+
+### GET /ppaps/
+
+- **Description**: Lists all PPAPs. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": 1,
+    "project": 1,
+    "level": 3,
+    "status": "Not Started",
+    "review": null,
+    "history_id": "history_id"
+  }
+]
+```
+
+
+
+
+### POST /ppaps/
+
+- **Description**: Creates a new PPAP. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "project": "integer (required)",
+  "level": "integer (required)",
+  "status": "string (default: Not Started)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "project": 1,
+  "level": 3,
+  "status": "Not Started",
+  "review": null,
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Invalid data"
+}
+```
+
+
+
+
+### GET /ppaps/id/
+
+- **Description**: Retrieves a specific PPAP. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "project": 1,
+  "level": 3,
+  "status": "Not Started",
+  "review": null,
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "PPAP with ID 1 not found"
+}
+```
+
+
+
+
+### PUT /ppaps/id/
+
+- **Description**: Updates a specific PPAP. Requires authentication.
+- **Request Body**: (Partial update, any of the following)
+
+```json
+{
+  "level": "integer",
+  "status": "string",
+  "review": "string"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "project": 1,
+  "level": 3,
+  "status": "In Progress",
+  "review": null,
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "PPAP with ID 1 not found"
+}
+```
+
+
+
+
+### DELETE /ppaps/id/
+
+- **Description**: Deletes a specific PPAP. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```plaintext
+(204 No Content)
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "PPAP with ID 1 not found"
+}
+```
+
+
+
+
+### GET /ppaps/id/history/
+
+- **Description**: Retrieves the history for a specific PPAP. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": "history_id",
+    "title": "PPAP for Project 1",
+    "event": "PPAP created with level 3",
+    "table_name": "ppap",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "PPAP with ID 1 not found"
+}
+```
+
+
+
+
+## Phases
+
+### GET /phases/
+
+- **Description**: Lists all phases. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": 1,
+    "template": 1,
+    "responsible": null,
+    "ppap": 1,
+    "status": "Not Started",
+    "history_id": "history_id"
+  }
+]
+```
+
+
+
+
+### POST /phases/
+
+- **Description**: Creates a new phase. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "template": "integer (required)",
+  "responsible": "integer",
+  "ppap": "integer (required)",
+  "status": "string (default: Not Started)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "template": 1,
+  "responsible": null,
+  "ppap": 1,
+  "status": "Not Started",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Invalid data"
+}
+```
+
+
+
+
+### GET /phases/id/
+
+- **Description**: Retrieves a specific phase. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "template": 1,
+  "responsible": null,
+  "ppap": 1,
+  "status": "Not Started",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Phase with ID 1 not found"
+}
+```
+
+
+
+
+### PUT /phases/id/
+
+- **Description**: Updates a specific phase. Requires authentication.
+- **Request Body**: (Partial update, any of the following)
+
+```json
+{
+  "template": "integer",
+  "responsible": "integer",
+  "status": "string"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "template": 1,
+  "responsible": null,
+  "ppap": 1,
+  "status": "In Progress",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Phase with ID 1 not found"
+}
+```
+
+
+
+
+### DELETE /phases/id/
+
+- **Description**: Deletes a specific phase. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```plaintext
+(204 No Content)
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Phase with ID 1 not found"
+}
+```
+
+
+
+
+### GET /phases/id/history/
+
+- **Description**: Retrieves the history for a specific phase. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": "history_id",
+    "title": "Phase 1",
+    "event": "Phase created",
+    "table_name": "phase",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Phase with ID 1 not found"
+}
+```
+
+
+
+
+## Outputs
+
+### GET /outputs/
+
+- **Description**: Lists all outputs. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": 1,
+    "template": 1,
+    "description": "Output description",
+    "document": null,
+    "user": null,
+    "phase": 1,
+    "status": "Not Started",
+    "history_id": "history_id"
+  }
+]
+```
+
+
+
+
+### POST /outputs/
+
+- **Description**: Creates a new output. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "template": "integer (required)",
+  "description": "string",
+  "document": "integer",
+  "user": "integer",
+  "phase": "integer (required)",
+  "status": "string (default: Not Started)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "template": 1,
+  "description": "Output description",
+  "document": null,
+  "user": null,
+  "phase": 1,
+  "status": "Not Started",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Invalid data"
+}
+```
+
+
+
+
+### GET /outputs/id/
+
+- **Description**: Retrieves a specific output. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "template": 1,
+  "description": "Output description",
+  "document": null,
+  "user": null,
+  "phase": 1,
+  "status": "Not Started",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Output with ID 1 not found"
+}
+```
+
+
+
+
+### PUT /outputs/id/
+
+- **Description**: Updates a specific output. Requires authentication.
+- **Request Body**: (Partial update, any of the following)
+
+```json
+{
+  "template": "integer",
+  "description": "string",
+  "document": "integer",
+  "user": "integer",
+  "status": "string"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "template": 1,
+  "description": "Updated output description",
+  "document": null,
+  "user": null,
+  "phase": 1,
+  "status": "In Progress",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Output with ID 1 not found"
+}
+```
+
+
+
+
+### DELETE /outputs/id/
+
+- **Description**: Deletes a specific output. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```plaintext
+(204 No Content)
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Output with ID 1 not found"
+}
+```
+
+
+
+
+### GET /outputs/id/history/
+
+- **Description**: Retrieves the history for a specific output. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": "history_id",
+    "title": "Output 1",
+    "event": "Output created",
+    "table_name": "output",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Output with ID 1 not found"
+}
+```
+
+
+
+
+## Documents
+
+### GET /documents/
+
+- **Description**: Lists all documents. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Document 1",
+    "description": "Document description",
+    "file_path": "path/to/file",
+    "file_type": "pdf",
+    "file_size": 1024,
+    "uploader": 1,
+    "output": 1,
+    "version": "1.0",
+    "status": "Draft",
+    "history_id": "history_id"
+  }
+]
+```
+
+
+
+
+### POST /documents/
+
+- **Description**: Creates a new document. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "name": "string (required)",
+  "description": "string",
+  "file_path": "string (required)",
+  "output_id": "integer (required)",
+  "file_type": "string (required)",
+  "file_content": "string (required)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "name": "Document 1",
+  "description": "Document description",
+  "file_path": "path/to/file",
+  "file_type": "pdf",
+  "file_size": 1024,
+  "uploader": 1,
+  "output": 1,
+  "version": "1.0",
+  "status": "Draft",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Missing required fields: name, output_id, file_type, file_content"
+}
+```
+
+
+
+
+### GET /documents/id/
+
+- **Description**: Retrieves a specific document. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "name": "Document 1",
+  "description": "Document description",
+  "file_path": "path/to/file",
+  "file_type": "pdf",
+  "file_size": 1024,
+  "uploader": 1,
+  "output": 1,
+  "version": "1.0",
+  "status": "Draft",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Document with ID 1 not found"
+}
+```
+
+
+
+
+### PUT /documents/id/
+
+- **Description**: Updates a specific document. Requires authentication.
+- **Request Body**: (Partial update, any of the following)
+
+```json
+{
+  "name": "string",
+  "status": "string"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "name": "Updated Document",
+  "description": "Document description",
+  "file_path": "path/to/file",
+  "file_type": "pdf",
+  "file_size": 1024,
+  "uploader": 1,
+  "output": 1,
+  "version": "1.0",
+  "status": "Approved",
+  "history_id": "history_id"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Document with ID 1 not found"
+}
+```
+
+
+
+
+### DELETE /documents/id/
+
+- **Description**: Deletes a specific document. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```plaintext
+(204 No Content)
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Document with ID 1 not found"
+}
+```
+
+
+
+
+## API Views
+
+### GET /test/
+
+- **Description**: Test API endpoint to verify the API is working.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "status": "success",
+  "message": "API is working correctly",
+  "version": "1.0"
+}
+```
+
+
+
+
+### GET /dashboard/
+
+- **Description**: Get dashboard data for the current user. Requires authentication.
+- **Request Parameters**:
+
+- `level` (optional): PPAP level to filter by.
+
+
+
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "projects": [
+    {
+      "id": 1,
+      "name": "Project Alpha",
+      "status": "Planning",
+      "ppap_level": 3,
+      "ppap_status": "Not Started",
+      "client": "Client A",
+      "team": "Engineering Team"
+    }
+  ],
+  "todos": [
+    {
+      "id": 1,
+      "output_id": 1,
+      "output_name": "Output 1",
+      "phase_id": 1,
+      "phase_name": "Phase 1",
+      "project_id": 1,
+      "project_name": "Project Alpha",
+      "permission": "e",
+      "status": "Not Started"
+    }
+  ]
+}
+```
+
+
+
+
+### GET /user-permissions/
+
+- **Description**: Get permissions for the current user. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "permissions": {
+    "global_permission": "admin",
+    "output_permissions": []
+  },
+  "authorization": {
+    "user_id": 1,
+    "username": "admin",
+    "authorization_level": "admin",
+    "permissions": {
+      "can_create": [
+        "project",
+        "ppap",
+        "phase",
+        "output",
+        "document",
+        "user",
+        "client",
+        "team"
+      ],
+      "can_read": [
+        "project",
+        "ppap",
+        "phase",
+        "output",
+        "document",
+        "user",
+        "client",
+        "team"
+      ],
+      "can_update": [
+        "project",
+        "ppap",
+        "phase",
+        "output",
+        "document",
+        "user",
+        "client",
+        "team"
+      ],
+      "can_delete": [
+        "project",
+        "ppap",
+        "phase",
+        "output",
+        "document",
+        "user",
+        "client",
+        "team"
+      ]
+    }
+  }
+}
+```
+
+
+
+
+### POST /change-status/
+
+- **Description**: Change status of an entity. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "entity_type": "string (project, ppap, phase, output)",
+  "entity_id": "integer (required)",
+  "status": "string (required)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "success": true,
+  "message": "project status changed to In Progress"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Invalid entity type: invalid"
+}
+```
+
+
+
+
+### POST /assign-permission/
+
+- **Description**: Assign permission to a user for an output. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "user_id": "integer (required)",
+  "output_id": "integer (required)",
+  "permission_type": "string (r, e) (required)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "success": true,
+  "message": "Permission e assigned to user 2 for output 3"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Not authorized to assign permissions"
+}
+```
+
+
+
+
+### POST /assign-phase-responsible/
+
+- **Description**: Assign a responsible user to a phase and create todos. Requires authentication.
+- **Request Body**:
+
+```json
+{
+  "phase_id": "integer (required)",
+  "responsible_id": "integer (required)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "success": true,
+  "message": "Responsible user 2 assigned to phase 3 with 5 todos"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Not authorized to assign phase responsible"
+}
+```
+
+
+
+
+## Authentication Endpoints
+
+### POST /auth/login/
+
+- **Description**: Logs in a user and returns a JWT token.
+- **Request Body**:
+
+```json
+{
+  "username": "string (required)",
+  "password": "string (required)"
+}
+```
+
+
+- **Response Example (Success)**:
+
+```json
+{
+  "token": "JWT token",
+  "user": {
+    "id": 1,
+    "username": "admin",
+    "is_staff": true,
+    "is_superuser": true,
+    "first_name": "Admin",
+    "last_name": "User",
+    "email": "admin@example.com"
+  }
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Invalid credentials"
+}
+```
+
+
+
+
+### POST /auth/logout/
+
+- **Description**: Logs out the current user.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "message": "Successfully logged out"
+}
+```
+
+
+
+
+### GET /auth/user/
+
+- **Description**: Retrieves the current user's data. Requires authentication.
+- **Request Body**: (None)
+- **Response Example (Success)**:
+
+```json
+{
+  "id": 1,
+  "username": "admin",
+  "is_staff": true,
+  "is_superuser": true,
+  "first_name": "Admin",
+  "last_name": "User",
+  "email": "admin@example.com"
+}
+```
+
+
+- **Response Example (Failure)**:
+
+```json
+{
+  "error": "Not authenticated"
+}
+```
+
+
+
+
+```plaintext
+
+```

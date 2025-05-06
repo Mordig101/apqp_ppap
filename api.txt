@@ -1,0 +1,1605 @@
+================================================================================
+                      APQP/PPAP Manager API Documentation                       
+================================================================================
+
+This document provides a comprehensive reference to the APQP/PPAP Manager API endpoints.
+
+TABLE OF CONTENTS
+----------------
+
+1. Ppap
+2. Phase
+3. Output
+4. Document
+5. User
+6. Client
+7. Team
+8. Person
+9. Department
+10. Contact
+11. Template
+12. Ppap-element
+13. Todo
+14. History
+15. Authorization
+
+
+================================================================================
+                                    Ppap API                                    
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppaps/
+Method: GET
+Description: List all PPAPs
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppaps/{id}/
+Method: GET
+Description: Get PPAP details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppaps/
+Method: POST
+Description: Create new PPAP
+
+Request Body:
+```json
+{
+  "project": "integer (required)",
+  "level": "integer (required)",
+  "status": "string (default: Not Started)"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppaps/{id}/
+Method: PUT
+Description: Update PPAP
+
+Request Body:
+```json
+{
+  "level": 4,
+  "status": "in_progress",
+  "description": "Updated PPAP requirements"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppaps/{id}/
+Method: DELETE
+Description: Delete PPAP
+
+
+================================================================================
+                                   Phase API                                    
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phases/
+Method: GET
+Description: List all phases
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phases/{id}/
+Method: GET
+Description: Get phase details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phases/
+Method: POST
+Description: Create new phase
+
+Request Body:
+```json
+{
+  "ppap_id": 1,
+  "name": "Design Verification",
+  "description": "Verify that the design meets all requirements",
+  "order": 1,
+  "status": "planning",
+  "start_date": "2025-06-15",
+  "target_end_date": "2025-07-15"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phases/{id}/
+Method: PUT
+Description: Update phase
+
+Request Body:
+```json
+{
+  "name": "Design Validation",
+  "status": "in_progress",
+  "target_end_date": "2025-07-30"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phases/{id}/
+Method: DELETE
+Description: Delete phase
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/assign_phase_responsible/
+Method: POST
+Description: Assign responsible person to a phase
+
+Request Body:
+```json
+{
+  "phase_id": 1,
+  "responsible_id": 5
+}
+```
+
+
+================================================================================
+                                   Output API                                   
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/
+Method: GET
+Description: List all outputs
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/{id}/
+Method: GET
+Description: Get output details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/
+Method: POST
+Description: Create new output
+
+Request Body:
+```json
+{
+  "phase_id": 1,
+  "name": "New Output",
+  "ppap_element_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/{id}/
+Method: PUT
+Description: Update output
+
+Request Body:
+```json
+{
+  "name": "Updated Output",
+  "status": "in_progress"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/{id}/
+Method: DELETE
+Description: Delete output
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/
+Method: POST
+Description: Create new output
+
+Request Body:
+```json
+{
+  "phase_id": 1,
+  "name": "Design Specifications",
+  "description": "Complete design specifications document",
+  "ppap_element_id": 1,
+  "status": "pending",
+  "assigned_to_id": 5,
+  "due_date": "2025-07-01"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/outputs/{id}/
+Method: PUT
+Description: Update output
+
+Request Body:
+```json
+{
+  "name": "Design Specifications v2",
+  "status": "in_progress",
+  "assigned_to_id": 7
+}
+```
+
+
+================================================================================
+                                  Document API                                  
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/documents/
+Method: GET
+Description: List all documents
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/documents/{id}/
+Method: GET
+Description: Get document details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/documents/
+Method: POST
+Description: Create new document
+
+Request Body:
+```json
+{
+  "output_id": 1,
+  "name": "Design Specifications.pdf",
+  "file_path": "/uploads/documents/spec_v1.pdf",
+  "version": "1.0",
+  "status": "draft",
+  "uploaded_by_id": 5
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/documents/{id}/
+Method: PUT
+Description: Update document
+
+Request Body:
+```json
+{
+  "name": "Design Specifications Final.pdf",
+  "version": "1.1",
+  "status": "review"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/documents/{id}/
+Method: DELETE
+Description: Delete document
+
+
+================================================================================
+                                    User API                                    
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/users/
+Method: GET
+Description: List all users
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/users/{id}/
+Method: GET
+Description: Get user details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/users/
+Method: POST
+Description: Create new user
+
+Request Body:
+```json
+{
+  "username": "newuser",
+  "password": "password123",
+  "authorization_id": 1,
+  "is_active": true,
+  "is_staff": false,
+  "is_superuser": false,
+  "first_name": "New",
+  "last_name": "User",
+  "email": "new.user@example.com",
+  "department_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/users/{id}/
+Method: PUT
+Description: Update user
+
+Request Body:
+```json
+{
+  "username": "updateduser",
+  "authorization_id": 2,
+  "is_active": true,
+  "is_staff": true,
+  "is_superuser": false,
+  "person_data": {
+    "first_name": "Updated",
+    "last_name": "User",
+    "department_id": 3,
+    "email": "updated@example.com"
+  }
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/users/{id}/
+Method: PATCH
+Description: Partially update user
+
+Request Body:
+```json
+{
+  "username": "patcheduser",
+  "person_data": {
+    "email": "patched@example.com"
+  }
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/users/{id}/
+Method: DELETE
+Description: Delete user
+
+
+================================================================================
+                                   Client API                                   
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/clients/
+Method: GET
+Description: List all clients
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/clients/{id}/
+Method: GET
+Description: Get client details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/clients/
+Method: POST
+Description: Create new client
+
+Request Body:
+```json
+{
+  "name": "Acme Corporation",
+  "address": "123 Business Ave, City",
+  "code": {
+    "fiscal": "ABC123",
+    "duns": "987654321"
+  },
+  "description": "Manufacturing company",
+  "team_id": 2,
+  "contact": {
+    "email": "info@acme.com",
+    "phone": "555-ACME"
+  }
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/clients/{id}/
+Method: PUT
+Description: Update client
+
+Request Body:
+```json
+{
+  "name": "Updated Acme Corp",
+  "address": "456 Enterprise Blvd",
+  "description": "Global manufacturing leader",
+  "contact": {
+    "email": "contact@acme.com"
+  }
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/clients/{id}/
+Method: DELETE
+Description: Delete client
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/clients/{id}/projects/
+Method: GET
+Description: Get client projects
+
+
+================================================================================
+                                    Team API                                    
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/
+Method: GET
+Description: List all teams
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/{id}/
+Method: GET
+Description: Get team details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/
+Method: POST
+Description: Create new team
+
+Request Body:
+```json
+{
+  "name": "New Team",
+  "description": "Team description"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/{id}/
+Method: PUT
+Description: Update team
+
+Request Body:
+```json
+{
+  "name": "Updated Team"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/{id}/
+Method: DELETE
+Description: Delete team
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/{id}/add_member/
+Method: POST
+Description: Add member to team
+
+Request Body:
+```json
+{
+  "person_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/{id}/remove_member/
+Method: POST
+Description: Remove member from team
+
+Request Body:
+```json
+{
+  "person_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/
+Method: POST
+Description: Create new team
+
+Request Body:
+```json
+{
+  "name": "Quality Assurance",
+  "description": "QA team for product testing",
+  "department_id": 3,
+  "member_ids": [
+    1,
+    5,
+    8
+  ]
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/teams/{id}/
+Method: PUT
+Description: Update team
+
+Request Body:
+```json
+{
+  "name": "Quality Control",
+  "description": "QC team focused on process verification",
+  "department_id": 4
+}
+```
+
+
+================================================================================
+                                   Person API                                   
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/
+Method: GET
+Description: List all persons
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/{id}/
+Method: GET
+Description: Get person details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/
+Method: POST
+Description: Create new person
+
+Request Body:
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "department_id": 2,
+  "team_ids": [
+    1,
+    3
+  ],
+  "contact": {
+    "address": "123 Main St",
+    "email": "john.doe@example.com",
+    "phone": "555-1234"
+  }
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/{id}/
+Method: PUT
+Description: Update person
+
+Request Body:
+```json
+{
+  "first_name": "Jane",
+  "last_name": "Smith",
+  "department_id": 3,
+  "team_ids": [
+    2,
+    4
+  ],
+  "contact": {
+    "email": "jane.smith@example.com",
+    "phone": "555-5678"
+  }
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/{id}/
+Method: DELETE
+Description: Delete person
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/{id}/add_to_team/
+Method: POST
+Description: Add person to team
+
+Request Body:
+```json
+{
+  "team_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/{id}/remove_from_team/
+Method: POST
+Description: Remove person from team
+
+Request Body:
+```json
+{
+  "team_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/?name=John
+Method: GET
+Description: Search persons by name
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/?department_id=2
+Method: GET
+Description: Filter persons by department
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/?team_id=3
+Method: GET
+Description: Filter persons by team
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/persons/?is_user=true
+Method: GET
+Description: Filter persons who are users
+
+
+================================================================================
+                                 Department API                                 
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/
+Method: GET
+Description: List all departments
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/{id}/
+Method: GET
+Description: Get department details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/
+Method: POST
+Description: Create new department
+
+Request Body:
+```json
+{
+  "name": "Engineering",
+  "responsible_id": 5
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/{id}/
+Method: PUT
+Description: Update department
+
+Request Body:
+```json
+{
+  "name": "Research & Development",
+  "responsible_id": 7
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/{id}/
+Method: DELETE
+Description: Delete department
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/{id}/members/
+Method: GET
+Description: Get department members
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/departments/{id}/teams/
+Method: GET
+Description: Get department teams
+
+
+================================================================================
+                                  Contact API                                   
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/
+Method: GET
+Description: List all contacts
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/{id}/
+Method: GET
+Description: Get contact details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/
+Method: POST
+Description: Create new contact
+
+Request Body:
+```json
+{
+  "address": "123 Main St, Suite 400",
+  "email": "contact@example.com",
+  "phone": "555-123-4567",
+  "type": "person"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/{id}/
+Method: PUT
+Description: Update contact
+
+Request Body:
+```json
+{
+  "email": "updated@example.com",
+  "phone": "555-987-6543"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/{id}/
+Method: DELETE
+Description: Delete contact
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/by_type/?type=person
+Method: GET
+Description: Get contacts by type
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/by_type/?type=person
+Method: GET
+Description: Get contacts by type (person/client)
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/contacts/by_type/?type=client
+Method: GET
+Description: Get client contacts
+
+
+================================================================================
+                                  Template API                                  
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/
+Method: GET
+Description: List all phase templates
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/
+Method: GET
+Description: Get phase template details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/
+Method: POST
+Description: Create new phase template
+
+Request Body:
+```json
+{
+  "name": "New Phase Template",
+  "description": "Template description",
+  "order": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/
+Method: PUT
+Description: Update phase template
+
+Request Body:
+```json
+{
+  "name": "Updated Phase Template"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/
+Method: DELETE
+Description: Delete phase template
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/by_level/?level=3
+Method: GET
+Description: Get templates by PPAP level
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/clone/
+Method: POST
+Description: Clone template
+
+Request Body:
+```json
+{
+  "name": "Cloned Template"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/
+Method: GET
+Description: List all output templates
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/
+Method: GET
+Description: Get output template details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/
+Method: POST
+Description: Create new output template
+
+Request Body:
+```json
+{
+  "name": "New Output Template",
+  "phase_id": 1,
+  "ppap_element_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/
+Method: PUT
+Description: Update output template
+
+Request Body:
+```json
+{
+  "name": "Updated Output Template"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/
+Method: DELETE
+Description: Delete output template
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/by_phase/?phase_id=1
+Method: GET
+Description: Get templates by phase
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/by_element/?element_id=1
+Method: GET
+Description: Get templates by PPAP element
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/clone/
+Method: POST
+Description: Clone template
+
+Request Body:
+```json
+{
+  "name": "Cloned Template"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/
+Method: POST
+Description: Create new phase template
+
+Request Body:
+```json
+{
+  "name": "Design Verification Template",
+  "description": "Standard template for design verification phase",
+  "ppap_level": 3,
+  "order": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/
+Method: PUT
+Description: Update phase template
+
+Request Body:
+```json
+{
+  "name": "Enhanced Design Verification",
+  "description": "Updated template with enhanced verification steps"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/
+Method: DELETE
+Description: Delete phase template
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/phase-templates/{id}/clone/
+Method: POST
+Description: Clone template
+
+Request Body:
+```json
+{
+  "name": "Cloned Design Verification"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/
+Method: GET
+Description: List all output templates
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/
+Method: GET
+Description: Get output template details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/
+Method: POST
+Description: Create new output template
+
+Request Body:
+```json
+{
+  "name": "Design Specification Document",
+  "description": "Template for design specification document",
+  "phase_template_id": 1,
+  "ppap_element_id": 3,
+  "estimated_hours": 8
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/
+Method: PUT
+Description: Update output template
+
+Request Body:
+```json
+{
+  "name": "Enhanced Design Specification Document",
+  "estimated_hours": 12
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/
+Method: DELETE
+Description: Delete output template
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/by_phase/?phase_id=1
+Method: GET
+Description: Get templates by phase
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/by_element/?element_id=3
+Method: GET
+Description: Get templates by PPAP element
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/output-templates/{id}/clone/
+Method: POST
+Description: Clone template
+
+Request Body:
+```json
+{
+  "name": "Cloned Design Specification"
+}
+```
+
+
+================================================================================
+                                Ppap-element API                                
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/
+Method: GET
+Description: List all PPAP elements
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/{id}/
+Method: GET
+Description: Get PPAP element details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/
+Method: POST
+Description: Create new PPAP element
+
+Request Body:
+```json
+{
+  "name": "Design Records",
+  "level": "1,2,3,4,5"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/{id}/
+Method: PUT
+Description: Update PPAP element
+
+Request Body:
+```json
+{
+  "name": "Updated Design Records",
+  "level": "1,2,3,4,5,custom"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/{id}/
+Method: DELETE
+Description: Delete PPAP element
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/by_level/?level=3
+Method: GET
+Description: Get elements for PPAP level 3
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/by_level/?level=custom
+Method: GET
+Description: Get elements for custom PPAP level
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/seed/
+Method: POST
+Description: Seed standard PPAP elements
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/
+Method: POST
+Description: Create capability study element
+
+Request Body:
+```json
+{
+  "name": "Process Capability Study",
+  "level": "3,4,5"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/ppap-elements/
+Method: POST
+Description: Create custom element
+
+Request Body:
+```json
+{
+  "name": "Custom Quality Verification",
+  "level": "custom"
+}
+```
+
+
+================================================================================
+                                    Todo API                                    
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/
+Method: GET
+Description: List all todos
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/
+Method: GET
+Description: Get todo details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/
+Method: POST
+Description: Create new todo
+
+Request Body:
+```json
+{
+  "title": "New Todo",
+  "description": "Todo description",
+  "assigned_to_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/
+Method: PUT
+Description: Update todo
+
+Request Body:
+```json
+{
+  "title": "Updated Todo"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/
+Method: DELETE
+Description: Delete todo
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/change_status/
+Method: POST
+Description: Change todo status
+
+Request Body:
+```json
+{
+  "status": "completed"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/reassign/
+Method: POST
+Description: Reassign todo
+
+Request Body:
+```json
+{
+  "person_id": 2
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/by_person/?person_id=1
+Method: GET
+Description: Get todos by person
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/by_output/?output_id=1
+Method: GET
+Description: Get todos by output
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/by_status/?status=pending
+Method: GET
+Description: Get todos by status
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/
+Method: POST
+Description: Create new todo
+
+Request Body:
+```json
+{
+  "title": "Review Design Specifications",
+  "description": "Complete review of design specifications document",
+  "assigned_to_id": 5,
+  "output_id": 1,
+  "priority": "high",
+  "due_date": "2025-06-25",
+  "status": "pending"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/
+Method: PUT
+Description: Update todo
+
+Request Body:
+```json
+{
+  "title": "Final Review of Design Specifications",
+  "priority": "urgent",
+  "status": "in_progress"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/reassign/
+Method: POST
+Description: Reassign todo
+
+Request Body:
+```json
+{
+  "person_id": 7
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/by_person/?person_id=5
+Method: GET
+Description: Get todos by person
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/by_output/?output_id=1
+Method: GET
+Description: Get todos by output
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/by_status/?status=pending
+Method: GET
+Description: Get todos by status
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/change_status/
+Method: POST
+Description: Change todo status
+
+Request Body:
+```json
+{
+  "status": "completed"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/todos/{id}/reassign/
+Method: POST
+Description: Reassign todo
+
+Request Body:
+```json
+{
+  "person_id": 7
+}
+```
+
+
+================================================================================
+                                  History API                                   
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/history/
+Method: GET
+Description: List all history records
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/history/{id}/
+Method: GET
+Description: Get history record details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/history/project/?project_id=1
+Method: GET
+Description: Get project history
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/history/user/?user_id=5
+Method: GET
+Description: Get user history
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/history/ppap/?ppap_id=1
+Method: GET
+Description: Get PPAP history
+
+
+================================================================================
+                               Authorization API                                
+================================================================================
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/
+Method: GET
+Description: List all authorizations
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/{id}/
+Method: GET
+Description: Get authorization details
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/
+Method: POST
+Description: Create admin authorization
+
+Request Body:
+```json
+{
+  "name": "admin"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/
+Method: POST
+Description: Create create authorization
+
+Request Body:
+```json
+{
+  "name": "create"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/
+Method: POST
+Description: Create edit authorization
+
+Request Body:
+```json
+{
+  "name": "edit"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/{id}/
+Method: PUT
+Description: Update authorization
+
+Request Body:
+```json
+{
+  "name": "admin-updated"
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/{id}/
+Method: DELETE
+Description: Delete authorization
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/assign/
+Method: POST
+Description: Assign authorization to user
+
+Request Body:
+```json
+{
+  "user_id": 1,
+  "authorization_id": 1
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/assign/
+Method: POST
+Description: Assign create permission to user
+
+Request Body:
+```json
+{
+  "user_id": 2,
+  "authorization_id": 2
+}
+```
+
+
+--------------------------------------------------------------------------------
+Endpoint: /api/authorizations/assign/
+Method: POST
+Description: Assign edit permission to user
+
+Request Body:
+```json
+{
+  "user_id": 3,
+  "authorization_id": 3
+}
+```
+
+
+================================================================================
+                               API CLIENT METHODS                               
+================================================================================
+
+The following methods are available in the JavaScript API client:
+
+- request()
+- getProjects()
+- getProject()
+- createProject()
+- updateProject()
+- deleteProject()
+- getPPAPs()
+- getPPAP()
+- createPPAP()
+- updatePPAP()
+- getPhases()
+- getPhase()
+- createPhase()
+- updatePhase()
+- getOutputs()
+- getOutput()
+- createOutput()
+- updateOutput()
+- getDocuments()
+- getDocument()
+- createDocument()
+- updateDocument()
+- getTeams()
+- getTeam()
+- createTeam()
+- updateTeam()
+- addTeamMember()
+- removeTeamMember()
+- getPersons()
+- getPerson()
+- createPerson()
+- updatePerson()
+- addPersonToTeam()
+- removePersonFromTeam()
+- deletePerson()
+- getDepartments()
+- getDepartment()
+- createDepartment()
+- updateDepartment()
+- getDepartmentMembers()
+- deleteDepartment()
+- getDepartmentTeams()
+- getContacts()
+- getContact()
+- createContact()
+- updateContact()
+- deleteContact()
+- getContactsByType()
+- getClients()
+- getClient()
+- createClient()
+- updateClient()
+- deleteClient()
+- getClientProjects()
+- getPhaseTemplates()
+- getPhaseTemplate()
+- createPhaseTemplate()
+- updatePhaseTemplate()
+- deletePhaseTemplate()
+- getPhaseTemplatesByLevel()
+- clonePhaseTemplate()
+- getOutputTemplates()
+- getOutputTemplate()
+- createOutputTemplate()
+- updateOutputTemplate()
+- deleteOutputTemplate()
+- getOutputTemplatesByPhase()
+- getOutputTemplatesByElement()
+- cloneOutputTemplate()
+- getPPAPElements()
+- getPPAPElement()
+- createPPAPElement()
+- updatePPAPElement()
+- deletePPAPElement()
+- getPPAPElementsByLevel()
+- seedPPAPElements()
+- getTodos()
+- getTodo()
+- createTodo()
+- updateTodo()
+- deleteTodo()
+- changeTodoStatus()
+- reassignTodo()
+- getTodosByPerson()
+- getTodosByOutput()
+- getTodosByStatus()
+- getHistory()
+- getProjectHistory()
+- getHistoryRecord()
+- getUserHistory()
+- getPpapHistory()
+- getUserPermissions()
+- getUsers()
+- getUser()
+- createUser()
+- updateUser()
+- deleteUser()
+- getAuthorizations()
+- getAuthorization()
+- createAuthorization()
+- updateAuthorization()
+- deleteAuthorization()
+- assignUserAuthorization()

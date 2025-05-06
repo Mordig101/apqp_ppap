@@ -1,3 +1,5 @@
 
 # dependencies
 /venv
+/frontend/apqp-ppap-frontend/node_modules
+/frontend/apqp-ppap-frontend/.next

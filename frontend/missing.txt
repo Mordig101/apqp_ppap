@@ -1,0 +1,71 @@
+# Missing API Endpoints Analysis
+
+After analyzing the frontend requirements and available API endpoints, I've identified the following missing API endpoints that are necessary for the frontend to function properly:
+
+## 1. Timeline Management Endpoints
+
+The frontend includes timeline views and management features, but there are no dedicated API endpoints for:
+
+- GET /timeline/project/{id} - Get timeline for a specific project
+- GET /timeline/phase/{id} - Get timeline for a specific phase
+- POST /timeline/project/{id} - Update project timeline
+- POST /timeline/phase/{id} - Update phase timeline
+
+## 2. Statistics and Analytics Endpoints
+
+The Statistics subtab requires specialized endpoints:
+
+- GET /statistics/project/{id} - Get statistics for a specific project
+- GET /statistics/phase/{id} - Get statistics for a specific phase
+- GET /statistics/user/{id} - Get statistics for a specific user
+- GET /statistics/team/{id} - Get statistics for a specific team
+
+## 3. RACI Matrix Endpoints
+
+The "Prepare for APQP" subtab mentions RACI Matrix setup, but no endpoints exist:
+
+- GET /raci-matrix/project/{id} - Get RACI matrix for a project
+- POST /raci-matrix/project/{id} - Create/update RACI matrix
+- GET /raci-matrix/templates - Get RACI matrix templates
+
+## 4. Advanced Filtering Endpoints
+
+The frontend needs better filtering capabilities:
+
+- GET /projects/filter - Filter projects by multiple criteria
+- GET /history/filter - Filter history by user, date, action, etc.
+- GET /outputs/filter - Filter outputs by status, user, deadline, etc.
+
+## 5. Bulk Operations Endpoints
+
+For efficiency, bulk operation endpoints are needed:
+
+- POST /outputs/bulk-status-update - Update status of multiple outputs
+- POST /phases/bulk-deadline-update - Update deadlines for multiple phases
+- POST /todos/bulk-assign - Assign multiple todos at once
+
+## 6. Analysis and Reporting Endpoints
+
+For advanced analytics:
+
+- GET /analyse/project/{id} - Get analysis data for a project
+- GET /analyse/phase/{id} - Get analysis data for a phase
+- GET /analyse/team/{id} - Get analysis data for a team
+- POST /reports/generate - Generate custom reports
+
+## 7. History Editor Endpoints
+
+For managing history records:
+
+- POST /history-editor/update-dates - Update dates in history records
+- POST /history-editor/set-deadline - Set deadline for an entity
+- GET /history-editor/get-deadline - Get deadline for an entity
+- POST /history-editor/bulk-set-deadlines - Set deadlines for multiple entities
+
+## 8. Workspace-specific Endpoints
+
+For the workspace functionality:
+
+- GET /workspace/inputs/{phaseId} - Get inputs for a specific phase
+- GET /workspace/outputs/{phaseId} - Get outputs for a specific phase
+- POST /workspace/link-input-output - Link an input to an output for traceability

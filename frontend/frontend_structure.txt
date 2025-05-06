@@ -1,0 +1,66 @@
+apqp-ppap-frontend/
+├── components/
+│   ├── ui/           # Shadcn/ui components
+│   │   ├── button.tsx
+│   │   └── ...
+│   ├── layout/       # Layout components
+│   │   ├── dashboard-layout.tsx
+│   │   └── ...
+│   ├── sidebar/      # Sidebar components
+│   │   ├── sidebar.tsx
+│   │   ├── main-nav.tsx
+│   │   └── ...
+│   └── ...
+├── config/
+│   ├── api.ts        # API endpoint definitions and base URL
+│   ├── api-types.ts  # Types for API requests and responses
+│   └── api-utils.ts  # Utility functions for making API requests
+├── hooks/
+│   └── use-mobile.tsx  # Hook to detect mobile devices
+├── lib/
+│   └── utils.ts      # Utility functions (e.g., cn for classnames)
+├── app/
+│   ├── (dashboard)/   # Grouping route for dashboard
+│   │   ├── projects/
+│   │   │   ├── [projectId]/
+│   │   │   │   ├── workspace/
+│   │   │   │   │   ├── page.tsx        # Workspace page
+│   │   │   │   │   ├── components/   # Workspace specific components
+│   │   │   │   │   │   ├── input-area.tsx
+│   │   │   │   │   │   ├── output-area.tsx
+│   │   │   │   │   │   └── ...
+│   │   │   │   │   └── ...
+│   │   │   │   ├── statistics/
+│   │   │   │   │   └── page.tsx        # Statistics page
+│   │   │   │   ├── progress/
+│   │   │   │   │   └── page.tsx        # Progress page
+│   │   │   │   ├── settings/
+│   │   │   │   │   └── page.tsx        # Settings page
+│   │   │   │   ├── history/
+│   │   │   │   │   └── page.tsx        # History page
+│   │   │   │   └── page.tsx            # Projects page
+│   │   │   └── page.tsx                # Projects list page
+│   ├── (settings)/    # Grouping route for settings
+│   │   ├── users/
+│   │   │   └── page.tsx                # Users settings page
+│   │   ├── teams/
+│   │   │   └── page.tsx                # Teams settings page
+│   │   ├── clients/
+│   │   │   └── page.tsx                # Clients settings page
+│   │   ├── templates/
+│   │   │   ├── phases/
+│   │   │   │   └── page.tsx            # Phase templates settings page
+│   │   │   ├── outputs/
+│   │   │   │   └── page.tsx            # Output templates settings page
+│   │   │   ├── ppap-elements/
+│   │   │   │   └── page.tsx            # PPAP elements settings page
+│   │   │   └── authorizations/
+│   │   │       └── page.tsx            # Authorizations settings page
+│   ├── layout.tsx      # Root layout
+│   ├── page.tsx        # Home page
+│   └── ...
+├── public/
+│   └── ...
+├── tailwind.config.js
+├── tsconfig.json
+└── package.json

@@ -4,8 +4,7 @@ from core.views import (
     project_view, ppap_view, phase_view, output_view, document_view, 
     user_view, client_view, team_view, history_view, api_view, timeline_view,
     person_view, contact_view, department_view, template_view, todo_view,
-    ppap_element_view, authorization_view, statistics_view, analyse_view,  # Add this import
-    history_editor_view
+    ppap_element_view, authorization_view ,auth_api
 )
 
 # Set up the REST API router
@@ -28,9 +27,6 @@ router.register(r'output-templates', template_view.OutputTemplateViewSet)
 router.register(r'todos', todo_view.TodoViewSet)
 router.register(r'ppap-elements', ppap_element_view.PPAPElementViewSet)
 router.register(r'authorizations', authorization_view.AuthorizationViewSet)
-router.register(r'statistics', statistics_view.StatisticsViewSet, basename='statistics')  # Add this line
-router.register(r'analyse', analyse_view.AnalyseViewSet, basename='analyse')
-router.register(r'history-editor', history_editor_view.HistoryEditorViewSet, basename='history-editor')
 
 # Get a reference to the ViewSet class
 timeline_viewset = timeline_view.TimelineViewSet.as_view({
@@ -66,8 +62,10 @@ urlpatterns = [
     # Phase responsibility
     path('assign-phase-responsible/', api_view.assign_phase_responsible_view, name='assign-phase-responsible'),
     
-    # Timeline management
-    path('set-project-timeline/', timeline_viewset, name='set-project-timeline'),
-    path('set-phase-timeline/', phase_timeline_viewset, name='set-phase-timeline'),
-    path('timeline/<int:pk>/overview/', timeline_overview_viewset, name='get-timeline-overview'),
+
+
+    # Authentication endpoints
+    path('auth/login/', auth_api.api_login, name='api_login'),
+    path('auth/logout/', auth_api.api_logout, name='api_logout'),
+    path('auth/user/', auth_api.api_get_user, name='api_get_user'),
 ]

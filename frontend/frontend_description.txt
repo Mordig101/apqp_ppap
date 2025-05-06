@@ -1,0 +1,526 @@
+apqp-ppap-frontend/
+├── components/
+│   ├── ui/           # Shadcn/ui components
+│   │   ├── button.tsx
+│   │   └── ...
+│   ├── layout/       # Layout components
+│   │   ├── dashboard-layout.tsx
+│   │   └── ...
+│   ├── sidebar/      # Sidebar components
+│   │   ├── sidebar.tsx
+│   │   ├── main-nav.tsx
+│   │   └── ...
+│   └── ...
+├── config/
+│   ├── api.ts        # API endpoint definitions and base URL
+│   ├── api-types.ts  # Types for API requests and responses
+│   └── api-utils.ts  # Utility functions for making API requests
+├── hooks/
+│   └── use-mobile.tsx  # Hook to detect mobile devices
+├── lib/
+│   └── utils.ts      # Utility functions (e.g., cn for classnames)
+├── app/
+│   ├── (dashboard)/   # Grouping route for dashboard
+│   │   ├── projects/
+│   │   │   ├── [projectId]/
+│   │   │   │   ├── workspace/
+│   │   │   │   │   ├── page.tsx        # Workspace page
+│   │   │   │   │   ├── components/   # Workspace specific components
+│   │   │   │   │   │   ├── input-area.tsx
+│   │   │   │   │   │   ├── output-area.tsx
+│   │   │   │   │   │   └── ...
+│   │   │   │   │   └── ...
+│   │   │   │   ├── statistics/
+│   │   │   │   │   └── page.tsx        # Statistics page
+│   │   │   │   ├── progress/
+│   │   │   │   │   └── page.tsx        # Progress page
+│   │   │   │   ├── settings/
+│   │   │   │   │   └── page.tsx        # Settings page
+│   │   │   │   ├── history/
+│   │   │   │   │   └── page.tsx        # History page
+│   │   │   │   └── page.tsx            # Projects page
+│   │   │   └── page.tsx                # Projects list page
+│   ├── (settings)/    # Grouping route for settings
+│   │   ├── users/
+│   │   │   └── page.tsx                # Users settings page
+│   │   ├── teams/
+│   │   │   └── page.tsx                # Teams settings page
+│   │   ├── clients/
+│   │   │   └── page.tsx                # Clients settings page
+│   │   ├── templates/
+│   │   │   ├── phases/
+│   │   │   │   └── page.tsx            # Phase templates settings page
+│   │   │   ├── outputs/
+│   │   │   │   └── page.tsx            # Output templates settings page
+│   │   │   ├── ppap-elements/
+│   │   │   │   └── page.tsx            # PPAP elements settings page
+│   │   │   └── authorizations/
+│   │   │       └── page.tsx            # Authorizations settings page
+│   ├── layout.tsx      # Root layout
+│   ├── page.tsx        # Home page
+│   └── ...
+├── public/
+│   └── ...
+├── tailwind.config.js
+├── tsconfig.json
+└── package.json
+
+###api.ts exemple
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+export const API_ENDPOINTS = {
+  projects: `${API_BASE_URL}/projects/`,
+  ppaps: `${API_BASE_URL}/ppaps/`,
+  phases: `${API_BASE_URL}/phases/`,
+  outputs: `${API_BASE_URL}/outputs/`,
+  documents: `${API_BASE_URL}/documents/`,
+  users: `${API_BASE_URL}/users/`,
+  clients: `${API_BASE_URL}/clients/`,
+  teams: `${API_BASE_URL}/teams/`,
+  history: `${API_BASE_URL}/history/`,
+  persons: `${API_BASE_URL}/persons/`,
+  contacts: `${API_BASE_URL}/contacts/`,
+  departments: `${API_BASE_URL}/departments/`,
+  phaseTemplates: `${API_BASE_URL}/phase-templates/`,
+  outputTemplates: `${API_BASE_URL}/output-templates/`,
+  ppapElements: `${API_BASE_URL}/ppap-elements/`,
+  authorizations: `${API_BASE_URL}/authorizations/`,
+  todos: `${API_BASE_URL}/todos/`,
+  authLogin: `${API_BASE_URL}/auth/login/`,
+  authLogout: `${API_BASE_URL}/auth/logout/`,
+  authUser: `${API_BASE_URL}/auth/user/`,
+  dashboard: `${API_BASE_URL}/dashboard/`,
+  userPermissions: `${API_BASE_URL}/user-permissions/`,
+  changeStatus: `${API_BASE_URL}/change-status/`,
+  assignPermission: `${API_BASE_URL}/assign-permission/`,
+  assignPhaseResponsible: `${API_BASE_URL}/assign-phase-responsible/`,
+};
+
+### api-types.ts  # Types for API requests and responses
+
+export interface Project {
+  id: number;
+  name: string;
+  description: string;
+  client: number;
+  team: number;
+  status: string;
+  ppap: number | null;
+  history_id: string;
+}
+
+export interface PPAP {
+  id: number;
+  project: number;
+  level: number;
+  status: string;
+  review: string | null;
+  history_id: string;
+}
+
+// Define other interfaces for Phase, Output, Document, User, etc.
+
+#### api-utils.ts exemple : 
+import { API_ENDPOINTS } from './api';
+
+interface RequestOptions {
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  headers?: HeadersInit;
+  body?: BodyInit | null;
+}
+
+const apiRequest = async <T>(endpoint: string, options: RequestOptions): Promise<T> => {
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+    // Add authorization headers if needed (e.g., JWT token)
+  };
+
+  const headers = { ...defaultHeaders, ...options.headers };
+
+  try {
+    const response = await fetch(endpoint, {
+      method: options.method,
+      headers,
+      body: options.body,
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    return await response.json() as T;
+  } catch (error) {
+    console.error('API request error:', error);
+    throw error;
+  }
+};
+
+export const api = {
+  get: async <T>(endpoint: string) => apiRequest<T>(endpoint, { method: 'GET' }),
+  post: async <T>(endpoint: string, data: any) => apiRequest<T>(endpoint, { method: 'POST', body: JSON.stringify(data) }),
+  put: async <T>(endpoint: string, data: any) => apiRequest<T>(endpoint, { method: 'PUT', body: JSON.stringify(data) }),
+  delete: async <T>(endpoint: string) => apiRequest<T>(endpoint, { method: 'DELETE' }),
+};
+
+
+login/register page
+when we connect we see : (Side bar :Main Tabs
+-Dashboard
+
+-Projects(
+
+Behavior:
+
+This tab is based on the selected project.
+
+When clicked, it shows a list of projects with the following columns:
+
+Project | Client | Phase | Progression | Status | PPAP | Team | Start Date | Deadline | Actions
+
+When a project is selected, the following subtabs appear:
+
+Workspace
+
+Statistics
+
+Progress
+
+Settings
+
+History
+
+Default View Before Selecting a Project:
+
+Shows only the “Projects” tab and one subtab: Prepare for APQP
+
+Subtab: Prepare for APQP
+
+Functions:
+
+Setup RACI Matrix and Team
+
+Define Client and Client’s Team
+
+APQP Preparation Tasks:
+
+Organize the Team
+
+Define the Scope
+
+Establish Team-to-Team Communication
+
+Provide Core Tools Training
+
+Involve Customers and Suppliers
+
+Implement Simultaneous Engineering
+
+Develop Control Plan Format
+
+Decide on Concern Resolution
+
+Develop Product Quality Timing Plan
+
+Subtab: Workspace
+
+Contains phase-based tabs (one tab per phase).
+
+Top of the Page:
+
+Split into two sections:
+
+Inputs (outputs from the previous phase)
+
+Outputs (deliverables of the current phase)
+
+Each section allows users to:
+
+View names of inputs/outputs
+
+Select inputs (read-only)
+
+Select outputs (editable)
+
+Bottom of the Page:
+
+Two display areas:
+
+Read Mode: Shows selected input/output in read-only view
+
+Edit Mode: Displays selected output in editable mode for user work
+
+Subtab: Statistics
+
+Displays analytics specific to the selected project or phase
+
+Subtab: Progress
+
+Shows overall progress of all project phases including:
+
+Status
+
+Deadlines
+
+Start Dates
+
+Alerts
+
+Purpose: Allows project managers to monitor overall progress
+
+Subtab: Settings
+
+Editable Elements:
+
+Teams
+
+Project Name
+
+Phases
+
+PPAP Levels
+
+Clients
+
+Deadlines
+
+More...
+
+Subtab: History
+
+Logs all historical activity
+
+Filterable by user, date, action, etc.
+)
+
+Settings(
+
+Tabs:
+
+General
+
+Users & Clients
+
+Subtabs:
+
+Users: Create, edit, delete users and set permissions
+
+Teams
+
+Clients
+
+Templates
+
+Subtabs:
+
+Phases
+
+Outputs
+
+PPAP Elements
+
+Authorizations
+
+Permissions
+
+History)
+
+Users can choose and view different history tables (based on historyId))
+## Dashboard Tab
+
+### Design
+
+The Dashboard tab provides a high-level overview of the APQP/PPAP processes. It should be designed to be visually appealing and easy to understand, allowing users to quickly grasp the current status of their projects and tasks.
+
+### Functionality
+
+-   **General Statistics**: Displays key metrics related to all projects, such as the number of projects in each status (Planning, In Progress, Completed, etc.), upcoming deadlines, and overdue tasks.
+-   **General Analysis**: Provides charts and graphs that visualize trends and patterns across all projects, such as the average time to complete a phase or the most common reasons for delays.
+
+
+## Projects Tab
+
+### Behavior
+
+This tab is based on the selected project. When clicked, it shows a list of projects.
+
+### Columns
+
+The project list displays the following columns:
+
+-   **Project**: Name of the project.
+-   **Client**: Name of the client associated with the project.
+-   **Phase**: Current phase of the project.
+-   **Progression**: Visual representation of the project's progress (e.g., a progress bar).
+-   **Status**: Current status of the project (e.g., Planning, In Progress, Completed).
+-   **PPAP**: PPAP level associated with the project.
+-   **Team**: Team responsible for the project.
+-   **Start Date**: Project start date.
+-   **Deadline**: Project deadline.
+-   **Actions**: Actions that can be performed on the project (e.g., Edit, Delete).
+
+### Default View Before Selecting a Project
+
+Shows only the “Projects” tab and one subtab: Prepare for APQP
+
+### Subtab: Prepare for APQP
+
+-   **Functions**:
+    -   Setup RACI Matrix and Team
+    -   Define Client and Client’s Team
+-   **APQP Preparation Tasks**:
+    -   Organize the Team
+    -   Define the Scope
+    -   Establish Team-to-Team Communication
+    -   Provide Core Tools Training
+    -   Involve Customers and Suppliers
+    -   Implement Simultaneous Engineering
+    -   Develop Control Plan Format
+    -   Decide on Concern Resolution
+    -   Develop Product Quality Timing Plan
+
+### Subtabs (After Selecting a Project)
+
+When a project is selected, the following subtabs appear:
+
+-   Workspace
+-   Statistics
+-   Progress
+-   Settings
+-   History
+
+## Workspace Subtab
+
+### General Structure
+
+The workspace is organized by phases (one tab per phase).
+
+When a user selects a phase tab (e.g., “Product Design”, “Process Design”, etc.), the workspace loads the corresponding data.
+
+Each phase tab includes its own list of inputs and expected outputs.
+
+The goal is to allow users to easily:
+
+-   Understand what was done previously
+-   Know what needs to be delivered now
+-   Work on the deliverables directly inside the platform
+
+### Top Section of the Workspace (Input/Output Selectors)
+
+Split into two panels (side-by-side):
+
+-   **Left Panel — Inputs (Read Only)**:
+    -   Displays a list of all available input documents/data coming from the previous phase.
+    -   Each item shows basic info: Name, Type, Date, Owner, Phase Origin
+    -   User can click to preview the content in read-only mode.
+    -   Useful to understand the context before starting work.
+    -   Example: If the current phase is "Process Design", inputs might include:
+        -   Product Design Specification
+        -   Customer Requirements
+        -   Risk Analysis Summary from the previous phase
+-   **Right Panel — Outputs (Editable)**:
+    -   Shows all the output items required for the current phase.
+    -   Each item includes: Name, Status (To Do, In Progress, Done), Deadline
+    -   User can select an output and begin editing or creating it.
+    -   Supports:
+        -   Text fields
+        -   Tables
+        -   File uploads (e.g., CAD files, PDFs)
+        -   Formatted documents
+        -   Comment zones
+        -   Auto-save and version history enabled (if applicable)
+
+### Bottom Section of the Workspace (Main Working Area)
+
+After choosing the input (left) and the output (right), the bottom section is activated and split into two functional views:
+
+-   **Left Section — Input Preview**:
+    -   Displays the full content of the selected input in read-only mode
+    -   Scrollable and searchable
+    -   Highlights key elements (e.g., risks, requirements)
+    -   May include an optional download or "compare with output" feature
+-   **Right Section — Output Editing**:
+    -   Full editable zone where the user works on the current phase deliverable
+    -   Rich Text Editor / Form Templates / Data Tables depending on the type of document
+    -   Input context (summary from left) remains visible for reference
+    -   Comments section (to tag collaborators, assign tasks)
+    -   Can attach files, diagrams, or link to other outputs
+    -   Button: "Mark as Done", "Request Review", or "Send to Next Phase"
+
+### Smart Features
+
+-   **Traceability Tags**: Link each output to the input it’s based on
+-   **Collaboration Tools**: Users can @mention teammates, assign items, or leave feedback
+-   **Phase Progress Bar**: At the top of the workspace to track completion of outputs
+-   **Validation Workflow**: Manager or validator can review and approve outputs
+-   **Change Log**: Every modification is logged (who, when, what changed)
+
+
+## Statistics Subtab
+
+### Design
+
+The Statistics subtab should present data in a clear and visually appealing manner, using charts, graphs, and tables to convey key insights.
+
+### Functionality
+
+-   Displays analytics specific to the selected project or phase.
+-   May include metrics such as:
+    -   Time to complete phases
+    -   Number of outputs completed per phase
+    -   Number of overdue tasks
+    -   Common reasons for delays
+    -   Resource allocation
+
+## Progress Subtab
+
+### Design
+
+The Progress subtab should provide a comprehensive overview of the project's progress, highlighting key milestones, deadlines, and potential issues.
+
+### Functionality
+
+-   Shows overall progress of all project phases, including:
+    -   Status
+    -   Deadlines
+    -   Start Dates
+    -   Alerts (e.g., overdue tasks, approaching deadlines)
+-   Allows project managers to monitor overall progress and identify potential bottlenecks.
+
+## Settings Subtab
+
+### Design
+
+The Settings subtab should provide a user-friendly interface for managing project-related settings.
+
+### Editable Elements
+
+-   Teams
+-   Project Name
+-   Phases
+-   PPAP Levels
+-   Clients
+-   Deadlines
+-   More...
+
+
+## Settings Tab
+
+### Design
+
+The Settings tab should provide a centralized location for managing various aspects of the APQP/PPAP process, including users, clients, templates, and authorizations.
+
+### Subtabs
+
+-   **General**:
+    -   (Description to be added later)
+-   **Users & Clients**:
+    -   Users: Create, edit, delete users and set authorizations.
+    -   Clients
+-   **Templates**:
+    -   Phases
+    -   Outputs
+    -   PPAP Elements
+-   **Authorizations**:
+    -   Permissions
+-   **History**:
+    -   Users can choose and view different history tables (based on historyId)
