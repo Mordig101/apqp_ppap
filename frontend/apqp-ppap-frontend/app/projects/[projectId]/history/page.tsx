@@ -1,89 +1,111 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { projectApi } from "@/config/api-utils"
+import { fetchApi } from "@/config/api-utils"
 import type { History } from "@/config/api-types"
-import { formatDate } from "@/lib/utils"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { format } from "date-fns"
 
-export default function HistoryPage() {
-  const params = useParams()
-  const projectId = Number(params.projectId)
-
+export default function ProjectHistoryPage({ params }: { params: { projectId: string } }) {
   const [history, setHistory] = useState<History[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const data = await projectApi.getProjectHistory(projectId)
-        setHistory(data)
+        setLoading(true)
+        const data = await fetchApi<History[]>(`/history/project/?project_id=${params.projectId}`)
+        // Ensure we always have an array
+        const historyArray = Array.isArray(data) ? data : data ? [data] : []
+        setHistory(historyArray)
       } catch (err) {
-        console.error("Error fetching project history:", err)
-        setError("Failed to load project history")
+        setError(err instanceof Error ? err.message : "Failed to fetch history")
+        console.error("Error fetching history:", err)
       } finally {
         setLoading(false)
       }
     }
 
-    if (projectId) {
-      fetchHistory()
+    fetchHistory()
+  }, [params.projectId])
+
+  // Get appropriate color for event type badge
+  const getEventTypeColor = (type: string) => {
+    switch (type) {
+      case "create":
+        return "bg-green-100 text-green-800"
+      case "update":
+        return "bg-blue-100 text-blue-800"
+      case "delete":
+        return "bg-red-100 text-red-800"
+      case "status_change":
+        return "bg-purple-100 text-purple-800"
+      case "complete":
+        return "bg-green-100 text-green-800"
+      default:
+        return "bg-gray-100 text-gray-800"
     }
-  }, [projectId])
+  }
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "MMM d, yyyy h:mm a")
+    } catch (err) {
+      return "Invalid date"
+    }
+  }
+
+  if (loading) {
+    return <div className="text-center py-10">Loading history...</div>
+  }
+
+  if (error) {
+    return <div className="text-center py-10 text-red-500">{error}</div>
+  }
+
+  if (history.length === 0) {
+    return <div className="text-center py-10">No history records found</div>
+  }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Project History</h1>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">Project History</h1>
 
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-          </div>
-        ) : error ? (
-          <div className="p-4 text-red-600 bg-red-100 rounded-md">{error}</div>
-        ) : history.length > 0 ? (
-          <Card>
+      <div className="space-y-4">
+        {history.map((item) => (
+          <Card key={item.id}>
             <CardHeader>
-              <CardTitle>Activity Log</CardTitle>
+              <div className="flex justify-between items-start">
+                <CardTitle>{item.title}</CardTitle>
+                <Badge>{item.table_name}</Badge>
+              </div>
+              <p className="text-sm text-gray-500">{formatDate(item.created_at)}</p>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Event</TableHead>
-                    <TableHead>Entity</TableHead>
-                    <TableHead>Details</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {history.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{formatDate(item.created_at)}</TableCell>
-                      <TableCell>
-                        {item.events && item.events.length > 0 ? item.events[0].type : "Unknown event"}
-                      </TableCell>
-                      <TableCell>{item.table_name}</TableCell>
-                      <TableCell>
-                        {item.events && item.events.length > 0 ? item.events[0].details : "No details available"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-4">
+                {item.events ? (
+                  item.events.map((event, index) => (
+                    <div key={index} className="border-l-2 border-gray-200 pl-4">
+                      <div className="flex items-center gap-2">
+                        <Badge className={getEventTypeColor(event.type)}>{event.type}</Badge>
+                        <span className="text-sm text-gray-500">{formatDate(event.timestamp)}</span>
+                      </div>
+                      <p className="mt-1">{event.details}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="border-l-2 border-gray-200 pl-4">
+                    <p>{item.event}</p>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No history records found</p>
-          </div>
-        )}
+        ))}
       </div>
-    </DashboardLayout>
+    </div>
   )
 }

@@ -1,12 +1,36 @@
 // User related types
+// In your api-types.ts file
 export interface User {
   id: number
   username: string
   is_staff: boolean
   is_superuser: boolean
-  first_name: string
-  last_name: string
-  email: string
+  person: number
+  authorization: number
+  last_login: string | null
+  is_active: boolean
+  history_id: string
+  person_details?: {
+    id: number
+    first_name: string
+    last_name: string
+    contact_id: string
+    is_user: boolean
+    history_id: string
+    teams: Array<{
+      id: number
+      name: string
+    }>
+    department: number
+  }
+  // Other fields...
+}
+
+export interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
 }
 
 export interface LoginRequest {
@@ -56,9 +80,29 @@ export interface Project {
   status: string
   ppap: number | null
   history_id: string
-  client_details?: Client
-  team_details?: Team
-  ppap_details?: PPAP
+  client_details?: {
+    id: number
+    name: string
+    address: string
+    code: Record<string, any>
+    description: string
+    contact_id: string
+    history_id: string
+  }
+  team_details?: {
+    id: number
+    name: string
+    description: string
+    history_id: string
+  }
+  ppap_details?: {
+    id: number
+    project: number
+    level: number
+    status: string
+    review: string | null
+    history_id: string
+  }
 }
 
 export interface ProjectCreateRequest {
@@ -92,9 +136,18 @@ export interface Phase {
   ppap: number
   status: string
   history_id: string
-  template_details?: PhaseTemplate
+  template_details?: {
+    id: number
+    name: string
+    description: string
+    order: number
+  }
   outputs?: Output[]
   responsible_details?: User
+  // Timeline properties
+  started_at?: string | null
+  deadline?: string | null
+  finished_at?: string | null
 }
 
 // Output related types
@@ -115,7 +168,15 @@ export interface Output {
   phase: number
   status: string
   history_id: string
-  template_details?: OutputTemplate
+  template_details?: {
+    id: number
+    name: string
+    ppap_element_details?: {
+      id: number
+      name: string
+      level: string
+    }
+  }
   documents?: Document[]
   user_details?: User
 }
@@ -146,13 +207,18 @@ export interface HistoryEvent {
 export interface History {
   id: string
   title: string
-  events: HistoryEvent[]
+  event: string
   table_name: string
   created_at: string
-  started_at?: string
-  updated_at?: string
-  deadline?: string
-  finished_at?: string
+  started_at?: string | null
+  updated_at?: string | null
+  deadline?: string | null
+  finished_at?: string | null
+  events?: Array<{
+    type: string
+    details: string
+    timestamp: string
+  }>
 }
 
 // Dashboard related types
@@ -179,8 +245,18 @@ export interface DashboardTodo {
 }
 
 export interface DashboardResponse {
-  projects: DashboardProject[]
-  todos: DashboardTodo[]
+  projects: Project[]
+  todos: {
+    id: number
+    output_id: number
+    output_name: string
+    phase_id: number
+    phase_name: string
+    project_id: number
+    project_name: string
+    permission: string
+    status: string
+  }[]
 }
 
 // Permission related types
@@ -247,4 +323,21 @@ export interface AssignPhaseResponsibleRequest {
 export interface AssignPhaseResponsibleResponse {
   success: boolean
   message: string
+}
+
+export interface AuthResponse {
+  token: string
+  user: {
+    id: number
+    username: string
+    is_staff: boolean
+    is_superuser: boolean
+    first_name: string
+    last_name: string
+    email: string
+  }
+}
+
+export interface ApiError {
+  error: string
 }
