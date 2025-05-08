@@ -1,0 +1,453 @@
+get : /api/phase-templates/
+{
+  "count": 8,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "output_templates": [
+        {
+          "id": 4,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Core Tools Training",
+          "configuration": {},
+          "phase": 1,
+          "ppap_element": 17
+        },
+        {
+          "id": 2,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Project Scope Definition",
+          "configuration": {},
+          "phase": 1,
+          "ppap_element": 17
+        },
+        {
+          "id": 3,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Team Communication Plan",
+          "configuration": {},
+          "phase": 1,
+          "ppap_element": 17
+        },
+        {
+          "id": 1,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Team Organization",
+          "configuration": {},
+          "phase": 1,
+          "ppap_element": 17
+        }
+      ],
+      "name": "Prepare for APQP",
+      "description": "Initial preparation phase for APQP",
+      "order": 1
+    },
+    {
+      "id": 7,
+      "output_templates": [
+        {
+          "id": 27,
+          "ppap_element_details": {
+            "id": 1,
+            "name": "Design Records",
+            "level": "1,2,3,4,5"
+          },
+          "name": "New Output Template",
+          "configuration": {},
+          "phase": 7,
+          "ppap_element": 1
+        }
+      ],
+      "name": "New Phase Template",
+      "description": "Template description",
+      "order": 1
+    },
+    {
+      "id": 8,
+      "output_templates": [],
+      "name": "phase1",
+      "description": "temlate test",
+      "order": 1
+    },
+    {
+      "id": 2,
+      "output_templates": [
+        {
+          "id": 6,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Business Plan",
+          "configuration": {},
+          "phase": 2,
+          "ppap_element": 17
+        },
+        {
+          "id": 7,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Product/Process Benchmark",
+          "configuration": {},
+          "phase": 2,
+          "ppap_element": 17
+        },
+        {
+          "id": 8,
+          "ppap_element_details": {
+            "id": 4,
+            "name": "Design FMEA",
+            "level": "2,3,4,5"
+          },
+          "name": "Reliability Studies",
+          "configuration": {},
+          "phase": 2,
+          "ppap_element": 4
+        },
+        {
+          "id": 5,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Voice of Customer",
+          "configuration": {},
+          "phase": 2,
+          "ppap_element": 17
+        }
+      ],
+      "name": "Plan and Define Program",
+      "description": "Planning and program definition phase",
+      "order": 2
+    },
+    {
+      "id": 3,
+      "output_templates": [
+        {
+          "id": 11,
+          "ppap_element_details": {
+            "id": 4,
+            "name": "Design FMEA",
+            "level": "2,3,4,5"
+          },
+          "name": "Design FMEA",
+          "configuration": {},
+          "phase": 3,
+          "ppap_element": 4
+        },
+        {
+          "id": 9,
+          "ppap_element_details": {
+            "id": 1,
+            "name": "Design Records",
+            "level": "1,2,3,4,5"
+          },
+          "name": "Design Goals",
+          "configuration": {},
+          "phase": 3,
+          "ppap_element": 1
+        },
+        {
+          "id": 12,
+          "ppap_element_details": {
+            "id": 1,
+            "name": "Design Records",
+            "level": "1,2,3,4,5"
+          },
+          "name": "Design Verification Plan",
+          "configuration": {},
+          "phase": 3,
+          "ppap_element": 1
+        },
+        {
+          "id": 10,
+          "ppap_element_details": {
+            "id": 1,
+            "name": "Design Records",
+            "level": "1,2,3,4,5"
+          },
+          "name": "Preliminary Bill of Material",
+          "configuration": {},
+          "phase": 3,
+          "ppap_element": 1
+        }
+      ],
+      "name": "Product Design and Development",
+      "description": "Design and development of the product",
+      "order": 3
+    },
+    {
+      "id": 4,
+      "output_templates": [
+        {
+          "id": 17,
+          "ppap_element_details": {
+            "id": 7,
+            "name": "Control Plan",
+            "level": "2,3,4,5"
+          },
+          "name": "Control Plan",
+          "configuration": {},
+          "phase": 4,
+          "ppap_element": 7
+        },
+        {
+          "id": 15,
+          "ppap_element_details": {
+            "id": 5,
+            "name": "Process Flow Diagrams",
+            "level": "2,3,4,5"
+          },
+          "name": "Floor Plan Layout",
+          "configuration": {},
+          "phase": 4,
+          "ppap_element": 5
+        },
+        {
+          "id": 13,
+          "ppap_element_details": {
+            "id": 5,
+            "name": "Process Flow Diagrams",
+            "level": "2,3,4,5"
+          },
+          "name": "Packaging Standards",
+          "configuration": {},
+          "phase": 4,
+          "ppap_element": 5
+        },
+        {
+          "id": 14,
+          "ppap_element_details": {
+            "id": 5,
+            "name": "Process Flow Diagrams",
+            "level": "2,3,4,5"
+          },
+          "name": "Process Flow Chart",
+          "configuration": {},
+          "phase": 4,
+          "ppap_element": 5
+        },
+        {
+          "id": 16,
+          "ppap_element_details": {
+            "id": 6,
+            "name": "Process FMEA",
+            "level": "2,3,4,5"
+          },
+          "name": "Process FMEA",
+          "configuration": {},
+          "phase": 4,
+          "ppap_element": 6
+        }
+      ],
+      "name": "Process Design and Development",
+      "description": "Design and development of the manufacturing process",
+      "order": 4
+    },
+    {
+      "id": 5,
+      "output_templates": [
+        {
+          "id": 19,
+          "ppap_element_details": {
+            "id": 8,
+            "name": "Measurement System Analysis Studies",
+            "level": "3,4,5"
+          },
+          "name": "Measurement Systems Evaluation",
+          "configuration": {},
+          "phase": 5,
+          "ppap_element": 8
+        },
+        {
+          "id": 20,
+          "ppap_element_details": {
+            "id": 11,
+            "name": "Initial Process Studies",
+            "level": "3,4,5"
+          },
+          "name": "Process Capability Study",
+          "configuration": {},
+          "phase": 5,
+          "ppap_element": 11
+        },
+        {
+          "id": 21,
+          "ppap_element_details": {
+            "id": 18,
+            "name": "Part Submission Warrant",
+            "level": "1,2,3,4,5"
+          },
+          "name": "Production Part Approval",
+          "configuration": {},
+          "phase": 5,
+          "ppap_element": 18
+        },
+        {
+          "id": 18,
+          "ppap_element_details": {
+            "id": 14,
+            "name": "Sample Production Parts",
+            "level": "4,5"
+          },
+          "name": "Production Trial Run",
+          "configuration": {},
+          "phase": 5,
+          "ppap_element": 14
+        },
+        {
+          "id": 22,
+          "ppap_element_details": {
+            "id": 10,
+            "name": "Material, Performance Test Results",
+            "level": "3,4,5"
+          },
+          "name": "Production Validation Testing",
+          "configuration": {},
+          "phase": 5,
+          "ppap_element": 10
+        }
+      ],
+      "name": "Product and Process Validation",
+      "description": "Validation of product and process",
+      "order": 5
+    },
+    {
+      "id": 6,
+      "output_templates": [
+        {
+          "id": 26,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Corrective Action Plan",
+          "configuration": {},
+          "phase": 6,
+          "ppap_element": 17
+        },
+        {
+          "id": 24,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Customer Satisfaction Survey",
+          "configuration": {},
+          "phase": 6,
+          "ppap_element": 17
+        },
+        {
+          "id": 25,
+          "ppap_element_details": {
+            "id": 17,
+            "name": "Customer-Specific Requirements",
+            "level": "5"
+          },
+          "name": "Delivery Performance",
+          "configuration": {},
+          "phase": 6,
+          "ppap_element": 17
+        },
+        {
+          "id": 23,
+          "ppap_element_details": {
+            "id": 11,
+            "name": "Initial Process Studies",
+            "level": "3,4,5"
+          },
+          "name": "Variation Reduction",
+          "configuration": {},
+          "phase": 6,
+          "ppap_element": 11
+        }
+      ],
+      "name": "Feedback, Assessment and Corrective Action",
+      "description": "Feedback, assessment and corrective action phase",
+      "order": 6
+    }
+  ]
+}
+
+- get GET /api/ppap-elements/ respense : ({
+  "count": 19,
+  "next": "http://127.0.0.1:8000/api/ppap-elements/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 13,
+      "name": "Appearance Approval Report",
+      "level": "4,5"
+    },
+    {
+      "id": 16,
+      "name": "Checking Aids",
+      "level": "5"
+    },
+    {
+      "id": 7,
+      "name": "Control Plan",
+      "level": "2,3,4,5"
+    },
+    {
+      "id": 19,
+      "name": "Custom PPAP Element",
+      "level": "custom"
+    },
+    {
+      "id": 17,
+      "name": "Customer-Specific Requirements",
+      "level": "5"
+    },
+    {
+      "id": 3,
+      "name": "Customer Engineering Approval",
+      "level": "1,2,3,4,5"
+    },
+    {
+      "id": 4,
+      "name": "Design FMEA",
+      "level": "2,3,4,5"
+    },
+    {
+      "id": 1,
+      "name": "Design Records",
+      "level": "1,2,3,4,5"
+    },
+    {
+      "id": 9,
+      "name": "Dimensional Results",
+      "level": "3,4,5"
+    },
+    {
+      "id": 2,
+      "name": "Engineering Change Documents",
+      "level": "1,2,3,4,5"
+    }
+  ]
+})

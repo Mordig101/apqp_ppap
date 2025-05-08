@@ -15,17 +15,40 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Eye, MoreHorizontal, Plus, Search, Trash2, Filter, Download, Calendar, Users } from "lucide-react"
+import {
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Trash2,
+  Filter,
+  Download,
+  Calendar,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { projectApi } from "@/config/api-utils"
-import type { Project } from "@/config/api-types"
+import { projectApi, clientApi, teamApi, changeStatus } from "@/config/api-utils"
+import type { Project, Client, Team, PaginatedResponse } from "@/config/api-types"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
-// APQP preparation tasks
+// APQP preparation tasks - This is still mock data as it's not provided by the API
 const apqpTasks = [
   {
     id: 1,
@@ -97,43 +120,148 @@ export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState("projects")
   const [selectedTask, setSelectedTask] = useState<number | null>(null)
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projectsData, setProjectsData] = useState<PaginatedResponse<Project> | null>(null)
+  const [clients, setClients] = useState<Client[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState("all")
   const [teamFilter, setTeamFilter] = useState("all")
-  const [priorityFilter, setPriorityFilter] = useState("all")
+  const [clientFilter, setClientFilter] = useState("all")
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState<number | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
   const router = useRouter()
 
+  // Fetch projects, clients, and teams on component mount
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchData = async () => {
       try {
-        setLoading(true)
-        const data = await projectApi.getAllProjects()
-        setProjects(Array.isArray(data) ? data : [])
+        setLoading(true);
+        
+        // Use the correct API URL with the api prefix
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+        const projectsData = await projectApi.getProjectsPage(`${API_URL}/projects/`);
+        setProjectsData(projectsData);
+  
+        // Fetch clients using the clientApi
+        try {
+          const clientsData = await clientApi.getAllClients();
+          setClients(clientsData);
+        } catch (err) {
+          console.error("Error fetching clients:", err);
+          // Non-critical error, continue with empty clients array
+        }
+  
+        // Fetch teams using the teamApi
+        try {
+          const teamsData = await teamApi.getAllTeams();
+          setTeams(teamsData);
+        } catch (err) {
+          console.error("Error fetching teams:", err);
+          // Non-critical error, continue with empty teams array
+        }
       } catch (err) {
-        console.error("Error fetching projects:", err)
-        setError(err instanceof Error ? err.message : "Failed to fetch projects")
+        console.error("Error fetching projects:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch projects");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
+    };
+  
+    fetchData();
+  }, []);
+
+  // Handle pagination
+  const handlePageChange = async (url: string | null) => {
+    if (!url) return
+
+    try {
+      setLoading(true)
+      const data = await projectApi.getProjectsPage(url)
+      setProjectsData(data)
+    } catch (err) {
+      console.error("Error fetching projects page:", err)
+      setError(err instanceof Error ? err.message : "Failed to fetch projects page")
+    } finally {
+      setLoading(false)
     }
-
-    fetchProjects()
-  }, [])
-
-  const filteredProjects = projects.filter(
-    (project) =>
-      (project.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.client_details?.name?.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (statusFilter === "all" || project.status === statusFilter) &&
-      (teamFilter === "all" || project.team_details?.name === teamFilter),
-  )
-
-  const handleProjectSelect = (projectId: number) => {
-    router.push(`/projects/${projectId}/workspace`)
   }
 
+  // Handle project selection
+  const handleProjectSelect = (projectId: number) => {
+    router.push(`/projects/${projectId}`)
+  }
+
+  // Handle project deletion
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return
+
+    try {
+      setDeleteLoading(true)
+      await projectApi.deleteProject(projectToDelete)
+
+      // Remove the deleted project from the state
+      if (projectsData) {
+        const updatedResults = projectsData.results.filter((project) => project.id !== projectToDelete)
+        setProjectsData({
+          ...projectsData,
+          results: updatedResults,
+          count: projectsData.count - 1,
+        })
+      }
+
+      setDeleteDialogOpen(false)
+      setProjectToDelete(null)
+    } catch (err) {
+      console.error("Error deleting project:", err)
+      setDeleteError(err instanceof Error ? err.message : "Failed to delete project")
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  // Handle project status change
+  const handleStatusChange = async (projectId: number, newStatus: string) => {
+    try {
+      await changeStatus("project", projectId, newStatus)
+
+      // Update the project status in the state
+      if (projectsData) {
+        const updatedResults = projectsData.results.map((project) =>
+          project.id === projectId ? { ...project, status: newStatus } : project,
+        )
+        setProjectsData({
+          ...projectsData,
+          results: updatedResults,
+        })
+      }
+    } catch (err) {
+      console.error("Error changing project status:", err)
+      // Show error notification or handle error
+    }
+  }
+
+  // Filter projects based on search term and filters
+  const filteredProjects =
+    projectsData?.results.filter((project) => {
+      const matchesSearch =
+        project.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.client_details?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+
+      const matchesStatus = statusFilter === "all" || project.status === statusFilter
+
+      const matchesTeam =
+        teamFilter === "all" || (project.team_details && project.team_details.id.toString() === teamFilter)
+
+      const matchesClient =
+        clientFilter === "all" || (project.client_details && project.client_details.id.toString() === clientFilter)
+
+      return matchesSearch && matchesStatus && matchesTeam && matchesClient
+    }) || []
+
+  // Get appropriate color for status badge
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Completed":
@@ -144,12 +272,14 @@ export default function ProjectsPage() {
       case "In Progress":
         return "bg-yellow-500"
       case "At Risk":
+      case "On Hold":
         return "bg-red-500"
       default:
         return "bg-gray-500"
     }
   }
 
+  // Get task status color
   const getTaskStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -163,6 +293,7 @@ export default function ProjectsPage() {
     }
   }
 
+  // Format task status text
   const getTaskStatusText = (status: string) => {
     switch (status) {
       case "completed":
@@ -177,24 +308,41 @@ export default function ProjectsPage() {
   }
 
   // Count projects by status
-  const statusCounts = projects.reduce(
-    (acc, project) => {
-      const status = project.status || "Unknown"
-      acc[status] = (acc[status] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
+  const statusCounts =
+    projectsData?.results.reduce(
+      (acc, project) => {
+        const status = project.status || "Unknown"
+        acc[status] = (acc[status] || 0) + 1
+        return acc
+      },
+      {} as Record<string, number>,
+    ) || {}
 
   // Count projects by team
-  const teamCounts = projects.reduce(
-    (acc, project) => {
-      const team = project.team_details?.name || "Unknown"
-      acc[team] = (acc[team] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
+  const teamCounts =
+    projectsData?.results.reduce(
+      (acc, project) => {
+        if (project.team_details) {
+          const team = project.team_details.name || "Unknown"
+          acc[team] = (acc[team] || 0) + 1
+        }
+        return acc
+      },
+      {} as Record<string, number>,
+    ) || {}
+
+  // Count projects by client
+  const clientCounts =
+    projectsData?.results.reduce(
+      (acc, project) => {
+        if (project.client_details) {
+          const client = project.client_details.name || "Unknown"
+          acc[client] = (acc[client] || 0) + 1
+        }
+        return acc
+      },
+      {} as Record<string, number>,
+    ) || {}
 
   return (
     <DashboardLayout>
@@ -252,10 +400,11 @@ export default function ProjectsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All statuses</SelectItem>
-                            <SelectItem value="Completed">Completed</SelectItem>
-                            <SelectItem value="Planning">Planning</SelectItem>
-                            <SelectItem value="In Progress">In Progress</SelectItem>
-                            <SelectItem value="On Hold">On Hold</SelectItem>
+                            {Object.keys(statusCounts).map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {status}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -267,9 +416,25 @@ export default function ProjectsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All teams</SelectItem>
-                            {Object.keys(teamCounts).map((team) => (
-                              <SelectItem key={team} value={team}>
-                                {team}
+                            {teams.map((team) => (
+                              <SelectItem key={team.id} value={team.id.toString()}>
+                                {team.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2 mb-2">
+                        <Label htmlFor="client">Client</Label>
+                        <Select value={clientFilter} onValueChange={setClientFilter}>
+                          <SelectTrigger id="client">
+                            <SelectValue placeholder="All clients" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All clients</SelectItem>
+                            {clients.map((client) => (
+                              <SelectItem key={client.id} value={client.id.toString()}>
+                                {client.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -280,7 +445,7 @@ export default function ProjectsPage() {
                         onClick={() => {
                           setStatusFilter("all")
                           setTeamFilter("all")
-                          setPriorityFilter("all")
+                          setClientFilter("all")
                         }}
                       >
                         Reset Filters
@@ -295,97 +460,148 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            <div className="rounded-md border overflow-hidden">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[250px]">Project</TableHead>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>PPAP</TableHead>
-                      <TableHead>Team</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center">
-                          Loading projects...
-                        </TableCell>
-                      </TableRow>
-                    ) : error ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center text-red-500">
-                          {error}
-                        </TableCell>
-                      </TableRow>
-                    ) : filteredProjects.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center">
-                          No projects found matching your search criteria.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredProjects.map((project) => (
-                        <TableRow
-                          key={project.id}
-                          className="cursor-pointer"
-                          onClick={() => handleProjectSelect(project.id)}
-                        >
-                          <TableCell className="font-medium">{project.name}</TableCell>
-                          <TableCell>{project.client_details?.name || "N/A"}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={`${getStatusColor(project.status)} text-white`}>
-                              {project.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>{project.ppap_details?.level || "N/A"}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <Users className="h-4 w-4 mr-1 text-muted-foreground" />
-                              <span>{project.team_details?.name || "N/A"}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <span className="sr-only">Open menu</span>
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleProjectSelect(project.id)
-                                  }}
-                                >
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={(e) => e.stopPropagation()} className="text-red-600">
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+            <Card>
+              <CardContent className="p-0">
+                <div className="rounded-md overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[250px]">Project</TableHead>
+                          <TableHead>Client</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>PPAP</TableHead>
+                          <TableHead>Team</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
+                      </TableHeader>
+                      <TableBody>
+                        {loading ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="h-24 text-center">
+                              <div className="flex justify-center">
+                                <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-gray-900"></div>
+                              </div>
+                              <div className="mt-2">Loading projects...</div>
+                            </TableCell>
+                          </TableRow>
+                        ) : error ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="h-24 text-center text-red-500">
+                              {error}
+                              <div className="mt-2">
+                                <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                                  Retry
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : filteredProjects.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="h-24 text-center">
+                              No projects found matching your search criteria.
+                            </TableCell>
+                          </TableRow>
+                        ) : (
+                          filteredProjects.map((project) => (
+                            <TableRow
+                              key={project.id}
+                              className="cursor-pointer"
+                              onClick={() => handleProjectSelect(project.id)}
+                            >
+                              <TableCell>{project.name}</TableCell>
+                              <TableCell>{project.client_details?.name || "N/A"}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline" className={`${getStatusColor(project.status)} text-white`}>
+                                  {project.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{project.ppap_details?.level || "N/A"}</TableCell>
+                              <TableCell>
+                                <div className="flex items-center">
+                                  <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                                  <span>{project.team_details?.name || "N/A"}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                      <span className="sr-only">Open menu</span>
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleProjectSelect(project.id)
+                                      }}
+                                    >
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      View
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        router.push(`/projects/${project.id}/settings`)
+                                      }}
+                                    >
+                                      <Edit className="mr-2 h-4 w-4" />
+                                      Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        setProjectToDelete(project.id)
+                                        setDeleteDialogOpen(true)
+                                      }}
+                                      className="text-red-600"
+                                    >
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </CardContent>
+              {projectsData && (projectsData.next || projectsData.previous) && (
+                <CardFooter className="flex justify-between py-4">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {filteredProjects.length} of {projectsData.count} projects
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(projectsData.previous)}
+                      disabled={!projectsData.previous || loading}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="sr-only">Previous Page</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(projectsData.next)}
+                      disabled={!projectsData.next || loading}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                      <span className="sr-only">Next Page</span>
+                    </Button>
+                  </div>
+                </CardFooter>
+              )}
+            </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card>
@@ -436,11 +652,24 @@ export default function ProjectsPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Upcoming Deadlines</CardTitle>
-                  <CardDescription>Projects with upcoming deadlines</CardDescription>
+                  <CardTitle>Client Distribution</CardTitle>
+                  <CardDescription>Projects by client</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-4 text-muted-foreground">No upcoming deadlines available</div>
+                  <div className="space-y-4">
+                    {Object.entries(clientCounts).map(([client, count]) => (
+                      <div key={client} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                          <span>{client}</span>
+                        </div>
+                        <span className="font-medium">{count}</span>
+                      </div>
+                    ))}
+                    {Object.keys(clientCounts).length === 0 && (
+                      <div className="text-center py-2 text-muted-foreground">No clients available</div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -664,6 +893,39 @@ export default function ProjectsPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this project?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the project and all associated data.
+              {deleteError && <div className="mt-2 text-red-500">Error: {deleteError}</div>}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault()
+                handleDeleteProject()
+              }}
+              disabled={deleteLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteLoading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                  Deleting...
+                </div>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   )
 }

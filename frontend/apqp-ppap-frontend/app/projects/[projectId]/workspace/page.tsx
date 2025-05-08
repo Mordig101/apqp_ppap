@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useParams, useSearchParams } from "next/navigation"
+import type React from "react"
+
+import { useState, useEffect, useCallback, useRef } from "react"
+import { useParams, useSearchParams , useRouter} from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -38,11 +40,24 @@ import {
   CheckCircle,
   X,
   ChevronDown,
+  AlertTriangle,
+  Upload,
+  Trash2,
+  MoreVertical,
+  Trash,
+  CheckSquare, 
+  UploadCloud,
 } from "lucide-react"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { projectApi } from "@/config/api-utils"
-import type { Project, Phase, Output } from "@/config/api-types"
 
+import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { API_ENDPOINTS } from "@/config/api";
+import { projectApi, outputApi, documentApi , phaseApi , uploadDocument } from "@/config/api-utils"
+import type { Project, Phase, Output , Document as DocumentType } from "@/config/api-types"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Card, CardContent } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 interface Comment {
   id: string
   documentId: string
@@ -50,6 +65,43 @@ interface Comment {
   avatar: string
   date: string
   text: string
+}
+
+interface UploadedFile {
+  id: string
+  name: string
+  size: number
+  type: string
+  outputId: string
+  uploadDate: string
+  data: string | ArrayBuffer | null
+  status: "pending" | "uploading" | "success" | "error"
+  progress: number
+  error?: string
+}
+
+interface DocumentAssociationResponse {
+  success: boolean
+  message: string
+  documentId?: number
+}
+
+interface DocumentData {
+  id: number
+  name: string
+  description: string
+  file_path: string
+  file_type: string
+  file_size: number
+  uploader: number
+  output: number
+  version: string
+  status: string
+  history_id: string
+  uploader_details?: {
+    id: number
+    username: string
+  }
 }
 
 export default function WorkspacePage() {
@@ -93,235 +145,157 @@ export default function WorkspacePage() {
     lastUpdated?: string
     updatedBy?: string
   } | null>(null)
+  const [comments, setComments] = useState<Comment[]>([])
 
-  // Sample comments for documents - in a real app, these would come from the API
-  const [comments, setComments] = useState<Comment[]>([
-    {
-      id: "1",
-      documentId: "1",
-      user: "John Doe",
-      avatar: "JD",
-      date: "2023-02-10T14:30:00",
-      text: "Please review the risk assessment section and provide feedback.",
-    },
-    {
-      id: "2",
-      documentId: "1",
-      user: "Jane Smith",
-      avatar: "JS",
-      date: "2023-02-11T09:15:00",
-      text: "The risk assessment looks good, but we should add more details about potential failure modes in the assembly process.",
-    },
-    {
-      id: "3",
-      documentId: "2",
-      user: "Mike Johnson",
-      avatar: "MJ",
-      date: "2023-03-06T11:20:00",
-      text: "The current flow doesn't account for the quality check after step 3. Please update.",
-    },
-  ])
+  const [showUploadDialog, setShowUploadDialog] = useState(false)
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
+  const [currentFile, setCurrentFile] = useState<File | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadError, setUploadError] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [documents, setDocuments] = useState<DocumentData[]>([])
+  const [loadingDocuments, setLoadingDocuments] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [previousPhaseOutputs, setPreviousPhaseOutputs] = useState<Output[]>([])
 
-  useEffect(() => {
-    const fetchProjectData = async () => {
-      try {
-        setLoading(true)
-        const projectData = await projectApi.getProject(projectId)
-        setProject(projectData)
-
-        // Fetch phases for the project
-        if (projectData.ppap) {
-          try {
-            // In a real app, you would fetch phases for the PPAP
-            // For now, we'll use sample data
-            const phasesData = [
-              {
-                id: 1,
-                template: 1,
-                responsible: null,
-                ppap: projectData.ppap,
-                status: "Not Started",
-                history_id: "history_id",
-                name: "Phase 1: Planning",
-                description: "Define project goals and requirements",
-                progress: 100,
-                template_details: {
-                  name: "Phase 1: Planning",
-                  description: "Define project goals and requirements",
-                },
-              },
-              {
-                id: 2,
-                template: 2,
-                responsible: null,
-                ppap: projectData.ppap,
-                status: "In Progress",
-                history_id: "history_id",
-                name: "Phase 2: Product Design & Development",
-                description: "Develop and finalize product design",
-                progress: 85,
-                template_details: {
-                  name: "Phase 2: Product Design & Development",
-                  description: "Develop and finalize product design",
-                },
-              },
-              {
-                id: 3,
-                template: 3,
-                responsible: null,
-                ppap: projectData.ppap,
-                status: "Not Started",
-                history_id: "history_id",
-                name: "Phase 3: Process Design & Development",
-                description: "Develop manufacturing processes",
-                progress: 60,
-                template_details: {
-                  name: "Phase 3: Process Design & Development",
-                  description: "Develop manufacturing processes",
-                },
-              },
-            ]
-
-            setPhases(phasesData)
-
-            // Select the first phase by default
-            if (phasesData.length > 0) {
-              const firstPhase = phasesData[0]
-              setSelectedPhase(firstPhase)
-
-              // Fetch outputs for the selected phase
-              // In a real app, you would fetch outputs for the phase
-              // For now, we'll use sample data
-              const outputsData = [
-                {
-                  id: "1",
-                  name: "Design FMEA",
-                  phase: 2,
-                  type: "document",
-                  status: "completed",
-                  dueDate: "2023-02-15",
-                  assignedTo: "Engineering Team",
-                  description: "Failure Mode and Effects Analysis for the product design",
-                  content:
-                    "# Design FMEA\n\n## Component: Main Housing\n\n| Failure Mode | Potential Effects | Severity (1-10) | Potential Causes | Occurrence (1-10) | Current Controls | Detection (1-10) | RPN | Recommended Actions |\n|--------------|-------------------|-----------------|------------------|-------------------|------------------|------------------|-----|---------------------|\n| Cracking | Product failure, safety hazard | 9 | Material too brittle, impact damage | 4 | Material testing, drop tests | 3 | 108 | Evaluate alternative materials with higher impact resistance |\n| Warping | Poor fit, leakage | 7 | Thermal stress, improper cooling | 5 | Thermal cycling tests | 4 | 140 | Modify cooling process, add reinforcement ribs |\n| Discoloration | Customer dissatisfaction | 3 | UV exposure, chemical reaction | 6 | Accelerated aging tests | 2 | 36 | Add UV stabilizers to material |",
-                  template_details: {
-                    name: "Design FMEA",
-                    description: "Failure Mode and Effects Analysis for the product design",
-                  },
-                },
-                {
-                  id: "2",
-                  name: "Process Flow Diagram",
-                  phase: 3,
-                  type: "document",
-                  status: "in-progress",
-                  dueDate: "2023-03-10",
-                  assignedTo: "Production Team",
-                  description: "Visual representation of the manufacturing process flow",
-                  content:
-                    "# Process Flow Diagram\n\n## Manufacturing Process Overview\n\nRaw Material Receiving → Inspection → Material Preparation → Component Fabrication → Sub-Assembly → Final Assembly → Testing → Packaging → Shipping",
-                  template_details: {
-                    name: "Process Flow Diagram",
-                    description: "Visual representation of the manufacturing process flow",
-                  },
-                },
-              ]
-
-              setOutputs(outputsData)
-
-              // Fetch inputs (outputs from previous phases)
-              const inputsData = [
-                {
-                  id: "3",
-                  name: "Project Charter",
-                  phase: 1,
-                  type: "document",
-                  status: "completed",
-                  lastUpdated: "2023-01-15",
-                  updatedBy: "John Doe",
-                  description: "Defines the project scope, objectives, and participants",
-                  content:
-                    "# Project Charter\n\n## Project Overview\nThis project aims to develop a new manufacturing process for our flagship product line. The process should improve efficiency by 30% while maintaining or improving quality standards.",
-                  template_details: {
-                    name: "Project Charter",
-                    description: "Defines the project scope, objectives, and participants",
-                  },
-                },
-                {
-                  id: "4",
-                  name: "Customer Requirements",
-                  phase: 1,
-                  type: "document",
-                  status: "completed",
-                  lastUpdated: "2023-01-20",
-                  updatedBy: "Jane Smith",
-                  description: "Detailed list of customer specifications and requirements",
-                  content:
-                    '# Customer Requirements Document\n\n## Product Specifications\n- Dimensions: 10" x 5" x 2" (±0.05")\n- Weight: 1.5 lbs maximum\n- Material: Food-grade stainless steel\n- Finish: Brushed, no visible tooling marks\n- Operating temperature range: -20°C to 150°C',
-                  template_details: {
-                    name: "Customer Requirements",
-                    description: "Detailed list of customer specifications and requirements",
-                  },
-                },
-              ]
-
-              setInputs(inputsData)
-
-              // If output ID is in URL params, select it
-              if (outputIdParam) {
-                const outputId = outputIdParam
-                const output = outputsData.find((o) => o.id === outputId)
-                if (output) {
-                  setSelectedOutput(output.id)
-                  setActiveDocument({
-                    id: output.id,
-                    type: "output",
-                    name: output.name,
-                    content: output.content,
-                    status: output.status,
-                    dueDate: output.dueDate,
-                    assignedTo: output.assignedTo,
-                  })
-                }
-              }
+ 
+  
+  // Update your fetchProjectData function
+  const fetchProjectData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const projectData = await projectApi.getProject(projectId) as Project;
+      setProject(projectData);
+  
+      if (projectData?.ppap_details?.phases && Array.isArray(projectData.ppap_details.phases)) {
+        const phasesData = projectData.ppap_details.phases;
+        setPhases(phasesData);
+  
+        if (phasesData.length > 0) {
+          // Find the first non-completed phase or default to first phase
+          const activePhase = phasesData.find((p: Phase) => 
+            p.status?.toLowerCase() !== 'completed') || phasesData[0];
+          
+          setSelectedPhase(activePhase);
+          
+          // Make sure outputs are properly set
+          if (activePhase.outputs && Array.isArray(activePhase.outputs)) {
+            console.log("Setting outputs:", activePhase.outputs);
+            setOutputs(activePhase.outputs);
+          } else {
+            console.warn("No outputs found in phase:", activePhase);
+            setOutputs([]);
+          }
+          
+          // Get the previous phase outputs for inputs
+          const phaseIndex = phasesData.findIndex((p: Phase) => p.id === activePhase.id);
+          if (phaseIndex > 0) {
+            const prevPhase = phasesData[phaseIndex - 1];
+            if (prevPhase.outputs && Array.isArray(prevPhase.outputs)) {
+              setPreviousPhaseOutputs(prevPhase.outputs);
+            } else {
+              console.warn("No outputs found in previous phase:", prevPhase);
+              setPreviousPhaseOutputs([]);
             }
-          } catch (err: any) {
-            console.error("Error fetching phases:", err)
-            setError(err.message || "Failed to load phases")
+          } else {
+            // First phase has no inputs
+            setPreviousPhaseOutputs([]);
           }
         }
-      } catch (err: any) {
-        console.error("Error fetching project data:", err)
-        setError(err.message || "Failed to load project data")
-      } finally {
-        setLoading(false)
       }
+    } catch (err: any) {
+      console.error("Error fetching project data:", err);
+      setError(err.message || "Failed to load project data");
+    } finally {
+      setLoading(false);
     }
+  }, [projectId]);
 
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectData().then(() => {
+        // Initial phase selection will be handled by the fetchProjectData function
+      });
+    }
+  }, [projectId, fetchProjectData]);
+  
+  /*useEffect(() => {
     if (projectId) {
       fetchProjectData()
     }
-  }, [projectId, outputIdParam])
+  }, [projectId, fetchProjectData])*/
+
+  const fetchPreviousPhaseOutputs = useCallback(
+    async (phaseId: number) => {
+      try {
+        if (!phases || phases.length === 0) return;
+  
+        // Find the current phase index
+        const currentPhaseIndex = phases.findIndex((p) => p.id === phaseId);
+        if (currentPhaseIndex <= 0) {
+          // If this is the first phase or phase not found, there are no previous outputs
+          setPreviousPhaseOutputs([]);
+          return;
+        }
+  
+        // Get the previous phase
+        const previousPhase = phases[currentPhaseIndex - 1];
+        
+        // Check if the previous phase has outputs
+        if (previousPhase && previousPhase.outputs && previousPhase.outputs.length > 0) {
+          setPreviousPhaseOutputs(previousPhase.outputs);
+          
+          // For debugging - log the outputs
+          console.log("Previous phase outputs:", previousPhase.outputs);
+        } else {
+          // If the previous phase doesn't have outputs directly accessible,
+          // we might need to fetch them
+          try {
+            const previousPhaseData = await phaseApi.getPhase(previousPhase.id) as Phase;
+            if (previousPhaseData && previousPhaseData.outputs) {
+              setPreviousPhaseOutputs(previousPhaseData.outputs);
+            }
+            if (previousPhaseData && previousPhaseData.outputs) {
+              setPreviousPhaseOutputs(previousPhaseData.outputs);
+            } else {
+              setPreviousPhaseOutputs([]);
+            }
+          } catch (error) {
+            console.error("Error fetching previous phase details:", error);
+            setPreviousPhaseOutputs([]);
+          }
+        }
+      } catch (err: any) {
+        console.error("Error fetching previous phase outputs:", err);
+        setPreviousPhaseOutputs([]);
+      }
+    },
+    [phases],
+  );
 
   const handlePhaseChange = async (phaseId: number) => {
-    const phase = phases.find((p) => p.id === phaseId)
+    const phase = phases.find((p) => p.id === phaseId);
     if (phase) {
-      setSelectedPhase(phase)
-
-      // In a real app, you would fetch outputs for the selected phase
-      // For now, we'll filter our sample data
-      const phaseOutputs = outputs.filter((o) => o.phase === phaseId)
-      setOutputs(phaseOutputs)
-
-      // Get inputs from previous phases
-      const phaseInputs = inputs.filter((i) => i.phase < phaseId)
-      setInputs(phaseInputs)
-
-      setSelectedInput(null)
-      setSelectedOutput(null)
-      setActiveDocument(null)
+      setSelectedPhase(phase);
+      
+      // Ensure we're setting outputs correctly from the phase
+      if (phase.outputs && Array.isArray(phase.outputs)) {
+        console.log("Setting outputs from phase:", phase.outputs);
+        setOutputs(phase.outputs);
+      } else {
+        console.warn("No outputs found in the phase or invalid format:", phase);
+        setOutputs([]);
+      }
+      
+      setSelectedInput(null);
+      setSelectedOutput(null);
+      setActiveDocument(null);
+      setDocuments([]);
+  
+      // Fetch outputs from the previous phase to use as inputs
+      await fetchPreviousPhaseOutputs(phaseId);
     }
-  }
+  };
 
   const toggleInputExpansion = (inputId: string) => {
     if (expandedInputs.includes(inputId)) {
@@ -339,58 +313,34 @@ export default function WorkspacePage() {
     }
   }
 
-  const handleInputSelect = (inputId: string) => {
-    const selectedInputDoc = inputs.find((input) => input.id === inputId)
-    if (selectedInputDoc) {
-      setSelectedInput(inputId)
+  // Update the input select handler
+const handleInputSelect = (inputId: string) => {
+  // Convert to number for comparison
+  const inputIdNum = Number(inputId);
+  const selectedInputData = previousPhaseOutputs.find((input) => input.id === inputIdNum);
+  
+  if (selectedInputData) {
+    setSelectedInput(inputId);
 
-      // Make sure the parent group is expanded
-      if (!expandedInputs.includes(selectedInputDoc.name)) {
-        setExpandedInputs([...expandedInputs, selectedInputDoc.name])
-      }
+    // Make sure expanded inputs is tracked properly
+    if (!expandedInputs.includes(inputId)) {
+      setExpandedInputs([...expandedInputs, inputId]);
+    }
 
-      setActiveDocument({
-        id: inputId,
-        type: "input",
-        name: selectedInputDoc.name,
-        content: selectedInputDoc.content,
-        lastUpdated: selectedInputDoc.lastUpdated,
-        updatedBy: selectedInputDoc.updatedBy,
-      })
+    setActiveDocument({
+      id: inputId,
+      type: "input",
+      name: selectedInputData.template_details?.name || "Unnamed Input",
+      content: selectedInputData.description || "",
+      status: selectedInputData.status,
+      assignedTo: selectedInputData.user_details?.username || "",
+    });
 
-      // If in edit mode, switch to input or split view
-      if (viewMode === "edit") {
-        setViewMode(selectedOutput ? "split" : "input")
-      }
+    if (viewMode !== "edit") {
+      setViewMode(selectedOutput ? "split" : "input");
     }
   }
-
-  const handleOutputSelect = (outputId: string) => {
-    const selectedOutputDoc = outputs.find((output) => output.id === outputId)
-    if (selectedOutputDoc) {
-      setSelectedOutput(outputId)
-
-      // Make sure the parent group is expanded
-      if (!expandedOutputs.includes(selectedOutputDoc.name)) {
-        setExpandedOutputs([...expandedOutputs, selectedOutputDoc.name])
-      }
-
-      setActiveDocument({
-        id: outputId,
-        type: "output",
-        name: selectedOutputDoc.name,
-        content: selectedOutputDoc.content,
-        status: selectedOutputDoc.status,
-        dueDate: selectedOutputDoc.dueDate,
-        assignedTo: selectedOutputDoc.assignedTo,
-      })
-
-      // If not in edit mode, keep current view or switch to output
-      if (viewMode !== "edit") {
-        setViewMode(selectedInput ? "split" : "output")
-      }
-    }
-  }
+};
 
   const toggleViewMode = (mode: "input" | "split" | "output" | "edit") => {
     setViewMode(mode)
@@ -398,7 +348,6 @@ export default function WorkspacePage() {
 
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen)
-    // Reset any active document when exiting fullscreen
     if (isFullScreen) {
       document.body.style.overflow = "auto"
     } else {
@@ -412,48 +361,44 @@ export default function WorkspacePage() {
 
   const saveDocument = () => {
     if (selectedOutput && activeDocument) {
-      // In a real app, this would save to the backend using the API
-      // For example:
-      // outputApi.updateOutput(Number(selectedOutput), {
-      //   description: activeDocument.content,
-      // })
-
       setNotificationType("success")
       setNotificationMessage("Document saved successfully")
       setShowNotification(true)
 
-      // Hide notification after 3 seconds
       setTimeout(() => {
         setShowNotification(false)
       }, 3000)
     }
   }
 
-  const markAsComplete = () => {
+  const markAsComplete = async () => {
     if (selectedOutput && activeDocument) {
-      // In a real app, this would update the document status using the API
-      // For example:
-      // changeStatus("output", Number(selectedOutput), "completed")
+      try {
+        await outputApi.updateOutput(Number(selectedOutput), { status: "Completed" })
+        setNotificationType("success")
+        setNotificationMessage("Document marked as complete")
+        setShowNotification(true)
 
-      setNotificationType("success")
-      setNotificationMessage("Document marked as complete")
-      setShowNotification(true)
+        setTimeout(() => {
+          setShowNotification(false)
+        }, 3000)
 
-      // Hide notification after 3 seconds
-      setTimeout(() => {
-        setShowNotification(false)
-      }, 3000)
+        fetchProjectData() // Refresh data after status change
+      } catch (error: any) {
+        console.error("Error marking output as complete:", error)
+        setNotificationType("error")
+        setNotificationMessage(error.message || "Failed to mark document as complete")
+        setShowNotification(true)
+      }
     }
   }
 
   const requestReview = () => {
     if (selectedOutput && activeDocument) {
-      // In a real app, this would trigger a review workflow
       setNotificationType("info")
       setNotificationMessage("Review requested from team")
       setShowNotification(true)
 
-      // Hide notification after 3 seconds
       setTimeout(() => {
         setShowNotification(false)
       }, 3000)
@@ -511,7 +456,6 @@ export default function WorkspacePage() {
 
   const addComment = () => {
     if (newComment.trim() && selectedOutput) {
-      // In a real app, this would save to the backend
       const newCommentObj = {
         id: `comment-${Date.now()}`,
         documentId: selectedOutput,
@@ -527,21 +471,6 @@ export default function WorkspacePage() {
       setNotificationMessage("Comment added")
       setShowNotification(true)
 
-      // Hide notification after 3 seconds
-      setTimeout(() => {
-        setShowNotification(false)
-      }, 3000)
-    }
-  }
-
-  const copyToClipboard = () => {
-    if (activeDocument) {
-      navigator.clipboard.writeText(activeDocument.content)
-      setNotificationType("success")
-      setNotificationMessage("Content copied to clipboard")
-      setShowNotification(true)
-
-      // Hide notification after 3 seconds
       setTimeout(() => {
         setShowNotification(false)
       }, 3000)
@@ -551,7 +480,7 @@ export default function WorkspacePage() {
   // Group inputs by name
   const groupedInputs = inputs.reduce(
     (acc, input) => {
-      const key = input.name
+      const key = input.template_details?.name || "Unnamed Output"
       if (!acc[key]) {
         acc[key] = []
       }
@@ -564,7 +493,7 @@ export default function WorkspacePage() {
   // Group outputs by name
   const groupedOutputs = outputs.reduce(
     (acc, output) => {
-      const key = output.name
+      const key = output.template_details?.name || "Unnamed Output"
       if (!acc[key]) {
         acc[key] = []
       }
@@ -576,21 +505,255 @@ export default function WorkspacePage() {
 
   // Filter outputs based on search and filters
   const filteredOutputs = outputs.filter((output) => {
-    // Apply status filter
     if (filterStatus !== "all" && output.status?.toLowerCase() !== filterStatus) return false
-    // Apply owner filter
-    if (filterOwner !== "all" && output.assignedTo !== filterOwner) return false
-    // Apply completed filter
+    if (filterOwner !== "all" && output.template_details?.name !== filterOwner) return false
     if (!showCompleted && output.status?.toLowerCase() === "completed") return false
-    // Apply search query
-    if (searchOutputQuery && !output.name.toLowerCase().includes(searchOutputQuery.toLowerCase())) return false
+    if (searchOutputQuery && !output.template_details?.name?.toLowerCase().includes(searchOutputQuery.toLowerCase()))
+      return false
     return true
   })
 
   // Filter inputs based on search
   const filteredInputs = inputs.filter((input) =>
-    searchInputQuery ? input.name.toLowerCase().includes(searchInputQuery.toLowerCase()) : true,
+    searchInputQuery ? input.template_details?.name?.toLowerCase().includes(searchInputQuery.toLowerCase()) : true,
   )
+
+  const copyToClipboard = () => {
+    if (activeDocument) {
+      navigator.clipboard.writeText(activeDocument.content)
+      setNotificationType("success")
+      setNotificationMessage("Content copied to clipboard!")
+      setShowNotification(true)
+      setTimeout(() => setShowNotification(false), 3000)
+    }
+  }
+
+  // Add this function to your component
+const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  if (event.target.files && event.target.files.length > 0) {
+    const file = event.target.files[0];
+    setCurrentFile(file);
+    
+    // Reset error and progress if previously set
+    setUploadError("");
+    setUploadProgress(0);
+  }
+};
+  const fetchDocumentsForOutput = async (outputId: number) => {
+    try {
+      setLoadingDocuments(true)
+      
+      // Make a real API call to get documents for this output
+      const response = await fetch(`${API_ENDPOINTS.documents}?output=${outputId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+        credentials: "include",
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch documents: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      const documents = data.results || []; // Assuming paginated response
+      
+      // Update documents state
+      setDocuments(documents);
+      
+    } catch (err: any) {
+      console.error("Error fetching documents:", err)
+      setNotificationType("error")
+      setNotificationMessage("Failed to load documents")
+      setShowNotification(true)
+    } finally {
+      setLoadingDocuments(false)
+    }
+  }
+
+  // When selecting an output
+// Update the handleOutputSelect function at line 534
+const handleOutputSelect = (outputId: string) => {
+  // Convert string ID to number for proper comparison
+  const outputIdNum = Number(outputId);
+  const selectedOutputDoc = outputs.find((output) => output.id === outputIdNum);
+  
+  if (selectedOutputDoc) {
+    setSelectedOutput(outputId);
+
+    // Fix: Track expanded outputs by ID, not by name
+    if (!expandedOutputs.includes(outputId)) {
+      setExpandedOutputs([...expandedOutputs, outputId]);
+    }
+
+    // Set active document with proper data
+    setActiveDocument({
+      id: outputId,
+      type: "output",
+      name: selectedOutputDoc.template_details?.name || "Unnamed Output",
+      content: selectedOutputDoc.description || "", 
+      status: selectedOutputDoc.status,
+      dueDate: "",
+      assignedTo: selectedOutputDoc.user_details?.username || "",
+    });
+
+    if (viewMode !== "edit") {
+      setViewMode(selectedInput ? "split" : "output");
+    }
+
+    // Fetch documents for this output
+    fetchDocumentsForOutput(outputIdNum);
+
+    // Load files from local storage for this output
+    loadFilesForOutput(outputId);
+  }
+};
+
+  // Function to open file dialog
+  const openFileDialog = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  // Function to handle file upload
+  // Update this function for proper upload handling
+  const handleFileUpload = async () => {
+    if (!currentFile || !selectedOutput) {
+      setUploadError("Please select a file and an output");
+      return;
+    }
+  
+    setIsUploading(true);
+    setUploadProgress(0);
+    setUploadError("");
+  
+    try {
+      // Get uploader ID - could be from auth context or project members
+      let uploaderId;
+      if (project?.team_details?.members && project.team_details.members.length > 0) {
+        const userMember = project.team_details.members.find(m => m.is_user);
+        uploaderId = userMember?.id || project.team_details.members[0].id;
+      } else {
+        uploaderId = "1"; // Default fallback
+      }
+      
+      // Use the dedicated upload service
+      const responseData = await uploadDocument(
+        currentFile,
+        selectedOutput,
+        uploaderId.toString(),
+        (progress) => setUploadProgress(progress)
+      );
+      
+      // Handle successful upload
+      setNotificationType("success");
+      setNotificationMessage("File uploaded successfully");
+      setShowNotification(true);
+      
+      // Refresh documents
+      fetchDocumentsForOutput(Number(selectedOutput));
+      
+      // Clear form
+      setCurrentFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      setShowUploadDialog(false);
+      
+    } catch (error: any) {
+      console.error("Error uploading file:", error);
+      setUploadError(error.message || "Failed to upload file");
+      setNotificationType("error");
+      setNotificationMessage(error.message || "Failed to upload file");
+      setShowNotification(true);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Function to remove a file
+  const removeFile = (fileId: string) => {
+    setUploadedFiles((prev) => prev.filter((file) => file.id !== fileId))
+
+    // Remove from local storage
+    try {
+      const filesInStorage = JSON.parse(localStorage.getItem("uploadedFiles") || "{}")
+      delete filesInStorage[fileId]
+      localStorage.setItem("uploadedFiles", JSON.stringify(filesInStorage))
+
+      // Refresh documents for this output if an output is selected
+      if (selectedOutput) {
+        fetchDocumentsForOutput(Number(selectedOutput))
+      }
+    } catch (error) {
+      console.error("Error removing file from storage:", error)
+    }
+  }
+
+  // Function to load files from local storage for the current output
+  const loadFilesForOutput = (outputId: string) => {
+    try {
+      const filesInStorage = JSON.parse(localStorage.getItem("uploadedFiles") || "{}")
+      const outputFiles: UploadedFile[] = []
+
+      Object.values(filesInStorage).forEach((file: any) => {
+        if (file.outputId === outputId) {
+          outputFiles.push({
+            ...file,
+            status: "success",
+            progress: 100,
+          })
+        }
+      })
+
+      setUploadedFiles(outputFiles)
+    } catch (error) {
+      console.error("Error loading files from storage:", error)
+    }
+  }
+
+  // Add this function to get file type icon
+  const getFileTypeIcon = (fileType: string) => {
+    const type = fileType.toLowerCase()
+    if (type.includes("pdf")) {
+      return <FileText className="h-4 w-4 text-red-500" />
+    } else if (type.includes("word") || type.includes("doc")) {
+      return <FileText className="h-4 w-4 text-blue-500" />
+    } else if (type.includes("excel") || type.includes("sheet") || type.includes("xls")) {
+      return <FileText className="h-4 w-4 text-green-500" />
+    } else if (type.includes("powerpoint") || type.includes("presentation") || type.includes("ppt")) {
+      return <FileText className="h-4 w-4 text-orange-500" />
+    } else if (type.includes("image") || type.includes("jpg") || type.includes("png") || type.includes("jpeg")) {
+      return <FileText className="h-4 w-4 text-purple-500" />
+    } else {
+      return <FileText className="h-4 w-4 text-gray-500" />
+    }
+  }
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectData();
+    }
+  }, [projectId, fetchProjectData]);
+
+  useEffect(() => {
+    if (selectedPhase) {
+      fetchPreviousPhaseOutputs(selectedPhase.id);
+    }
+  }, [selectedPhase, fetchPreviousPhaseOutputs]);
+
+  useEffect(() => {
+    // Debug logging to understand data structure
+    if (phases.length > 0) {
+      console.log("Phases loaded:", phases);
+      if (selectedPhase) {
+        console.log("Selected phase:", selectedPhase);
+        console.log("Selected phase outputs:", outputs);
+        console.log("Previous phase outputs (inputs):", previousPhaseOutputs);
+      }
+    }
+  }, [phases, selectedPhase, outputs, previousPhaseOutputs]);
 
   return (
     <DashboardLayout>
@@ -668,7 +831,7 @@ export default function WorkspacePage() {
                   ${selectedPhase?.id === phase.id ? "text-primary" : "text-muted-foreground"}
                 `}
               >
-                {phase.name?.split(":")[0] || `Phase ${phase.id}`}
+                {phase.template_details?.name?.split(":")[0] || `Phase ${phase.id}`}
               </span>
               {index < phases.length - 1 && (
                 <div
@@ -691,15 +854,15 @@ export default function WorkspacePage() {
           <>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-2xl font-bold">{selectedPhase?.name || "Select a phase"}</h3>
-                <p className="text-muted-foreground">{selectedPhase?.description}</p>
+                <h3 className="text-2xl font-bold">{selectedPhase?.template_details?.name || "Select a phase"}</h3>
+                <p className="text-muted-foreground">{selectedPhase?.template_details?.description}</p>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-right">
                   <p className="text-sm font-medium">Progress</p>
                   <div className="flex items-center mt-1">
-                    <Progress value={selectedPhase?.progress || 0} className="h-2 w-40 mr-2" />
-                    <span>{selectedPhase?.progress || 0}%</span>
+                    <Progress value={50} className="h-2 w-40 mr-2" />
+                    <span>50%</span>
                   </div>
                 </div>
                 <Badge variant="outline" className={`${getStatusBadgeClass(selectedPhase?.status || "")}`}>
@@ -725,7 +888,7 @@ export default function WorkspacePage() {
                       </Button>
                     </div>
                     <div className="p-4">
-                      {inputs.length > 0 ? (
+                      {previousPhaseOutputs.length > 0 ? (
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <div className="relative">
@@ -739,62 +902,90 @@ export default function WorkspacePage() {
                             </div>
 
                             <ScrollArea className="h-[250px]">
-                              <div className="space-y-2 pr-4">
-                                {Object.keys(groupedInputs).length > 0 ? (
-                                  Object.entries(groupedInputs).map(([name, documents]) => (
-                                    <div key={name} className="border rounded-md overflow-hidden">
-                                      <div
-                                        className="p-3 bg-card hover:bg-muted/50 cursor-pointer flex items-center justify-between"
-                                        onClick={() => toggleInputExpansion(name)}
-                                      >
-                                        <div className="flex items-center">
-                                          <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-                                          <div>
-                                            <div className="font-medium">{name}</div>
-                                            <div className="text-xs text-muted-foreground">
-                                              {documents[0].description}
+                              <div className="p-4">
+                                {previousPhaseOutputs.length > 0 ? (
+                                  <div className="space-y-2 pr-4">
+                                    {previousPhaseOutputs
+                                      .filter((output) => searchInputQuery
+                                        ? (output.template_details?.name || "")
+                                            .toLowerCase()
+                                            .includes(searchInputQuery.toLowerCase())
+                                        : true
+                                      )
+                                      .map((output) => (
+                                        <div key={output.id} className="border rounded-md overflow-hidden">
+                                          <div
+                                            className="p-3 bg-card hover:bg-muted/50 cursor-pointer flex items-center justify-between"
+                                            onClick={() => toggleInputExpansion(output.id.toString())}
+                                          >
+                                            <div className="flex items-center">
+                                              <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
+                                              <div>
+                                                <div className="font-medium">
+                                                  {output.template_details?.name || "Unnamed Output"}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                  {output.description || "No description available"}
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div className="flex items-center">
+                                              <div className="text-xs text-muted-foreground text-right mr-2">
+                                                <div>Status: {output.status || "Not Started"}</div>
+                                                <div>
+                                                  By: {output.user_details?.username || "Unassigned"}
+                                                </div>
+                                              </div>
+                                              <ChevronDown
+                                                className={`h-4 w-4 transition-transform ${
+                                                  expandedInputs.includes(output.id.toString()) ? "rotate-180" : ""
+                                                }`}
+                                              />
                                             </div>
                                           </div>
-                                        </div>
-                                        <div className="flex items-center">
-                                          <div className="text-xs text-muted-foreground text-right mr-2">
-                                            <div>
-                                              Updated:{" "}
-                                              {documents[0].lastUpdated
-                                                ? new Date(documents[0].lastUpdated).toLocaleDateString()
-                                                : "N/A"}
-                                            </div>
-                                            <div>By: {documents[0].updatedBy || "Unknown"}</div>
-                                          </div>
-                                          <ChevronDown
-                                            className={`h-4 w-4 transition-transform ${expandedInputs.includes(name) ? "rotate-180" : ""}`}
-                                          />
-                                        </div>
-                                      </div>
 
-                                      {expandedInputs.includes(name) && (
-                                        <div className="border-t bg-muted/20 divide-y">
-                                          {documents.map((doc) => (
-                                            <div
-                                              key={doc.id}
-                                              className={`p-2 pl-8 hover:bg-muted cursor-pointer flex items-center
-                                                ${selectedInput === doc.id ? "bg-muted/50 font-medium" : ""}
-                                              `}
-                                              onClick={() => handleInputSelect(doc.id)}
-                                            >
-                                              <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                                              <span className="text-sm">
-                                                {doc.type === "document" ? `${name}.doc` : `${name}.${doc.type}`}
-                                              </span>
+                                          {expandedInputs.includes(output.id.toString()) && (
+                                            <div className="border-t bg-muted/20 divide-y">
+                                              <div
+                                                className={`p-2 pl-8 hover:bg-muted cursor-pointer flex items-center
+                                                  ${selectedInput === output.id.toString() ? "bg-muted/50 font-medium" : ""}
+                                                `}
+                                                onClick={() => handleInputSelect(output.id.toString())}
+                                              >
+                                                <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                                                <span className="text-sm">
+                                                  {output.template_details?.name || "Unnamed Output"}
+                                                </span>
+                                              </div>
+                                              
+                                              {/* Documents list */}
+                                              {output.documents && output.documents.length > 0 && (
+                                                <div className="pl-8 pr-2 py-2 border-t">
+                                                  <p className="text-xs font-medium text-muted-foreground mb-2">
+                                                    Associated Documents:
+                                                  </p>
+                                                  {output.documents.map((doc) => (
+                                                    <div key={doc.id} className="flex items-center text-sm py-1">
+                                                      {getFileTypeIcon(doc.file_type)}
+                                                      <span className="ml-2">
+                                                        {doc.name} (v{doc.version})
+                                                      </span>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
                                             </div>
-                                          ))}
+                                          )}
                                         </div>
-                                      )}
-                                    </div>
-                                  ))
+                                      ))}
+                                  </div>
                                 ) : (
-                                  <div className="text-center py-8 text-muted-foreground">
-                                    <p>No inputs available for this phase</p>
+                                  <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                                    <Info className="h-12 w-12 mb-4 opacity-20" />
+                                    <p>No inputs available from previous phase</p>
+                                    {selectedPhase && phases.findIndex((p) => p.id === selectedPhase.id) === 0 && (
+                                      <p className="text-sm mt-2">This is the first phase of the project</p>
+                                    )}
                                   </div>
                                 )}
                               </div>
@@ -804,7 +995,10 @@ export default function WorkspacePage() {
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                           <Info className="h-12 w-12 mb-4 opacity-20" />
-                          <p>No inputs available for this phase</p>
+                          <p>No inputs available from previous phase</p>
+                          {selectedPhase && phases.findIndex((p) => p.id === selectedPhase.id) === 0 && (
+                            <p className="text-sm mt-2">This is the first phase of the project</p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -885,116 +1079,92 @@ export default function WorkspacePage() {
                         </div>
 
                         <ScrollArea className="h-[250px]">
-                          <div className="space-y-2 pr-4">
-                            {Object.keys(groupedOutputs).length > 0 ? (
-                              Object.entries(groupedOutputs).map(([name, documents]) => {
-                                const mainDoc = documents[0] // Use the first document for main display
-                                return (
-                                  <div
-                                    key={name}
-                                    className={`border rounded-md overflow-hidden ${
-                                      mainDoc.status?.toLowerCase() === "completed"
-                                        ? "border-green-200"
-                                        : mainDoc.status?.toLowerCase() === "in-progress"
-                                          ? "border-blue-200"
-                                          : "border-gray-200"
-                                    }`}
-                                  >
-                                    <div
-                                      className={`p-3 cursor-pointer flex items-center justify-between
-                                        ${
-                                          mainDoc.status?.toLowerCase() === "completed"
-                                            ? "bg-green-50/50"
-                                            : mainDoc.status?.toLowerCase() === "in-progress"
-                                              ? "bg-blue-50/50"
-                                              : "bg-muted/50"
-                                        }
-                                        hover:bg-muted/70
-                                      `}
-                                      onClick={() => toggleOutputExpansion(name)}
-                                    >
+                        <div className="p-4">
+                          <div className="space-y-4">
+                            {outputs.length > 0 ? (
+                              outputs
+                                .filter((output) => searchOutputQuery
+                                  ? (output.template_details?.name || "").toLowerCase().includes(searchOutputQuery.toLowerCase())
+                                  : true
+                                )
+                                .map((output) => (
+                                  <div key={output.id} className={`border rounded-md overflow-hidden ${
+                                    output.status?.toLowerCase() === "completed"
+                                      ? "border-green-200"
+                                      : output.status?.toLowerCase() === "in-progress"
+                                        ? "border-blue-200"
+                                        : "border-gray-200"
+                                  }`}>
+                                    <div className={`p-3 cursor-pointer flex items-center justify-between
+                                      ${
+                                        output.status?.toLowerCase() === "completed"
+                                          ? "bg-green-50/50"
+                                          : output.status?.toLowerCase() === "in-progress"
+                                            ? "bg-blue-50/50"
+                                            : "bg-muted/50"
+                                      }
+                                      hover:bg-muted/70
+                                    `}
+                                    onClick={() => toggleOutputExpansion(output.id.toString())}>
                                       <div className="flex items-center">
-                                        {getStatusIcon(mainDoc.status || "")}
+                                        {getStatusIcon(output.status || "")}
                                         <div className="ml-2">
-                                          <div className="font-medium">{name}</div>
-                                          <div className="text-xs text-muted-foreground">{mainDoc.description}</div>
+                                          <div className="font-medium">{output.template_details?.name || "Unnamed Output"}</div>
+                                          <div className="text-xs text-muted-foreground">{output.description || "No description"}</div>
                                         </div>
                                       </div>
                                       <div className="flex items-center">
                                         <div className="flex flex-col items-end mr-2">
-                                          <Badge
-                                            variant="outline"
-                                            className={`${getStatusBadgeClass(mainDoc.status || "")}`}
-                                          >
+                                          <Badge variant="outline" className={`${getStatusBadgeClass(output.status || "")}`}>
                                             <div className="flex items-center">
-                                              <span>{mainDoc.status?.replace("-", " ") || "Not Started"}</span>
+                                              <span>{output.status?.replace("-", " ") || "Not Started"}</span>
                                             </div>
                                           </Badge>
-                                          <div className="text-xs text-muted-foreground mt-1">
-                                            Due:{" "}
-                                            {mainDoc.dueDate ? new Date(mainDoc.dueDate).toLocaleDateString() : "N/A"}
-                                          </div>
                                         </div>
-                                        <ChevronDown
-                                          className={`h-4 w-4 transition-transform ${expandedOutputs.includes(name) ? "rotate-180" : ""}`}
-                                        />
+                                        <ChevronDown className={`h-4 w-4 transition-transform ${expandedOutputs.includes(output.id.toString()) ? "rotate-180" : ""}`} />
                                       </div>
                                     </div>
-
-                                    <div className="px-3 py-1.5 border-t border-gray-100 bg-white/50 flex items-center text-xs text-muted-foreground">
-                                      <Users className="h-3 w-3 mr-1" />
-                                      <span>{mainDoc.assignedTo || "Unassigned"}</span>
-                                      {comments.filter((c) => documents.some((doc) => doc.id === c.documentId)).length >
-                                        0 && (
-                                        <div className="ml-4 flex items-center">
-                                          <MessageSquare className="h-3 w-3 mr-1" />
-                                          <span>
-                                            {
-                                              comments.filter((c) => documents.some((doc) => doc.id === c.documentId))
-                                                .length
-                                            }{" "}
-                                            comments
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    {expandedOutputs.includes(name) && (
+                                    
+                                    {expandedOutputs.includes(output.id.toString()) && (
                                       <div className="border-t bg-muted/20 divide-y">
-                                        {documents.map((doc) => (
-                                          <div
-                                            key={doc.id}
-                                            className={`p-2 pl-8 hover:bg-muted cursor-pointer flex items-center justify-between
-                                              ${selectedOutput === doc.id ? "bg-muted/50 font-medium" : ""}
-                                            `}
-                                            onClick={() => handleOutputSelect(doc.id)}
-                                          >
-                                            <div className="flex items-center">
-                                              <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
-                                              <span className="text-sm">
-                                                {doc.type === "document" ? `${name}.doc` : `${name}.${doc.type}`}
-                                              </span>
-                                            </div>
-                                            <Badge
-                                              variant="outline"
-                                              size="sm"
-                                              className={`${getStatusBadgeClass(doc.status || "")} text-xs`}
-                                            >
-                                              {doc.status?.replace("-", " ") || "Not Started"}
-                                            </Badge>
+                                        <div
+                                          className={`p-2 pl-8 hover:bg-muted cursor-pointer flex items-center justify-between
+                                            ${selectedOutput === output.id.toString() ? "bg-muted/50 font-medium" : ""}
+                                          `}
+                                          onClick={() => handleOutputSelect(output.id.toString())}
+                                        >
+                                          <div className="flex items-center">
+                                            <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
+                                            <span className="text-sm">{output.template_details?.name || "Unnamed Output"}</span>
                                           </div>
-                                        ))}
+                                          <Badge variant="outline" className={`${getStatusBadgeClass(output.status || "")} text-xs`}>
+                                            {output.status?.replace("-", " ") || "Not Started"}
+                                          </Badge>
+                                        </div>
+                                        
+                                        {/* Show documents if any */}
+                                        {output.documents && output.documents.length > 0 && (
+                                          <div className="pl-8 pr-2 py-2">
+                                            <p className="text-xs font-medium text-muted-foreground mb-1">Documents:</p>
+                                            {output.documents.map(doc => (
+                                              <div key={doc.id} className="flex items-center text-sm py-1">
+                                                {getFileTypeIcon(doc.file_type)}
+                                                <span className="ml-2">{doc.name}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
                                       </div>
                                     )}
                                   </div>
-                                )
-                              })
+                                ))
                             ) : (
                               <div className="text-center py-8 text-muted-foreground">
-                                <p>No outputs found matching your criteria</p>
+                                <p>No outputs available for the current phase</p>
                               </div>
                             )}
                           </div>
+                        </div>
                         </ScrollArea>
                       </div>
                     </div>
@@ -1053,19 +1223,31 @@ export default function WorkspacePage() {
                     </div>
 
                     {selectedOutput && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowComments(!showComments)}
-                        className="relative"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        {documentComments.length > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                            {documentComments.length}
-                          </span>
-                        )}
-                      </Button>
+                      <div className="flex items-center space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Upload className="h-4 w-4 mr-2" />
+                              Upload
+                              <ChevronDown className="h-4 w-4 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setShowUploadDialog(true)}>
+                              <UploadCloud className="h-4 w-4 mr-2" />
+                              Upload Document
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={markAsComplete}>
+                              <CheckSquare className="h-4 w-4 mr-2" />
+                              Mark as Complete
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={requestReview}>
+                              <Eye className="h-4 w-4 mr-2" />
+                              Request Review
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     )}
                     <Button variant="ghost" size="icon" onClick={toggleFullScreen}>
                       {isFullScreen ? <X className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
@@ -1160,7 +1342,7 @@ export default function WorkspacePage() {
                                       <li>
                                         <strong>Phase:</strong>{" "}
                                         {activeDocument.type === "output" && selectedPhase
-                                          ? `Phase ${selectedPhase.id}: ${selectedPhase.name}`
+                                          ? `Phase ${selectedPhase.id}: ${selectedPhase.template_details?.name || ""}`
                                           : "N/A"}
                                       </li>
                                       <li>
@@ -1201,7 +1383,7 @@ export default function WorkspacePage() {
                                       <div className="text-sm text-muted-foreground">
                                         <p>
                                           <strong>Source:</strong>{" "}
-                                          {inputs.find((input) => input.id === selectedInput)?.name}
+                                          {inputs.find((input) => input.id === Number(selectedInput))?.template_details?.name}
                                         </p>
                                         <p className="mt-1">
                                           Key requirements and information from the input document would be displayed
@@ -1215,7 +1397,7 @@ export default function WorkspacePage() {
                                   <div className="mb-4">
                                     <h4 className="text-sm font-medium mb-2">Attachments</h4>
                                     <div className="flex items-center space-x-2">
-                                      <Button variant="outline" size="sm">
+                                      <Button variant="outline" size="sm" onClick={() => setShowUploadDialog(true)}>
                                         <FileUp className="h-4 w-4 mr-2" />
                                         Attach File
                                       </Button>
@@ -1224,6 +1406,141 @@ export default function WorkspacePage() {
                                         Add Diagram
                                       </Button>
                                     </div>
+
+                                    {/* Document List */}
+                                    {loadingDocuments ? (
+                                      <div className="flex justify-center items-center h-20">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-gray-900"></div>
+                                      </div>
+                                    ) : documents.length > 0 ? (
+                                      <div className="mt-4 space-y-2">
+                                        <h5 className="text-sm font-medium">Associated Documents</h5>
+                                        {documents.map((doc) => (
+                                          <Card key={doc.id} className="p-3">
+                                            <div className="flex items-center justify-between">
+                                              <div className="flex items-center">
+                                                {getFileTypeIcon(doc.file_type)}
+                                                <div className="ml-2">
+                                                  <p className="text-sm font-medium">{doc.name}</p>
+                                                  <div className="flex items-center mt-1">
+                                                    <p className="text-xs text-muted-foreground mr-3">
+                                                      {(doc.file_size / 1024).toFixed(2)} KB • {doc.file_type}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                      v{doc.version}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                  <Button variant="ghost" size="icon">
+                                                    <MoreVertical className="h-4 w-4" />
+                                                  </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                  <DropdownMenuItem 
+                                                    onClick={() => window.open(`${API_URL}/media/${doc.file_path}`, '_blank')}
+                                                  >
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    View
+                                                  </DropdownMenuItem>
+                                                  <DropdownMenuItem
+                                                    onClick={() => {
+                                                      const link = document.createElement('a');
+                                                      link.href = `${API_URL}/media/${doc.file_path}`;
+                                                      link.download = doc.name;
+                                                      document.body.appendChild(link);
+                                                      link.click();
+                                                      document.body.removeChild(link);
+                                                    }}
+                                                  >
+                                                    <Download className="h-4 w-4 mr-2" />
+                                                    Download
+                                                  </DropdownMenuItem>
+                                                  <DropdownMenuSeparator />
+                                                  <DropdownMenuItem
+                                                    onClick={async () => {
+                                                      try {
+                                                        await documentApi.deleteDocument(doc.id);
+                                                        setNotificationType("info");
+                                                        setNotificationMessage("Document deleted successfully");
+                                                        setShowNotification(true);
+                                                        // Refresh the document list
+                                                        fetchDocumentsForOutput(Number(selectedOutput));
+                                                      } catch (err) {
+                                                        console.error("Error deleting document:", err);
+                                                        setNotificationType("error");
+                                                        setNotificationMessage("Failed to delete document");
+                                                        setShowNotification(true);
+                                                      }
+                                                    }}
+                                                    className="text-red-600"
+                                                  >
+                                                    <Trash className="h-4 w-4 mr-2" />
+                                                    Delete
+                                                  </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                              </DropdownMenu>
+                                            </div>
+                                          </Card>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="mt-4 p-4 border border-dashed rounded-md text-center text-muted-foreground">
+                                        <p>No documents attached to this output</p>
+                                        <p className="text-sm mt-1">Upload a file to associate it with this output</p>
+                                      </div>
+                                    )}
+
+                                    {/* Recently Uploaded Files */}
+                                    {uploadedFiles.length > 0 && (
+                                        <div className="mt-4 space-y-2">
+                                          <h5 className="text-sm font-medium">Recently Uploaded Files</h5>
+                                          {uploadedFiles.map((file) => (
+                                            <Card key={file.id} className="p-2">
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center">
+                                                  {getFileTypeIcon(file.type)}
+                                                  <div className="ml-2">
+                                                    <p className="text-sm font-medium">{file.name}</p>
+                                                    <div className="flex items-center">
+                                                      <p className="text-xs text-muted-foreground mr-3">
+                                                        {(file.size / 1024).toFixed(2)} KB
+                                                      </p>
+                                                      {file.status === "uploading" && (
+                                                        <div className="w-20">
+                                                          <Progress value={file.progress} className="h-1" />
+                                                        </div>
+                                                      )}
+                                                      {file.status === "success" && (
+                                                        <Badge variant="outline" className="bg-green-50 text-green-600 text-xs">
+                                                          Uploaded
+                                                        </Badge>
+                                                      )}
+                                                      {file.status === "error" && (
+                                                        <Badge variant="outline" className="bg-red-50 text-red-600 text-xs">
+                                                          Failed
+                                                        </Badge>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <Button 
+                                                  variant="ghost" 
+                                                  size="icon" 
+                                                  onClick={() => removeFile(file.id)}
+                                                >
+                                                  <X className="h-4 w-4" />
+                                                </Button>
+                                              </div>
+                                              {file.status === "error" && file.error && (
+                                                <p className="text-xs text-red-500 mt-1 ml-6">{file.error}</p>
+                                              )}
+                                            </Card>
+                                          ))}
+                                        </div>
+                                      )}
                                   </div>
 
                                   {/* Action Buttons */}
@@ -1377,6 +1694,71 @@ export default function WorkspacePage() {
           </div>
         )}
       </div>
+      {/* File Upload Dialog */}
+      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Upload File for {activeDocument?.name || "Output"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div
+              className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:bg-muted/50"
+              onClick={openFileDialog}
+            >
+              <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileSelect} />
+              <Upload className="h-10 w-10 text-muted-foreground mb-2" />
+              <p className="text-sm font-medium">Click to select a file or drag and drop</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Supported formats: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG
+              </p>
+            </div>
+
+            {currentFile && (
+              <div className="border rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    {getFileTypeIcon(currentFile.type)}
+                    <div className="ml-2">
+                      <p className="text-sm font-medium">{currentFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {(currentFile.size / 1024).toFixed(2)} KB • {currentFile.type || "Unknown type"}
+                      </p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setCurrentFile(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {isUploading && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Uploading...</span>
+                  <span className="text-sm">{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-2" />
+              </div>
+            )}
+
+            {uploadError && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{uploadError}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowUploadDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleFileUpload} disabled={!currentFile || isUploading}>
+              {isUploading ? "Uploading..." : "Upload"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   )
 }

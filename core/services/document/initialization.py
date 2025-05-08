@@ -11,17 +11,19 @@ import os
 import shutil
 from django.utils import timezone
 
-def initialize_document(name, file_path, file_name, output, status='draft', version=1):
+def initialize_document(name, file_path, output, uploader, status='draft', version=1, file_size=None, file_type=None):
     """
     Initialize a new document
     
     Args:
         name (str): Document name
         file_path (str): Path to the document file
-        file_name (str): Name of the document file
         output (Output): Associated output
+        uploader (User): User who uploaded the document
         status (str, optional): Document status, defaults to 'draft'
         version (int, optional): Document version, defaults to 1
+        file_size (int, optional): Size of the file in bytes
+        file_type (str, optional): Type/extension of the file
     
     Returns:
         Document: The created document
@@ -29,15 +31,27 @@ def initialize_document(name, file_path, file_name, output, status='draft', vers
     # Generate history ID
     history_id = f"{uuid.uuid4().hex}document"
     
+    # If file_size wasn't provided and file_path is a local path, calculate it
+    if file_size is None:
+        if os.path.exists(file_path):
+            file_size = os.path.getsize(file_path)
+        else:
+            file_size = 0  # Default value for non-local files or missing files
+    
+    # If file_type wasn't provided, try to determine it from the path
+    if file_type is None and file_path:
+        file_type = os.path.splitext(file_path)[1][1:].lower()
+    
     # Create the document
     document = Document.objects.create(
-        name=name,
         file_path=file_path,
-        file_name=file_name,
+        name=name,
         output=output,
         status=status,
         version=version,
-        history_id=history_id
+        uploader=uploader,
+        file_size=file_size,
+        file_type=file_type or ""  # Ensure it's not NULL
     )
     
     # Record creation in history
@@ -128,9 +142,15 @@ def update_document_file(document, new_file_path):
     # Extract file name from path
     file_name = os.path.basename(new_file_path)
     
+    # Get new file size and type
+    file_size = os.path.getsize(new_file_path) if os.path.exists(new_file_path) else 0
+    file_type = os.path.splitext(new_file_path)[1][1:].lower() if new_file_path else ""
+    
     document.file_path = new_file_path
     document.file_name = file_name
     document.version = new_version
+    document.file_size = file_size  # Update file size
+    document.file_type = file_type  # Update file type
     document.save()
     
     record_document_version_change(document, old_version, new_version)

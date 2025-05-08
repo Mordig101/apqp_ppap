@@ -1,5 +1,6 @@
 import { API_ENDPOINTS } from "./api"
 import type { ApiError } from "./api-types"
+import type { PaginatedResponse, Project, Client, Team } from "./api-types"
 
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
@@ -249,10 +250,31 @@ export const authApi = {
 export const projectApi = {
   getAllProjects: async () => {
     try {
-      return await api.get(API_ENDPOINTS.projects)
+      const data = await api.get<PaginatedResponse<Project>>(API_ENDPOINTS.projects)
+      return data.results || []
     } catch (error: any) {
       console.error("Get all projects error:", error)
       throw new Error(error.message || "Failed to get all projects")
+    }
+  },
+
+  getProjectsPage: async (url: string) => {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch projects: ${response.statusText}`)
+      }
+
+      return await response.json() as PaginatedResponse<Project>
+    } catch (error: any) {
+      console.error("Get projects page error:", error)
+      throw new Error(error.message || "Failed to get projects page")
     }
   },
 
@@ -385,7 +407,200 @@ export const outputApi = {
       throw new Error(error.message || "Failed to assign permission")
     }
   },
+
+  getAllOutputTemplates: async () => {
+    try {
+      // First, get all phase templates
+      const phaseTemplatesResponse = await api.get(API_ENDPOINTS.phaseTemplates);
+      
+      // Extract all output templates from all phases
+      if (Array.isArray(phaseTemplatesResponse.results)) {
+        const outputTemplates: OutputTemplate[] = [];
+        
+        // Loop through each phase template
+        phaseTemplatesResponse.results.forEach(phase => {
+          // If phase has output templates, add them to our array
+          if (Array.isArray(phase.output_templates)) {
+            phase.output_templates.forEach(template => {
+              // Add phase information to make it easier to identify the phase
+              outputTemplates.push({
+                ...template,
+                phase_name: phase.name  // Add a reference to the phase name
+              });
+            });
+          }
+        });
+        
+        return outputTemplates;
+      }
+      
+      return [];
+    } catch (error: any) {
+      console.error("Get all output templates error:", error);
+      throw new Error(error.message || "Failed to get all output templates");
+    }
+  },
 }
+
+// Document API functions
+export const documentApi = {
+  getAllDocuments: async () => {
+    try {
+      const response = await api.get(API_ENDPOINTS.documents)
+      return response.results || []
+    } catch (error: any) {
+      console.error("Get all documents error:", error)
+      throw new Error(error.message || "Failed to get all documents")
+    }
+  },
+  
+  getDocumentsByOutput: async (outputId: number) => {
+    try {
+      const response = await api.get(`${API_ENDPOINTS.documents}?output=${outputId}`)
+      return response.results || []
+    } catch (error: any) {
+      console.error(`Get documents for output ${outputId} error:`, error)
+      throw new Error(error.message || `Failed to get documents for output ${outputId}`)
+    }
+  },
+  
+  getDocument: async (id: number) => {
+    try {
+      return await api.get(`${API_ENDPOINTS.documents}${id}/`)
+    } catch (error: any) {
+      console.error(`Get document ${id} error:`, error)
+      throw new Error(error.message || `Failed to get document ${id}`)
+    }
+  },
+  
+  uploadDocument: async (formData: FormData) => {
+    try {
+      const token = getAuthToken()
+      
+      const response = await fetch(API_ENDPOINTS.documents, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: formData,
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `Upload failed with status ${response.status}`)
+      }
+      
+      return await response.json()
+    } catch (error: any) {
+      console.error("Upload document error:", error)
+      throw new Error(error.message || "Failed to upload document")
+    }
+  },
+  
+  updateDocument: async (id: number, data: any) => {
+    try {
+      return await api.put(`${API_ENDPOINTS.documents}${id}/`, data)
+    } catch (error: any) {
+      console.error(`Update document ${id} error:`, error)
+      throw new Error(error.message || `Failed to update document ${id}`)
+    }
+  },
+  
+  deleteDocument: async (id: number) => {
+    try {
+      return await api.delete(`${API_ENDPOINTS.documents}${id}/`)
+    } catch (error: any) {
+      console.error(`Delete document ${id} error:`, error)
+      throw new Error(error.message || `Failed to delete document ${id}`)
+    }
+  }
+}
+
+// Add this to your existing api-utils.ts file
+
+// File upload with progress tracking
+export const uploadDocument = async (
+  file: File, 
+  outputId: string,
+  uploaderId: string | undefined,
+  onProgress?: (percent: number) => void
+): Promise<DocumentData> => {
+  return new Promise((resolve, reject) => {
+    // Create form data
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', file.name);
+    formData.append('output_id', outputId);
+    
+    // Add uploader if available
+    if (uploaderId) {
+      formData.append('uploader', uploaderId);
+    }
+    
+    // Get file type and determine MIME type
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    formData.append('file_type', fileExtension || '');
+    
+    // Create xhr request
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_ENDPOINTS.documents);
+    
+    // Get latest token
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+    
+    // Handle CSRF if necessary
+    const csrfToken = getCsrfToken(); // Implement this function
+    if (csrfToken) {
+      xhr.setRequestHeader('X-CSRFToken', csrfToken);
+    }
+    
+    // Handle progress
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        onProgress(percentComplete);
+      }
+    };
+    
+    // Handle response
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } catch (e) {
+          reject(new Error("Invalid response format"));
+        }
+      } else {
+        let errorMsg;
+        try {
+          const errorResponse = JSON.parse(xhr.responseText);
+          errorMsg = errorResponse.error || errorResponse.detail || `Upload failed with status ${xhr.status}`;
+          
+          // Special handling for auth errors
+          if (xhr.status === 401 || xhr.status === 403) {
+            // Trigger token refresh or redirect to login
+            handleAuthError();
+          }
+        } catch(e) {
+          errorMsg = `Upload failed with status ${xhr.status}`;
+        }
+        reject(new Error(errorMsg));
+      }
+    };
+    
+    xhr.onerror = function() {
+      reject(new Error("Network error occurred during upload"));
+    };
+    
+    // Send the request
+    xhr.send(formData);
+  });
+};
 
 // Status change API function
 export const changeStatus = async (
@@ -471,10 +686,31 @@ export const userApi = {
 export const clientApi = {
   getAllClients: async () => {
     try {
-      return await api.get(API_ENDPOINTS.clients)
+      const data = await api.get<PaginatedResponse<Client>>(API_ENDPOINTS.clients)
+      return data.results || []
     } catch (error: any) {
       console.error("Get all clients error:", error)
       throw new Error(error.message || "Failed to get all clients")
+    }
+  },
+
+  getClientsPage: async (url: string) => {
+    try {
+      const data = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        credentials: "include",
+      })
+
+      if (!data.ok) {
+        throw new Error(`Failed to fetch clients: ${data.statusText}`)
+      }
+
+      return (await data.json()) as PaginatedResponse<Client>
+    } catch (error: any) {
+      console.error("Get clients page error:", error)
+      throw new Error(error.message || "Failed to get clients page")
     }
   },
 
@@ -520,7 +756,9 @@ export const templateApi = {
   // Phase templates
   getAllPhaseTemplates: async () => {
     try {
-      return await api.get(API_ENDPOINTS.phaseTemplates)
+      const response = await api.get(API_ENDPOINTS.phaseTemplates)
+      // Return the results array from the paginated response
+      return response.results || []
     } catch (error: any) {
       console.error("Get all phase templates error:", error)
       throw new Error(error.message || "Failed to get all phase templates")
@@ -566,10 +804,34 @@ export const templateApi = {
   // Output templates
   getAllOutputTemplates: async () => {
     try {
-      return await api.get(API_ENDPOINTS.outputTemplates)
+      // First, get all phase templates
+      const phaseTemplatesResponse = await api.get(API_ENDPOINTS.phaseTemplates);
+      
+      // Extract all output templates from all phases
+      if (Array.isArray(phaseTemplatesResponse.results)) {
+        const outputTemplates: OutputTemplate[] = [];
+        
+        // Loop through each phase template
+        phaseTemplatesResponse.results.forEach(phase => {
+          // If phase has output templates, add them to our array
+          if (Array.isArray(phase.output_templates)) {
+            phase.output_templates.forEach(template => {
+              // Add phase information to make it easier to identify the phase
+              outputTemplates.push({
+                ...template,
+                phase_name: phase.name  // Add a reference to the phase name
+              });
+            });
+          }
+        });
+        
+        return outputTemplates;
+      }
+      
+      return [];
     } catch (error: any) {
-      console.error("Get all output templates error:", error)
-      throw new Error(error.message || "Failed to get all output templates")
+      console.error("Get all output templates error:", error);
+      throw new Error(error.message || "Failed to get all output templates");
     }
   },
 
@@ -612,7 +874,9 @@ export const templateApi = {
   // PPAP elements
   getAllPPAPElements: async () => {
     try {
-      return await api.get(API_ENDPOINTS.ppapElements)
+      const response = await api.get(API_ENDPOINTS.ppapElements)
+      // Return the results array from the paginated response
+      return response.results || []
     } catch (error: any) {
       console.error("Get all PPAP elements error:", error)
       throw new Error(error.message || "Failed to get all PPAP elements")
@@ -684,4 +948,86 @@ export const historyApi = {
       throw new Error(error.message || `Failed to get ${entityType} history`)
     }
   },
+}
+
+// Team management API functions
+export const teamApi = {
+  getAllTeams: async () => {
+    try {
+      const data = await api.get<PaginatedResponse<Team>>(API_ENDPOINTS.teams)
+      return data.results || []
+    } catch (error: any) {
+      console.error("Get all teams error:", error)
+      throw new Error(error.message || "Failed to get all teams")
+    }
+  },
+
+  getTeamsPage: async (url: string) => {
+    try {
+      const data = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        credentials: "include",
+      })
+
+      if (!data.ok) {
+        throw new Error(`Failed to fetch teams: ${data.statusText}`)
+      }
+
+      return (await data.json()) as PaginatedResponse<Team>
+    } catch (error: any) {
+      console.error("Get teams page error:", error)
+      throw new Error(error.message || "Failed to get teams page")
+    }
+  },
+
+  getTeam: async (id: number) => {
+    try {
+      return await api.get(`${API_ENDPOINTS.teams}${id}/`)
+    } catch (error: any) {
+      console.error(`Get team ${id} error:`, error)
+      throw new Error(error.message || `Failed to get team ${id}`)
+    }
+  },
+  
+  createTeam: async (data: any) => {
+    try {
+      return await api.post(API_ENDPOINTS.teams, data)
+    } catch (error: any) {
+      console.error("Create team error:", error)
+      throw new Error(error.message || "Failed to create team")
+    }
+  },
+  
+  updateTeam: async (id: number, data: any) => {
+    try {
+      return await api.put(`${API_ENDPOINTS.teams}${id}/`, data)
+    } catch (error: any) {
+      console.error(`Update team ${id} error:`, error)
+      throw new Error(error.message || `Failed to update team ${id}`)
+    }
+  },
+  
+  deleteTeam: async (id: number) => {
+    try {
+      return await api.delete(`${API_ENDPOINTS.teams}${id}/`)
+    } catch (error: any) {
+      console.error(`Delete team ${id} error:`, error)
+      throw new Error(error.message || `Failed to delete team ${id}`)
+    }
+  },
+  
+  // Add or remove members from a team
+  updateTeamMembers: async (teamId: number, memberIds: number[]) => {
+    try {
+      const data = await api.put(`${API_ENDPOINTS.teams}${teamId}/`, { 
+        member_ids: memberIds 
+      })
+      return data
+    } catch (error: any) {
+      console.error(`Update team ${teamId} members error:`, error)
+      throw new Error(error.message || `Failed to update team ${teamId} members`)
+    }
+  }
 }

@@ -62,6 +62,8 @@ export default function UsersAndClientsPage() {
     address: "",
     description: "",
   })
+  const [authorizations, setAuthorizations] = useState<{id: number, name: string}[]>([]);
+  const [selectedAuthorization, setSelectedAuthorization] = useState<number | null>(null);
 
   useEffect(() => {
     fetchData()
@@ -108,6 +110,26 @@ export default function UsersAndClientsPage() {
     }
   }
 
+  const fetchAuthorizations = async () => {
+    try {
+      const response = await fetch('/api/authorizations/');
+      if (!response.ok) throw new Error('Failed to fetch authorizations');
+      const data = await response.json();
+      setAuthorizations(data);
+      // Set a default if available
+      if (data.length > 0) {
+        setSelectedAuthorization(data[0].id);
+      }
+    } catch (error) {
+      console.error('Error fetching authorizations:', error);
+    }
+  };
+
+  // Call this in useEffect
+  useEffect(() => {
+    fetchAuthorizations();
+  }, []);
+
   const handleTabChange = (value: string) => {
     setActiveTab(value)
     setSearchTerm("")
@@ -131,11 +153,44 @@ export default function UsersAndClientsPage() {
 
   const handleAddUser = async () => {
     try {
-      setLoading(true)
-      const response = await userApi.createUser(newUser)
+      if (!selectedAuthorization) {
+        toast({
+          title: "Error",
+          description: "Please select an authorization level",
+          variant: "destructive",
+        });
+        return;
+      }
       
-      setUsers([...users, response])
-      setIsAddUserDialogOpen(false)
+      setLoading(true);
+      
+      // First create a person with contact information
+      const personData = {
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
+        is_user: true,
+        contact_data: {
+          email: newUser.email,
+          phone: "",
+          address: ""
+        }
+      };
+      
+      // Now create the user with the person ID
+      const userData = {
+        username: newUser.username,
+        password: newUser.password,
+        is_staff: newUser.is_staff,
+        is_superuser: newUser.is_superuser,
+        authorization_id: selectedAuthorization,
+        person_data: personData
+      };
+      
+      const response = await userApi.createUser(userData);
+      
+      // Rest of the function remains the same
+      setUsers([...users, response]);
+      setIsAddUserDialogOpen(false);
       setNewUser({
         username: "",
         email: "",
@@ -144,59 +199,68 @@ export default function UsersAndClientsPage() {
         password: "",
         is_staff: false,
         is_superuser: false,
-      })
+      });
       
       toast({
         title: "Success",
         description: "User created successfully",
-      })
+      });
     } catch (err) {
-      console.error("Error adding user:", err)
+      console.error("Error adding user:", err);
       toast({
         title: "Error",
         description: "Failed to add user. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleEditUser = async () => {
     if (!selectedUser) return
     
     try {
       setLoading(true)
-      const { id, username, first_name, last_name, email, is_staff, is_superuser } = selectedUser
       
-      const response = await userApi.updateUser(id, {
-        username, 
-        first_name, 
-        last_name, 
-        email,
-        is_staff,
-        is_superuser
-      })
+      // Construct the update data
+      const updateData = {
+        username: selectedUser.username,
+        is_staff: selectedUser.is_staff,
+        is_superuser: selectedUser.is_superuser,
+        person_data: {
+          first_name: selectedUser.person_details?.first_name || "",
+          last_name: selectedUser.person_details?.last_name || "",
+          contact_data: {
+            email: selectedUser.contact_details?.email || "",
+            phone: selectedUser.contact_details?.phone || "",
+            address: selectedUser.contact_details?.address || ""
+          }
+        }
+      };
       
-      setUsers(users.map(user => user.id === id ? response : user))
-      setIsEditUserDialogOpen(false)
-      setSelectedUser(null)
+      const response = await userApi.updateUser(selectedUser.id, updateData);
+      
+      // Update the users array with the new data
+      setUsers(users.map(user => user.id === selectedUser.id ? response : user));
+      setIsEditUserDialogOpen(false);
+      setSelectedUser(null);
       
       toast({
         title: "Success",
         description: "User updated successfully",
-      })
+      });
     } catch (err) {
-      console.error("Error updating user:", err)
+      console.error("Error updating user:", err);
       toast({
         title: "Error",
         description: "Failed to update user. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAddClient = async () => {
     try {
@@ -312,7 +376,7 @@ export default function UsersAndClientsPage() {
   const filteredUsers = users.filter(
     (user) =>
       user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (user.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.contact_details?.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       `${user.person_details?.first_name || ""} ${user.person_details?.last_name || ""}`.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
@@ -348,8 +412,8 @@ export default function UsersAndClientsPage() {
             <TabsTrigger value="clients" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Clients
-            </TabsTrigger>
-          </TabsList>
+              </TabsTrigger>
+            </TabsList>
 
           <TabsContent value="users" className="space-y-4 mt-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -442,6 +506,26 @@ export default function UsersAndClientsPage() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="authorization">Authorization Level</Label>
+                      <Select 
+                        value={selectedAuthorization?.toString() || "3"} 
+                        onValueChange={(value) => {
+                          setSelectedAuthorization(parseInt(value));
+                        }}
+                      >
+                        <SelectTrigger id="authorization">
+                          <SelectValue placeholder="Select authorization" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {authorizations.map(auth => (
+                            <SelectItem key={auth.id} value={auth.id.toString()}>
+                              {auth.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsAddUserDialogOpen(false)}>
@@ -495,7 +579,10 @@ export default function UsersAndClientsPage() {
                             {user.person_details?.first_name || ""} {user.person_details?.last_name || ""}
                           </TableCell>
                           <TableCell>{user.username}</TableCell>
-                          <TableCell>{user.email}</TableCell>
+                          <TableCell>
+                            {/* Use contact_details?.email instead of directly accessing email */}
+                            {user.contact_details?.email || ""}
+                          </TableCell>
                           <TableCell>
                             <Badge
                               variant="outline"
@@ -567,7 +654,7 @@ export default function UsersAndClientsPage() {
                           })}
                         />
                       </div>
-                      <div className="space-y-2">
+                      <div className="space-y=2">
                         <Label htmlFor="edit_last_name">Last Name</Label>
                         <Input
                           id="edit_last_name"
@@ -598,11 +685,18 @@ export default function UsersAndClientsPage() {
                       <Input
                         id="edit_email"
                         type="email"
-                        value={selectedUser.email || ""}
-                        onChange={(e) => setSelectedUser({
-                          ...selectedUser,
-                          email: e.target.value
-                        })}
+                        value={selectedUser.contact_details?.email || ""}
+                        onChange={(e) => {
+                          // Create contact_details if it doesn't exist
+                          const updatedContactDetails = selectedUser.contact_details 
+                            ? { ...selectedUser.contact_details, email: e.target.value }
+                            : { email: e.target.value };
+                            
+                          setSelectedUser({
+                            ...selectedUser,
+                            contact_details: updatedContactDetails
+                          })
+                        }}
                       />
                     </div>
                     <div className="space-y-2">

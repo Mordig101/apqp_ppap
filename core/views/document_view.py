@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
-from core.models import Document, Output
+from core.models import Document, Output ,User
 from core.serializers.document_serializer import DocumentSerializer
 from core.services.document.api import (
     initialize_document,
@@ -14,6 +14,7 @@ from core.services.document.api import (
     get_documents_by_status
 )
 from core.services.history.document import record_document_creation
+import uuid
 
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
@@ -23,15 +24,16 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         # Extract document data
         name = request.data.get('name')
-        file_path = request.data.get('file_path')
+        uploaded_file = request.FILES.get('file')  # Get the actual uploaded file
         output_id = request.data.get('output_id')
+        uploader_id = request.data.get('uploader')
         version = request.data.get('version', 1)
         status_value = request.data.get('status', 'draft')
         
         # Validate required fields
-        if not all([name, file_path]):
+        if not name or not uploaded_file:
             return Response(
-                {"error": "Missing required fields: name, file_path"},
+                {"error": "Missing required fields: name, file"},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -46,18 +48,30 @@ class DocumentViewSet(viewsets.ModelViewSet):
                         {"error": f"Output with ID {output_id} not found"},
                         status=status.HTTP_404_NOT_FOUND
                     )
+                    
+            # Get uploader user
+            uploader = None
+            if uploader_id:
+                try:
+                    uploader = User.objects.get(id=uploader_id)
+                except User.DoesNotExist:
+                    return Response(
+                        {"error": f"User with ID {uploader_id} not found"},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+            
+            # Save the uploaded file
+            file_path = self._save_uploaded_file(uploaded_file)
             
             # Create document
             document = initialize_document(
                 name=name,
                 file_path=file_path,
                 output=output,
-                version=version,
-                status=status_value
+                uploader=uploader,
+                status=status_value,
+                version=version
             )
-            
-            # Record in history
-            record_document_creation(document)
             
             serializer = self.get_serializer(document)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -67,6 +81,34 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
     
+    def _save_uploaded_file(self, file):
+        """
+        Save an uploaded file to the appropriate location
+        
+        Args:
+            file: The uploaded file object
+        
+        Returns:
+            str: Path where the file was saved
+        """
+        import os
+        from django.conf import settings
+        
+        # Create uploads directory if it doesn't exist
+        upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploads', 'documents')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Generate a unique filename
+        filename = f"{uuid.uuid4().hex}_{file.name}"
+        file_path = os.path.join(upload_dir, filename)
+        
+        # Save the file
+        with open(file_path, 'wb+') as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+        
+        return file_path
+
     @transaction.atomic
     def update(self, request, *args, **kwargs):
         document = self.get_object()

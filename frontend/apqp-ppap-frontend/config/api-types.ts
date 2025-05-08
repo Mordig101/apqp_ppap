@@ -1,5 +1,4 @@
 // User related types
-// In your api-types.ts file
 export interface User {
   id: number
   username: string
@@ -17,20 +16,7 @@ export interface User {
     contact_id: string
     is_user: boolean
     history_id: string
-    teams: Array<{
-      id: number
-      name: string
-    }>
-    department: number
   }
-  // Other fields...
-}
-
-export interface PaginatedResponse<T> {
-  count: number
-  next: string | null
-  previous: string | null
-  results: T[]
 }
 
 export interface LoginRequest {
@@ -44,6 +30,56 @@ export interface LoginResponse {
 }
 
 // Project related types
+// Update the Project interface to match the actual API response structure
+export interface Project {
+  id: number;
+  name: string;
+  description?: string;
+  status: string;
+  history_id: string;
+  client: number;
+  team: number | null;
+  ppap: number | null;
+  client_details?: {
+    id: number;
+    name: string;
+    address: string;
+    code: {
+      duns?: string;
+      fiscal?: string;
+    };
+    description?: string;
+    contact_id?: string;
+    history_id?: string;
+    team?: number | null;
+  };
+  team_details?: {
+    id: number;
+    name: string;
+    description?: string;
+    history_id?: string;
+    members?: {
+      id: number;
+      first_name?: string;
+      last_name?: string;
+      contact_id?: string;
+      is_user?: boolean;
+      history_id?: string;
+      department?: number;
+    }[];
+  };
+  ppap_details?: {
+    id: number;
+    level: number;
+    status?: string;
+    review?: string | null;
+    history_id?: string;
+    project: number;
+    phases?: Phase[];
+  };
+}
+
+// Update the Client interface to match the actual API response structure
 export interface Client {
   id: number
   name: string
@@ -52,15 +88,45 @@ export interface Client {
   description: string
   contact_id: string
   history_id: string
+  team?: number
+  contact_details?: {
+    id: string
+    email: string
+    phone: string
+    address: string
+    type: string
+  }
+  team_details?: Team
 }
 
+// Update the Team interface to match the actual API response structure
 export interface Team {
   id: number
   name: string
   description: string
   history_id: string
+  members?: Array<{
+    id: number
+    teams?: Array<{
+      id: number
+      name: string
+    }>
+    first_name: string
+    last_name: string
+    contact_id: string
+    is_user: boolean
+    history_id: string
+    department: number
+    contact_details?: {
+      id: string
+      email: string
+      phone: string
+      address: string
+    }
+  }>
 }
 
+// Update the PPAP interface to match the actual API response structure
 export interface PPAP {
   id: number
   project: number
@@ -69,40 +135,6 @@ export interface PPAP {
   review: string | null
   history_id: string
   phases?: Phase[]
-}
-
-export interface Project {
-  id: number
-  name: string
-  description: string
-  client: number
-  team: number
-  status: string
-  ppap: number | null
-  history_id: string
-  client_details?: {
-    id: number
-    name: string
-    address: string
-    code: Record<string, any>
-    description: string
-    contact_id: string
-    history_id: string
-  }
-  team_details?: {
-    id: number
-    name: string
-    description: string
-    history_id: string
-  }
-  ppap_details?: {
-    id: number
-    project: number
-    level: number
-    status: string
-    review: string | null
-    history_id: string
-  }
 }
 
 export interface ProjectCreateRequest {
@@ -122,15 +154,37 @@ export interface ProjectUpdateRequest {
 }
 
 // Phase related types
-export interface PhaseTemplate {
-  id: number
-  name: string
-  description: string
-  order: number
+export interface PhaseTemplateResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: PhaseTemplate[];
 }
 
+// Update the PhaseTemplate interface to match the API response
+export interface PhaseTemplate {
+  id: number;
+  name: string;
+  description: string;
+  order: number;
+  is_active?: boolean; // Add this field to match your component state
+  output_templates?: OutputTemplate[]; // Add this to include output templates
+}
+
+// Update the Phase interface to match the actual API response structure
 export interface Phase {
-  id: number
+  id: number;
+  project: number;
+  template: number;
+  status?: string;
+  responsible?: number | null;
+  deadline?: string | null;
+  template_details?: {
+    id: number;
+    name: string;
+    description?: string;
+    order?: number;
+  };
   template: number
   responsible: number | null
   ppap: number
@@ -141,10 +195,10 @@ export interface Phase {
     name: string
     description: string
     order: number
+    output_templates?: OutputTemplate[]
   }
   outputs?: Output[]
   responsible_details?: User
-  // Timeline properties
   started_at?: string | null
   deadline?: string | null
   finished_at?: string | null
@@ -154,11 +208,21 @@ export interface Phase {
 export interface OutputTemplate {
   id: number
   name: string
+  description?: string
   configuration: Record<string, any>
   phase: number
   ppap_element: number
+  document_type: string
+  is_required: boolean
+  is_active: boolean
+  ppap_element_details?: {
+    id: number
+    name: string
+    level: string
+  }
 }
 
+// Update the Output interface to match the actual API response structure
 export interface Output {
   id: number
   template: number
@@ -171,6 +235,9 @@ export interface Output {
   template_details?: {
     id: number
     name: string
+    configuration?: Record<string, any>
+    phase?: number
+    ppap_element?: number
     ppap_element_details?: {
       id: number
       name: string
@@ -340,4 +407,32 @@ export interface AuthResponse {
 
 export interface ApiError {
   error: string
+}
+
+// Add PaginatedResponse interface for handling paginated API responses
+export interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
+export interface PPAPElement {
+  id: number
+  name: string
+  description?: string
+  level: string
+  level_1_required?: boolean
+  level_2_required?: boolean
+  level_3_required?: boolean
+  level_4_required?: boolean
+  level_5_required?: boolean
+  is_active?: boolean
+}
+
+export interface PPAPElementResponse {
+  count: number
+  next: string | null
+  previous: string | null
+  results: PPAPElement[]
 }
