@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Calendar, ClipboardList, LayoutDashboard, Settings, ChevronDown, ChevronRight, User } from "lucide-react"
+import { Calendar, ClipboardList, LayoutDashboard, Settings, ChevronDown, ChevronRight, User ,LogOut} from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+
 import { authApi, projectApi } from "@/config/api-utils"
 import type { Project } from "@/config/api-types"
 
@@ -96,6 +98,16 @@ export function MainSidebar() {
   const isProjectSubtabActive = (subtab: string) => {
     if (!selectedProject) return false
     return pathname === `/projects/${selectedProject.id}/${subtab}`
+  }
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout()
+      // Redirect to login page after successful logout
+      router.push("/login")
+    } catch (error) {
+      console.error("Logout error:", error)
+    }
   }
 
   return (
@@ -326,14 +338,25 @@ export function MainSidebar() {
 
       <div className="border-t p-4">
         {user ? (
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center mr-2">
-              <User className="h-4 w-4" />
+          <div className="space-y-3">
+            <div className="flex items-center">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center mr-2">
+                <User className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">{user.username || "User"}</p>
+                <p className="text-xs text-muted-foreground">{user.email || ""}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-medium">{user.username || "User"}</p>
-              <p className="text-xs text-muted-foreground">{user.email || ""}</p>
-            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full flex items-center justify-center" 
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4 mr-2" /> 
+              Sign Out
+            </Button>
           </div>
         ) : (
           <p className="text-xs text-muted-foreground">APQP Manager v1.0</p>

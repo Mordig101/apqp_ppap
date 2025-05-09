@@ -176,32 +176,22 @@ export interface Phase {
   id: number;
   project: number;
   template: number;
-  status?: string;
-  responsible?: number | null;
-  deadline?: string | null;
+  ppap: number;
+  status: string;
+  history_id: string;
+  responsible: number | null;
   template_details?: {
     id: number;
     name: string;
-    description?: string;
-    order?: number;
+    description: string;
+    order: number;
+    output_templates?: OutputTemplate[];
   };
-  template: number
-  responsible: number | null
-  ppap: number
-  status: string
-  history_id: string
-  template_details?: {
-    id: number
-    name: string
-    description: string
-    order: number
-    output_templates?: OutputTemplate[]
-  }
-  outputs?: Output[]
-  responsible_details?: User
-  started_at?: string | null
-  deadline?: string | null
-  finished_at?: string | null
+  outputs?: Output[];
+  responsible_details?: User;
+  started_at?: string | null;
+  deadline?: string | null;
+  finished_at?: string | null;
 }
 
 // Output related types
@@ -220,6 +210,7 @@ export interface OutputTemplate {
     name: string
     level: string
   }
+  phase_name?: string
 }
 
 // Update the Output interface to match the actual API response structure
@@ -435,4 +426,33 @@ export interface PPAPElementResponse {
   next: string | null
   previous: string | null
   results: PPAPElement[]
+}
+
+// Department related types
+export interface Department {
+  id: number
+  name: string
+  history_id: string
+  responsible: number | null
+  responsible_details?: User
+  members?: Array<{
+    id: number
+    first_name: string
+    last_name: string
+    is_user: boolean
+  }>
+  teams?: Array<{
+    id: number
+    name: string
+  }>
+}
+
+export interface DepartmentCreateRequest {
+  name: string
+  responsible?: number | null
+}
+
+export interface DepartmentUpdateRequest {
+  name?: string
+  responsible?: number | null
 }

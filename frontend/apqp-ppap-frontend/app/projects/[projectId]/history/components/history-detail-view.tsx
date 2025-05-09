@@ -1,11 +1,12 @@
 "use client"
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import React from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import type { HistoryEntry } from "../types"
-import { format } from "date-fns"
 import { X } from "lucide-react"
 
 interface HistoryDetailViewProps {
@@ -51,79 +52,106 @@ export default function HistoryDetailView({ entry, onClose }: HistoryDetailViewP
     }
   }
 
+  // Helper to get badge color based on event type
+  const getBadgeVariant = (type: string): "default" | "secondary" | "destructive" | "outline" => {
+    type = type.toLowerCase();
+    if (type.includes('creat')) return "default";
+    if (type.includes('updat')) return "secondary";
+    if (type.includes('delet') || type.includes('remov')) return "destructive";
+    return "outline";
+  };
+  
+  // Display source context if available
+  const getSourceContext = (): JSX.Element | null => {
+    if (!entry.sourceName) return null;
+    
+    let breadcrumb = '';
+    
+    if (entry.grandparentName && entry.parentName) {
+      breadcrumb = `${entry.grandparentName} → ${entry.parentName} → ${entry.sourceName}`;
+    } else if (entry.parentName) {
+      breadcrumb = `${entry.parentName} → ${entry.sourceName}`;
+    } else {
+      breadcrumb = entry.sourceName;
+    }
+    
+    return (
+      <div className="mb-4">
+        <h4 className="text-sm font-medium mb-1">Source</h4>
+        <p className="text-sm">{breadcrumb}</p>
+      </div>
+    );
+  };
+  
   return (
     <Dialog open={true} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-xl">{entry.title}</DialogTitle>
+          <DialogTitle>History Details</DialogTitle>
+          <DialogDescription>
+            {entry.title || 'Event details'}
+          </DialogDescription>
           <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={onClose}>
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </Button>
         </DialogHeader>
-
-        <div className="flex flex-col md:flex-row gap-2 text-sm text-muted-foreground mb-4">
-          <div>
-            <span className="font-medium">Date:</span> {formatDate(entry.created_at)}
-          </div>
-          {entry.user && (
-            <div className="md:ml-4">
-              <span className="font-medium">User:</span> {entry.user}
-            </div>
-          )}
-          <div className="md:ml-4">
-            <span className="font-medium">Table:</span> {entry.table_name}
-          </div>
-        </div>
-
         <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium mb-2">Event Summary</h3>
-              <p>{entry.event}</p>
+              <h4 className="text-sm font-medium mb-1">Timestamp</h4>
+              <p className="text-sm">{new Date(entry.created_at).toLocaleString()}</p>
             </div>
-
+            
+            <div>
+              <h4 className="text-sm font-medium mb-1">User</h4>
+              <p className="text-sm">{entry.created_by || 'System'}</p>
+            </div>
+            
+            {getSourceContext()}
+            
             {entry.events && entry.events.length > 0 ? (
               <div>
-                <h3 className="text-sm font-medium mb-2">Detailed Events</h3>
-                <div className="space-y-4">
+                <h4 className="text-sm font-medium mb-2">Events</h4>
+                <div className="space-y-3">
                   {entry.events.map((event, index) => (
-                    <div key={index} className="border-l-2 border-gray-200 pl-4 py-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Badge className={getEventTypeColor(event.type)}>{event.type}</Badge>
+                    <div key={index} className="bg-muted p-3 rounded-md">
+                      <div className="flex items-center justify-between mb-2">
+                        <Badge variant={getBadgeVariant(event.type)}>
+                          {event.type}
+                        </Badge>
                         {event.timestamp && (
-                          <span className="text-xs text-muted-foreground">{formatDate(event.timestamp)}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(event.timestamp).toLocaleTimeString()}
+                          </span>
                         )}
-                        {event.user && <span className="text-xs">by {event.user}</span>}
                       </div>
-                      <p className="text-sm">{event.details}</p>
-
-                      {event.changes && Object.keys(event.changes).length > 0 && (
-                        <div className="mt-2 text-sm">
-                          <h4 className="font-medium mb-1">Changes:</h4>
-                          <ul className="space-y-1">
-                            {Object.entries(event.changes).map(([field, value], i) => (
-                              <li key={i} className="flex gap-2">
-                                <span className="font-mono">{field}:</span>
-                                <span>{JSON.stringify(value)}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      <p className="text-sm whitespace-pre-wrap">{event.details}</p>
+                      {event.user && <p className="text-xs text-muted-foreground mt-2">By: {event.user}</p>}
                     </div>
                   ))}
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <div>
+                <h4 className="text-sm font-medium mb-1">Action</h4>
+                <p className="text-sm whitespace-pre-wrap">{entry.event}</p>
+              </div>
+            )}
+            
+            {entry.details && (
+              <>
+                <Separator />
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Additional Details</h4>
+                  <pre className="text-xs bg-muted p-2 rounded-md overflow-auto max-h-[300px]">
+                    {JSON.stringify(entry.details, null, 2)}
+                  </pre>
+                </div>
+              </>
+            )}
           </div>
         </ScrollArea>
-
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Close
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

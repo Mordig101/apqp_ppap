@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { authApi } from "@/config/api-utils"
+import Link from "next/link"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState<{ type: string; text: string } | null>(null)
 
   // Check if user is already logged in
   useEffect(() => {
@@ -31,6 +33,25 @@ export default function LoginPage() {
         })
     }
   }, [router])
+
+  // Check URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isRegistered = params.get('registered') === 'true';
+    const isPending = params.get('pending') === 'true';
+    
+    if (isRegistered && isPending) {
+      setMessage({
+        type: 'info',
+        text: 'Your registration is pending approval. An administrator will review your account soon.'
+      });
+    } else if (isRegistered) {
+      setMessage({
+        type: 'success',
+        text: 'Registration successful! You can now log in.'
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,6 +79,7 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && <div className="p-3 text-sm text-red-600 bg-red-100 rounded-md">{error}</div>}
+              {message && <div className={`p-3 text-sm rounded-md ${message.type === 'info' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'}`}>{message.text}</div>}
               <div className="space-y-2">
                 <label htmlFor="username" className="text-sm font-medium">
                   Username
@@ -113,7 +135,13 @@ export default function LoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="flex justify-center">
+          <CardFooter className="flex flex-col space-y-3">
+            <div className="text-center text-sm">
+              Don't have an account?{" "}
+              <Link href="/register" className="text-primary hover:underline">
+                Register
+              </Link>
+            </div>
             <p className="text-sm text-gray-500">
               Advanced Product Quality Planning and Production Part Approval Process
             </p>

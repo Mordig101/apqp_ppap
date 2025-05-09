@@ -1,6 +1,11 @@
+import { HistoryEntry, NestedHistory } from "@/app/projects/[projectId]/history/types"
 import { API_ENDPOINTS } from "./api"
-import type { ApiError } from "./api-types"
-import type { PaginatedResponse, Project, Client, Team } from "./api-types"
+import type { ApiError, PaginatedResponse, Project, Client, Team, OutputTemplate, Phase, PhaseTemplate, Document ,Department , DepartmentCreateRequest,DepartmentUpdateRequest ,History} from "./api-types"
+
+// Define DocumentData interface
+interface DocumentData extends Document {
+  // Add any additional fields that might be in the API response
+}
 
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
@@ -46,9 +51,7 @@ const getCsrfToken = (): string | null => {
   return null
 }
 
-const apiRequest = async <T>(endpoint: string, options: RequestOptions)
-: Promise<T> =>
-{
+const apiRequest = async <T>(endpoint: string, options: RequestOptions): Promise<T> => {
   const token = getAuthToken()
   const csrfToken = getCsrfToken()
 
@@ -199,20 +202,28 @@ export const api = {
 ),
 }
 
+// Add handleAuthError function
+const handleAuthError = () => {
+  // Redirect to login or refresh token
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+};
+
 // Auth specific API functions
 export const authApi = {
   login: async (username: string, password: string) => {
     try {
-      const response = await api.post(API_ENDPOINTS.authLogin, { username, password })
+      const response = await api.post<{token: string}>(API_ENDPOINTS.authLogin, { username, password });
       if (response && response.token) {
-        localStorage.setItem("auth_token", response.token)
-        return response
+        localStorage.setItem("auth_token", response.token);
+        return response;
       } else {
-        throw new Error("Login failed: Token not received")
+        throw new Error("Login failed: Token not received");
       }
     } catch (error: any) {
-      console.error("Login error:", error)
-      throw new Error(error.message || "Login failed")
+      console.error("Login error:", error);
+      throw new Error(error.message || "Login failed");
     }
   },
 
@@ -244,6 +255,58 @@ export const authApi = {
       throw new Error(error.message || "Failed to get user permissions")
     }
   },
+
+  register: async (
+    username: string, 
+    email: string, 
+    password: string, 
+    firstName: string, 
+    lastName: string, 
+    phone?: string, 
+    address?: string, 
+    departmentId?: number
+  ) => {
+    try {
+      // Prepare request data according to registration requirements
+      const userData = {
+        username,
+        password,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        phone,
+        address,
+        department_id: departmentId,
+        // No need to set is_active - the backend will set it to false for public registration
+      };
+      
+      // Make API request - no authentication needed
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"}/users/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Registration failed");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      
+      // Handle specific error cases from your API
+      if (error.message?.includes("username already exists")) {
+        throw new Error("Username is already taken. Please choose another.");
+      }
+      
+      throw new Error(error.message || "Registration failed");
+    }
+  }
 }
 
 // Project specific API functions
@@ -411,17 +474,17 @@ export const outputApi = {
   getAllOutputTemplates: async () => {
     try {
       // First, get all phase templates
-      const phaseTemplatesResponse = await api.get(API_ENDPOINTS.phaseTemplates);
+      const phaseTemplatesResponse = await api.get<PaginatedResponse<PhaseTemplate>>(API_ENDPOINTS.phaseTemplates);
       
       // Extract all output templates from all phases
       if (Array.isArray(phaseTemplatesResponse.results)) {
         const outputTemplates: OutputTemplate[] = [];
         
         // Loop through each phase template
-        phaseTemplatesResponse.results.forEach(phase => {
+        phaseTemplatesResponse.results.forEach((phase: PhaseTemplate) => {
           // If phase has output templates, add them to our array
           if (Array.isArray(phase.output_templates)) {
-            phase.output_templates.forEach(template => {
+            phase.output_templates.forEach((template: OutputTemplate) => {
               // Add phase information to make it easier to identify the phase
               outputTemplates.push({
                 ...template,
@@ -446,21 +509,21 @@ export const outputApi = {
 export const documentApi = {
   getAllDocuments: async () => {
     try {
-      const response = await api.get(API_ENDPOINTS.documents)
-      return response.results || []
+      const response = await api.get<PaginatedResponse<Document>>(API_ENDPOINTS.documents);
+      return response.results || [];
     } catch (error: any) {
-      console.error("Get all documents error:", error)
-      throw new Error(error.message || "Failed to get all documents")
+      console.error("Get all documents error:", error);
+      throw new Error(error.message || "Failed to get all documents");
     }
   },
   
   getDocumentsByOutput: async (outputId: number) => {
     try {
-      const response = await api.get(`${API_ENDPOINTS.documents}?output=${outputId}`)
-      return response.results || []
+      const response = await api.get<PaginatedResponse<Document>>(`${API_ENDPOINTS.documents}?output=${outputId}`);
+      return response.results || [];
     } catch (error: any) {
-      console.error(`Get documents for output ${outputId} error:`, error)
-      throw new Error(error.message || `Failed to get documents for output ${outputId}`)
+      console.error(`Get documents for output ${outputId} error:`, error);
+      throw new Error(error.message || `Failed to get documents for output ${outputId}`);
     }
   },
   
@@ -526,7 +589,7 @@ export const uploadDocument = async (
   uploaderId: string | undefined,
   onProgress?: (percent: number) => void
 ): Promise<DocumentData> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<DocumentData>((resolve, reject) => {
     // Create form data
     const formData = new FormData();
     formData.append('file', file);
@@ -570,7 +633,7 @@ export const uploadDocument = async (
     xhr.onload = function() {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
-          const response = JSON.parse(xhr.responseText);
+          const response = JSON.parse(xhr.responseText) as DocumentData;
           resolve(response);
         } catch (e) {
           reject(new Error("Invalid response format"));
@@ -756,12 +819,12 @@ export const templateApi = {
   // Phase templates
   getAllPhaseTemplates: async () => {
     try {
-      const response = await api.get(API_ENDPOINTS.phaseTemplates)
+      const response = await api.get<PaginatedResponse<PhaseTemplate>>(API_ENDPOINTS.phaseTemplates);
       // Return the results array from the paginated response
-      return response.results || []
+      return response.results || [];
     } catch (error: any) {
-      console.error("Get all phase templates error:", error)
-      throw new Error(error.message || "Failed to get all phase templates")
+      console.error("Get all phase templates error:", error);
+      throw new Error(error.message || "Failed to get all phase templates");
     }
   },
 
@@ -805,17 +868,17 @@ export const templateApi = {
   getAllOutputTemplates: async () => {
     try {
       // First, get all phase templates
-      const phaseTemplatesResponse = await api.get(API_ENDPOINTS.phaseTemplates);
+      const phaseTemplatesResponse = await api.get<PaginatedResponse<PhaseTemplate>>(API_ENDPOINTS.phaseTemplates);
       
       // Extract all output templates from all phases
       if (Array.isArray(phaseTemplatesResponse.results)) {
         const outputTemplates: OutputTemplate[] = [];
         
         // Loop through each phase template
-        phaseTemplatesResponse.results.forEach(phase => {
+        phaseTemplatesResponse.results.forEach((phase: PhaseTemplate) => {
           // If phase has output templates, add them to our array
           if (Array.isArray(phase.output_templates)) {
-            phase.output_templates.forEach(template => {
+            phase.output_templates.forEach((template: OutputTemplate) => {
               // Add phase information to make it easier to identify the phase
               outputTemplates.push({
                 ...template,
@@ -876,7 +939,8 @@ export const templateApi = {
     try {
       const response = await api.get(API_ENDPOINTS.ppapElements)
       // Return the results array from the paginated response
-      return response.results || []
+      const data = response as PaginatedResponse<Client>;
+      return data.results || [];
     } catch (error: any) {
       console.error("Get all PPAP elements error:", error)
       throw new Error(error.message || "Failed to get all PPAP elements")
@@ -922,14 +986,15 @@ export const templateApi = {
 
 // History API functions
 export const historyApi = {
-  getAllHistory: async () => {
-    try {
-      return await api.get(API_ENDPOINTS.history)
-    } catch (error: any) {
-      console.error("Get all history error:", error)
-      throw new Error(error.message || "Failed to get all history")
-    }
-  },
+  getAllHistory: async (): Promise<PaginatedResponse<History>> => {
+  try {
+    const response = await api.get<PaginatedResponse<History>>(API_ENDPOINTS.history);
+    return response;
+  } catch (error: any) {
+    console.error("Get all history error:", error);
+    throw new Error(error.message || "Failed to get all history");
+  }
+},
 
   getHistoryById: async (id: string) => {
     try {
@@ -946,6 +1011,40 @@ export const historyApi = {
     } catch (error: any) {
       console.error(`Get ${entityType} history error:`, error)
       throw new Error(error.message || `Failed to get ${entityType} history`)
+    }
+  },
+
+  getHistoryByType: async (tableName: string, projectId: string) => {
+    try {
+      const endpoint = `${API_ENDPOINTS.history}${tableName}/?project_id=${projectId}`;
+      const response = await api.get<HistoryEntry[]>(endpoint);
+      return response;
+    } catch (error: any) {
+      console.error(`Get ${tableName} history error:`, error);
+      throw new Error(error.message || `Failed to get ${tableName} history`);
+    }
+  },
+
+  getNestedHistory: async (projectId: string): Promise<NestedHistory> => {
+    try {
+      const endpoint = API_ENDPOINTS.nestedHistory.replace(':projectId', projectId);
+      const response = await api.get<NestedHistory>(endpoint);
+      return response;
+    } catch (error: any) {
+      console.error(`Get nested history error:`, error);
+      throw new Error(error.message || `Failed to get nested history for project ${projectId}`);
+    }
+  },
+
+  // Add new method for all projects
+  getAllProjectsNestedHistory: async (page = 1, pageSize = 10) => {
+    try {
+      const endpoint = `${API_ENDPOINTS.allNestedHistory}?page=${page}&page_size=${pageSize}`;
+      const response = await api.get(endpoint);
+      return response;
+    } catch (error: any) {
+      console.error(`Get all projects nested history error:`, error);
+      throw new Error(error.message || `Failed to get all projects nested history`);
     }
   },
 }
@@ -1031,3 +1130,106 @@ export const teamApi = {
     }
   }
 }
+
+// Department management API functions
+export const departmentApi = {
+  // Get all departments (paginated)
+  getAllDepartments: async () => {
+    try {
+      const response = await api.get<PaginatedResponse<Department>>(API_ENDPOINTS.departments);
+      return response.results || [];
+    } catch (error: any) {
+      console.error("Get all departments error:", error);
+      throw new Error(error.message || "Failed to get all departments");
+    }
+  },
+
+  // Get departments with pagination
+  getDepartmentsPage: async (url: string) => {
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch departments: ${response.statusText}`);
+      }
+
+      return await response.json() as PaginatedResponse<Department>;
+    } catch (error: any) {
+      console.error("Get departments page error:", error);
+      throw new Error(error.message || "Failed to get departments page");
+    }
+  },
+
+  // Get department by ID
+  getDepartment: async (id: number) => {
+    try {
+      return await api.get<Department>(`${API_ENDPOINTS.departments}${id}/`);
+    } catch (error: any) {
+      console.error(`Get department ${id} error:`, error);
+      throw new Error(error.message || `Failed to get department ${id}`);
+    }
+  },
+
+  // Create a new department
+  createDepartment: async (data: DepartmentCreateRequest) => {
+    try {
+      return await api.post<Department>(API_ENDPOINTS.departments, data);
+    } catch (error: any) {
+      console.error("Create department error:", error);
+      throw new Error(error.message || "Failed to create department");
+    }
+  },
+
+  // Update a department
+  updateDepartment: async (id: number, data: DepartmentUpdateRequest) => {
+    try {
+      return await api.put<Department>(`${API_ENDPOINTS.departments}${id}/`, data);
+    } catch (error: any) {
+      console.error(`Update department ${id} error:`, error);
+      throw new Error(error.message || `Failed to update department ${id}`);
+    }
+  },
+
+  // Delete a department
+  deleteDepartment: async (id: number) => {
+    try {
+      return await api.delete<{}>(`${API_ENDPOINTS.departments}${id}/`);
+    } catch (error: any) {
+      console.error(`Delete department ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete department ${id}`);
+    }
+  },
+
+  // Get department members
+  getDepartmentMembers: async (id: number) => {
+    try {
+      return await api.get<Array<{
+        id: number;
+        first_name: string;
+        last_name: string;
+        is_user: boolean;
+      }>>(`${API_ENDPOINTS.departments}${id}/members/`);
+    } catch (error: any) {
+      console.error(`Get department ${id} members error:`, error);
+      throw new Error(error.message || `Failed to get department ${id} members`);
+    }
+  },
+
+  // Get department teams
+  getDepartmentTeams: async (id: number) => {
+    try {
+      return await api.get<Array<{
+        id: number;
+        name: string;
+      }>>(`${API_ENDPOINTS.departments}${id}/teams/`);
+    } catch (error: any) {
+      console.error(`Get department ${id} teams error:`, error);
+      throw new Error(error.message || `Failed to get department ${id} teams`);
+    }
+  },
+};

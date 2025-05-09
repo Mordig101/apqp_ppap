@@ -1,14 +1,28 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from django.db import transaction
-from core.models import User, Person, Contact
+from core.models import User, Person, Contact, Authorization
 from core.serializers.user_serializer import UserSerializer
-from core.services.history.user import record_user_creation  # Add this
-from core.services.history.initialization import initialize_history  # You can keep this if used elsewhere
+from core.services.history.user import record_user_creation
+
+class PublicRegistrationPermission(permissions.BasePermission):
+    """
+    Custom permission to allow:
+    - Public POST requests for registration
+    - Authenticated requests for all other operations
+    """
+    def has_permission(self, request, view):
+        # Allow POST for everyone (registration)
+        if request.method == 'POST':
+            return True
+            
+        # For all other methods, require authentication
+        return request.user and request.user.is_authenticated
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [PublicRegistrationPermission]
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -17,15 +31,36 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password')
         person_id = request.data.get('person_id')
         authorization_id = request.data.get('authorization_id')
-        is_active = request.data.get('is_active', True)
-        is_staff = request.data.get('is_staff', False)
-        is_superuser = request.data.get('is_superuser', False)
-        
-        # For creating a new person if needed
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
         email = request.data.get('email')
+        phone = request.data.get('phone')
+        address = request.data.get('address')
         department_id = request.data.get('department_id')
+        
+        # Determine if this is a public registration
+        is_public_registration = not request.user.is_authenticated if hasattr(request, 'user') else True
+        
+        # For authenticated admin users, respect their is_active setting
+        # For public registration, default to inactive
+        is_active = False if is_public_registration else request.data.get('is_active', True)
+        is_staff = False if is_public_registration else request.data.get('is_staff', False)
+        is_superuser = False if is_public_registration else request.data.get('is_superuser', False)
+        
+        # For public registration, use default authorization for new users
+        if is_public_registration and not authorization_id:
+            # Get or create basic user authorization - without description field
+            try:
+                default_auth = Authorization.objects.get(name="edit")
+            except Authorization.DoesNotExist:
+                # Create basic auth with a proper history_id
+                import uuid
+                default_auth = Authorization.objects.create(
+                    name="edit",
+                    history_id=f"{uuid.uuid4().hex}authorization"
+                )
+            
+            authorization_id = default_auth.id
         
         # Validate required fields for user
         if not all([username, password, authorization_id]):
@@ -42,6 +77,7 @@ class UserViewSet(viewsets.ModelViewSet):
             )
         
         try:
+            # Rest of method remains unchanged...
             # Get or create person
             if person_id:
                 try:
@@ -76,18 +112,31 @@ class UserViewSet(viewsets.ModelViewSet):
             try:
                 contact = Contact.objects.get(id=person.contact_id)
                 
-                # Update email if provided and different
+                # Update contact information if provided and different
+                contact_updated = False
+                
                 if email and email != contact.email:
                     contact.email = email
-                    contact.save(update_fields=['email'])
+                    contact_updated = True
+                    
+                if phone and phone != contact.phone:
+                    contact.phone = phone
+                    contact_updated = True
+                    
+                if address and address != contact.address:
+                    contact.address = address
+                    contact_updated = True
+                    
+                if contact_updated:
+                    contact.save()
                     
             except Contact.DoesNotExist:
                 # Create contact if it doesn't exist
                 Contact.objects.create(
                     id=person.contact_id,
                     email=email or "",
-                    address="",
-                    phone="",
+                    phone=phone or "",
+                    address=address or "",
                     type="user"
                 )
             
@@ -105,8 +154,13 @@ class UserViewSet(viewsets.ModelViewSet):
             # Record in history
             record_user_creation(user)
             
-            serializer = self.get_serializer(user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            response_data = self.get_serializer(user).data
+            
+            # For public registration, add appropriate message
+            if is_public_registration:
+                response_data['message'] = "Registration successful! Your account is pending approval."
+            
+            return Response(response_data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(
                 {"error": str(e)},

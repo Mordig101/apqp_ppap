@@ -1,11 +1,15 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from core.models import History, Project
 from core.serializers.history_serializer import HistorySerializer
+from core.services.history.nested_history import get_nested_project_history
 import json
+from concurrent.futures import ThreadPoolExecutor
+import threading
 
-class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
+class HistoryViewSet(viewsets.ModelViewSet):
     queryset = History.objects.all()
     serializer_class = HistorySerializer
     
@@ -64,3 +68,82 @@ class HistoryViewSet(viewsets.ReadOnlyModelViewSet):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_nested_history(request, project_id):
+    """
+    Get nested history for a project including all related components
+    """
+    nested_data = get_nested_project_history(project_id)
+    
+    if "error" in nested_data:
+        return Response({"error": nested_data["error"]}, status=status.HTTP_404_NOT_FOUND)
+    
+    return Response(nested_data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_projects_nested_history(request):
+    """
+    Get nested history for all projects with concurrent processing
+    """
+    try:
+        # Get pagination parameters
+        page_size = int(request.query_params.get('page_size', 10))
+        page = int(request.query_params.get('page', 1))
+        
+        # Get all project IDs
+        all_projects = Project.objects.all().order_by('-id')
+        
+        # Apply pagination
+        start = (page - 1) * page_size
+        end = start + page_size
+        paginated_projects = all_projects[start:end]
+        project_ids = [project.id for project in paginated_projects]
+        project_names = {project.id: project.name for project in paginated_projects}
+        
+        # Use thread pool to get nested history concurrently
+        all_nested_history = {}
+        thread_local = threading.local()
+        
+        def get_project_history(project_id):
+            project_nested_history = get_nested_project_history(project_id)
+            
+            # Skip projects with errors
+            if "error" in project_nested_history:
+                return None
+                
+            return {
+                "project_id": project_id,
+                "project_name": project_names[project_id],
+                "history": project_nested_history
+            }
+        
+        # Process projects concurrently with a thread pool
+        with ThreadPoolExecutor(max_workers=min(10, len(project_ids))) as executor:
+            results = list(executor.map(get_project_history, project_ids))
+        
+        # Filter out None results and organize by project ID
+        for result in filter(None, results):
+            all_nested_history[result["project_id"]] = {
+                "project_name": result["project_name"],
+                "history": result["history"]
+            }
+        
+        # Return with pagination info
+        response = {
+            "total": all_projects.count(),
+            "page": page,
+            "page_size": page_size,
+            "pages": (all_projects.count() + page_size - 1) // page_size,
+            "results": all_nested_history
+        }
+        
+        return Response(response, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response(
+            {"error": f"Failed to retrieve nested history: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

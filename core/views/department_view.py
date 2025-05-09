@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
@@ -15,9 +15,23 @@ from core.services.department.api import (
 )
 from core.services.history.department import record_department_creation, record_department_update, record_department_deletion
 
+class IsAuthenticatedOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to allow unauthenticated users to read departments,
+    but require authentication for mutations.
+    """
+    def has_permission(self, request, view):
+        # Allow GET, HEAD, OPTIONS requests for all users
+        if request.method in permissions.SAFE_METHODS:
+            return True
+            
+        # Require authentication for all other methods
+        return request.user and request.user.is_authenticated
+
 class DepartmentViewSet(viewsets.ModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):

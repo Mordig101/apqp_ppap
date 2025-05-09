@@ -6,6 +6,10 @@ from core.views import (
     person_view, contact_view, department_view, template_view, todo_view,
     ppap_element_view, authorization_view ,auth_api
 )
+from core.views.history_view import (
+    get_nested_history,
+    get_all_projects_nested_history
+)
 
 # Set up the REST API router
 router = DefaultRouter()
@@ -62,10 +66,12 @@ urlpatterns = [
     # Phase responsibility
     path('assign-phase-responsible/', api_view.assign_phase_responsible_view, name='assign-phase-responsible'),
     
-
-
     # Authentication endpoints
     path('auth/login/', auth_api.api_login, name='api_login'),
     path('auth/logout/', auth_api.api_logout, name='api_logout'),
     path('auth/user/', auth_api.api_get_user, name='api_get_user'),
+
+    # Nested history
+    path('projects/<int:project_id>/nested-history/', get_nested_history, name='project-nested-history'),
+    path('projects/nested-history/', get_all_projects_nested_history, name='all-projects-nested-history'),
 ]

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ChevronDown, ChevronUp, Eye } from "lucide-react"
 import type { HistoryEntry } from "../types"
 import { formatDate } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
 
 interface HistoryTableProps {
   data: HistoryEntry[]
@@ -95,108 +96,116 @@ export default function HistoryTable({ data, loading, onEntrySelect }: HistoryTa
 
   if (loading) {
     return (
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Event</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <Skeleton className="h-4 w-24" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-40" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-60" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                </TableCell>
-                <TableCell className="text-right">
-                  <Skeleton className="h-8 w-8 rounded-full ml-auto" />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
       </div>
     )
   }
 
   if (data.length === 0) {
-    return (
-      <div className="rounded-md border p-8 text-center">
-        <p className="text-muted-foreground">No history records found</p>
-      </div>
-    )
+    return <div className="text-center py-8 text-muted-foreground">No history entries found.</div>
   }
 
+  // Helper function to get the event type for rendering badge
+  const getEventType = (entry: HistoryEntry): string => {
+    if (entry.events && entry.events.length > 0) {
+      return entry.events[0].type;
+    }
+    return entry.table_name || 'Unknown';
+  };
+  
+  // Helper to get badge color based on event type
+  const getBadgeVariant = (type: string): "default" | "secondary" | "destructive" | "outline" => {
+    type = type.toLowerCase();
+    if (type.includes('creat')) return "default";
+    if (type.includes('updat')) return "secondary";
+    if (type.includes('delet') || type.includes('remov')) return "destructive";
+    return "outline";
+  };
+  
+  // Get the description text
+  const getEventDescription = (entry: HistoryEntry): string => {
+    if (entry.events && entry.events.length > 0) {
+      return entry.events[0].details;
+    }
+    return entry.event || 'No description available';
+  };
+  
+  // Get source context if available
+  const getSourceContext = (entry: HistoryEntry): string => {
+    if (entry.sourceName) {
+      if (entry.grandparentName && entry.parentName) {
+        return `${entry.grandparentName} → ${entry.parentName} → ${entry.sourceName}`;
+      } else if (entry.parentName) {
+        return `${entry.parentName} → ${entry.sourceName}`;
+      } else {
+        return entry.sourceName;
+      }
+    }
+    return '';
+  };
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("created_at")}>
-              <div className="flex items-center gap-1">
-                Date
-                {sortField === "created_at" &&
-                  (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[180px]">Date</TableHead>
+          <TableHead className="w-[120px]">Type</TableHead>
+          <TableHead className="w-[180px]">User</TableHead>
+          <TableHead>Description</TableHead>
+          <TableHead className="w-[100px] text-right">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((entry) => (
+          <TableRow key={entry.id}>
+            <TableCell className="whitespace-nowrap">
+              <div className="font-medium">
+                {new Date(entry.created_at).toLocaleDateString()}
               </div>
-            </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("title")}>
-              <div className="flex items-center gap-1">
-                Title
-                {sortField === "title" &&
-                  (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+              <div className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
               </div>
-            </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => handleSort("event")}>
-              <div className="flex items-center gap-1">
-                Event
-                {sortField === "event" &&
-                  (sortDirection === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
+            </TableCell>
+            <TableCell>
+              <Badge variant={getBadgeVariant(getEventType(entry))}>
+                {getEventType(entry)}
+              </Badge>
+              
+              {entry.sourceName && (
+                <div className="mt-1 text-xs text-muted-foreground truncate max-w-[120px]" title={getSourceContext(entry)}>
+                  {getSourceContext(entry)}
+                </div>
+              )}
+            </TableCell>
+            <TableCell>{entry.created_by || 'System'}</TableCell>
+            <TableCell>
+              <div className="line-clamp-2">
+                {getEventDescription(entry)}
               </div>
-            </TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+              
+              {entry.events && entry.events.length > 1 && (
+                <div className="mt-1 text-xs text-muted-foreground">
+                  +{entry.events.length - 1} more events
+                </div>
+              )}
+            </TableCell>
+            <TableCell className="text-right">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onEntrySelect(entry)}
+                title="View details"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedData.map((entry) => {
-            const eventType = getEventTypeFromEntry(entry)
-            return (
-              <TableRow key={entry.id} className="group">
-                <TableCell className="font-mono text-xs">{formatDate(entry.created_at)}</TableCell>
-                <TableCell className="font-medium">{entry.title}</TableCell>
-                <TableCell className="max-w-md truncate">{entry.event}</TableCell>
-                <TableCell>
-                  <Badge className={getEventTypeBadgeColor(eventType)}>{eventType}</Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEntrySelect(entry)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Eye className="h-4 w-4" />
-                    <span className="sr-only">View details</span>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
