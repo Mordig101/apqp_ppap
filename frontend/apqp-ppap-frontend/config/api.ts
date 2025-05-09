@@ -28,4 +28,5 @@ export const API_ENDPOINTS = {
   assignPhaseResponsible: `${API_BASE_URL}/assign-phase-responsible/`,
   nestedHistory: `${API_BASE_URL}/projects/:projectId/nested-history/`,
   allNestedHistory: `${API_BASE_URL}/projects/nested-history/`,
+  projectsHistory: `${API_BASE_URL}/projects-history/all-projects-history/`,
 }

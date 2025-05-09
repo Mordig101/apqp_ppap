@@ -8,7 +8,8 @@ from core.views import (
 )
 from core.views.history_view import (
     get_nested_history,
-    get_all_projects_nested_history
+    get_all_projects_nested_history,
+    simple_test_view
 )
 
 # Set up the REST API router
@@ -74,4 +75,10 @@ urlpatterns = [
     # Nested history
     path('projects/<int:project_id>/nested-history/', get_nested_history, name='project-nested-history'),
     path('projects/nested-history/', get_all_projects_nested_history, name='all-projects-nested-history'),
+
+    # Simple test
+    path('simple-test/', simple_test_view, name='simple-test'),
+
+    # Projects history
+    path('projects-history/', include('core.urls_project_history')),
 ]

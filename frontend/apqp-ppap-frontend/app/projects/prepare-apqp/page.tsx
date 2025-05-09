@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,10 +13,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Check, Users, Building, FileText, AlertCircle, Loader2, Plus, X } from "lucide-react"
+import { Check, Users, Building, FileText, AlertCircle, Loader2, Plus, X, ArrowLeft, ArrowRight } from "lucide-react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { teamApi, clientApi, userApi, templateApi } from "@/config/api-utils"
-import type { Team, Client, User, PhaseTemplate } from "@/config/api-types"
+import { teamApi, clientApi, userApi, templateApi, projectApi, changeStatus } from "@/config/api-utils"
+import type { Team, Client, User, PhaseTemplate, Project } from "@/config/api-types"
 
 // Define the APQP task interface
 interface APQPTask {
@@ -39,7 +39,11 @@ interface RACIItem {
 
 export default function PrepareForAPQPPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const projectId = searchParams.get("projectId")
+
   const [activeTab, setActiveTab] = useState("team")
+  const [project, setProject] = useState<Project | null>(null)
 
   // State for data
   const [teams, setTeams] = useState<Team[]>([])
@@ -151,6 +155,7 @@ export default function PrepareForAPQPPage() {
 
   // Loading and error states
   const [loading, setLoading] = useState({
+    project: false,
     teams: false,
     clients: false,
     users: false,
@@ -158,6 +163,7 @@ export default function PrepareForAPQPPage() {
     saving: false,
   })
   const [errors, setErrors] = useState({
+    project: "",
     teams: "",
     clients: "",
     users: "",
@@ -167,11 +173,57 @@ export default function PrepareForAPQPPage() {
 
   // Fetch data on component mount
   useEffect(() => {
+    if (projectId) {
+      fetchProject(Number.parseInt(projectId))
+    }
     fetchTeams()
     fetchClients()
     fetchUsers()
     fetchPhaseTemplates()
-  }, [])
+  }, [projectId])
+
+  // Fetch project data
+  const fetchProject = async (id: number) => {
+    setLoading((prev) => ({ ...prev, project: true }))
+    setErrors((prev) => ({ ...prev, project: "" }))
+
+    try {
+      const projectData = await projectApi.getProject(id)
+      setProject(projectData)
+
+      // Pre-populate form with project data
+      if (projectData.team_details) {
+        setSelectedTeam(projectData.team_details)
+        if (projectData.team_details.members) {
+          setTeamMembers(
+            projectData.team_details.members.map((member) => ({
+              id: member.id,
+              first_name: member.first_name || "",
+              last_name: member.last_name || "",
+              person_details: {
+                first_name: member.first_name || "",
+                last_name: member.last_name || "",
+              },
+            })),
+          )
+        }
+      }
+
+      if (projectData.client_details) {
+        setSelectedClient(projectData.client_details)
+        setClientRequirements(projectData.client_details.description || "")
+
+        if (projectData.client_details.team_details?.members) {
+          setClientContacts(projectData.client_details.team_details.members)
+        }
+      }
+    } catch (error: any) {
+      console.error("Error fetching project:", error)
+      setErrors((prev) => ({ ...prev, project: error.message || "Failed to fetch project" }))
+    } finally {
+      setLoading((prev) => ({ ...prev, project: false }))
+    }
+  }
 
   // Fetch teams from API
   const fetchTeams = async () => {
@@ -372,12 +424,19 @@ export default function PrepareForAPQPPage() {
     setErrors((prev) => ({ ...prev, saving: "" }))
 
     try {
-      // In a real implementation, you would save the data to the backend
-      // For now, we'll simulate a successful save
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (project && project.id) {
+        // Update project status to "In Progress"
+        await changeStatus("project", project.id, "In Progress")
 
-      // Show success message or redirect
-      router.push("/projects")
+        // In a real implementation, you would save the APQP preparation data
+        // For now, we'll simulate a successful save
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        // Navigate to the project workspace
+        router.push(`/projects/${project.id}/workspace`)
+      } else {
+        throw new Error("Project ID is missing")
+      }
     } catch (error: any) {
       console.error("Error saving preparation:", error)
       setErrors((prev) => ({ ...prev, saving: error.message || "Failed to save preparation" }))
@@ -401,11 +460,36 @@ export default function PrepareForAPQPPage() {
     }
   }
 
+  // Handle navigation to previous tab
+  const handlePrevTab = () => {
+    if (activeTab === "client") {
+      setActiveTab("team")
+    } else if (activeTab === "tasks") {
+      setActiveTab("client")
+    }
+  }
+
+  // Handle navigation to next tab
+  const handleNextTab = () => {
+    if (activeTab === "team") {
+      setActiveTab("client")
+    } else if (activeTab === "client") {
+      setActiveTab("tasks")
+    }
+  }
+
   return (
     <DashboardLayout>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Prepare for APQP</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-3xl font-bold tracking-tight">Prepare for APQP</h2>
+            {project && (
+              <Badge variant="outline" className="ml-2 text-base">
+                {project.name}
+              </Badge>
+            )}
+          </div>
           <Button onClick={savePreparation} disabled={loading.saving}>
             {loading.saving ? (
               <>
@@ -413,11 +497,19 @@ export default function PrepareForAPQPPage() {
               </>
             ) : (
               <>
-                <Check className="mr-2 h-4 w-4" /> Save Preparation
+                <Check className="mr-2 h-4 w-4" /> Complete Preparation
               </>
             )}
           </Button>
         </div>
+
+        {errors.project && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{errors.project}</AlertDescription>
+          </Alert>
+        )}
 
         {errors.saving && (
           <Alert variant="destructive">
@@ -474,9 +566,9 @@ export default function PrepareForAPQPPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
-            <TabsTrigger value="team">Setup RACI Matrix & Team</TabsTrigger>
-            <TabsTrigger value="client">Define Client & Client's Team</TabsTrigger>
-            <TabsTrigger value="tasks">APQP Preparation Tasks</TabsTrigger>
+            <TabsTrigger value="team">1. Setup RACI Matrix & Team</TabsTrigger>
+            <TabsTrigger value="client">2. Define Client & Client's Team</TabsTrigger>
+            <TabsTrigger value="tasks">3. APQP Preparation Tasks</TabsTrigger>
           </TabsList>
 
           <TabsContent value="team" className="space-y-4">
@@ -616,6 +708,7 @@ export default function PrepareForAPQPPage() {
                         className="w-full p-2 border rounded-md"
                         onChange={(e) => handleTeamSelect(Number(e.target.value))}
                         value={selectedTeam?.id || ""}
+                        disabled={loading.teams}
                       >
                         <option value="">Select a team</option>
                         {teams.map((team) => (
@@ -632,6 +725,7 @@ export default function PrepareForAPQPPage() {
                         placeholder="Enter team name"
                         value={selectedTeam?.name || ""}
                         onChange={(e) => setSelectedTeam((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                        disabled={loading.teams}
                       />
                     </div>
                   </div>
@@ -698,6 +792,11 @@ export default function PrepareForAPQPPage() {
                   </div>
                 </div>
               </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button onClick={handleNextTab}>
+                  Next: Client Setup <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
 
@@ -725,6 +824,7 @@ export default function PrepareForAPQPPage() {
                         className="w-full p-2 border rounded-md"
                         onChange={(e) => handleClientSelect(Number(e.target.value))}
                         value={selectedClient?.id || ""}
+                        disabled={loading.clients}
                       >
                         <option value="">Select a client</option>
                         {clients.map((client) => (
@@ -741,6 +841,7 @@ export default function PrepareForAPQPPage() {
                         placeholder="Enter client name"
                         value={selectedClient?.name || ""}
                         onChange={(e) => setSelectedClient((prev) => (prev ? { ...prev, name: e.target.value } : null))}
+                        disabled={loading.clients}
                       />
                     </div>
                   </div>
@@ -823,6 +924,14 @@ export default function PrepareForAPQPPage() {
                   </div>
                 </div>
               </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline" onClick={handlePrevTab}>
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back: Team Setup
+                </Button>
+                <Button onClick={handleNextTab}>
+                  Next: APQP Tasks <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
 
@@ -903,12 +1012,28 @@ export default function PrepareForAPQPPage() {
                   ))}
                 </div>
 
-                <div className="mt-6 flex justify-end">
-                  <Button onClick={generateReport}>
+                <div className="mt-6 flex justify-between">
+                  <Button variant="outline" onClick={generateReport}>
                     <FileText className="mr-2 h-4 w-4" /> Generate Preparation Report
+                  </Button>
+                  <Button onClick={savePreparation} disabled={loading.saving}>
+                    {loading.saving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="mr-2 h-4 w-4" /> Complete Preparation
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
+              <CardFooter className="flex justify-start">
+                <Button variant="outline" onClick={handlePrevTab}>
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back: Client Setup
+                </Button>
+              </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>

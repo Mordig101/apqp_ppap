@@ -7,6 +7,18 @@ interface DocumentData extends Document {
   // Add any additional fields that might be in the API response
 }
 
+// Near the top of the file with other interfaces
+interface AllProjectsHistoryResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+  results: Record<string, {
+    project_name: string;
+    history: any;
+  }>;
+}
+
 // Base API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api"
 
@@ -1037,16 +1049,31 @@ export const historyApi = {
   },
 
   // Add new method for all projects
-  getAllProjectsNestedHistory: async (page = 1, pageSize = 10) => {
+  getAllProjectsNestedHistory: async (page = 1, pageSize = 10): Promise<AllProjectsHistoryResponse> => {
     try {
-      const endpoint = `${API_ENDPOINTS.allNestedHistory}?page=${page}&page_size=${pageSize}`;
-      const response = await api.get(endpoint);
+      console.log(`Fetching history for page ${page} with ${pageSize} items per page`);
+      const endpoint = `${API_ENDPOINTS.projectsHistory}?page=${page}&page_size=${pageSize}`;
+      
+      const response = await api.get<AllProjectsHistoryResponse>(endpoint);
+      console.log(`Received history response with ${Object.keys(response?.results || {}).length} projects`);
       return response;
-    } catch (error: any) {
-      console.error(`Get all projects nested history error:`, error);
-      throw new Error(error.message || `Failed to get all projects nested history`);
+    } catch (error: any) { // Explicitly type as any
+      console.error('Error fetching all projects history:', error);
+      throw new Error(error.message || 'Failed to fetch history data');
     }
-  },
+  }
+}
+
+// Define an interface for the nested history response
+interface AllProjectsHistoryResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  pages: number;
+  results: Record<string, {
+    project_name: string;
+    history: any;
+  }>;
 }
 
 // Team management API functions
