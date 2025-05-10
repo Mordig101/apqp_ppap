@@ -3,6 +3,14 @@ from django.utils import timezone
 from core.services.history.initialization import (
     get_history, initialize_history, add_history_event, ensure_history_id
 )
+import uuid
+from datetime import datetime
+
+def get_current_user():
+    """Get username of current user from thread local storage"""
+    from threading import local
+    _thread_locals = local()
+    return getattr(_thread_locals, 'user', None) or 'system'
 
 def record_person_creation(person):
     """
@@ -262,3 +270,60 @@ def get_person_history(person_id):
         return get_history(person)
     except Person.DoesNotExist:
         return None
+
+def record_person_role_change(person, old_role, new_role):
+    """Record when a person's role is changed"""
+    from core.models import History
+    import json
+    
+    old_role_text = old_role if old_role else 'None'
+    new_role_text = new_role if new_role else 'None'
+    
+    history = History.objects.create(
+        id=f"{person.history_id}_{uuid.uuid4().hex[:8]}",
+        table_name='person',
+        table_id=person.id,
+        event=json.dumps([{
+            'type': 'update',
+            'details': f"Role changed from '{old_role_text}' to '{new_role_text}'",
+            'timestamp': datetime.now().isoformat(),
+            'user': get_current_user()
+        }])
+    )
+    return history
+
+def record_person_replacer_change(person, old_replacer_id, new_replacer_id):
+    """Record when a person's replacer is changed"""
+    from core.models import History, Person
+    import json
+    
+    # Get replacer names for better readability
+    old_replacer_name = 'None'
+    new_replacer_name = 'None'
+    
+    if old_replacer_id:
+        try:
+            old_replacer = Person.objects.get(id=old_replacer_id)
+            old_replacer_name = f"{old_replacer.first_name} {old_replacer.last_name}"
+        except Person.DoesNotExist:
+            pass
+    
+    if new_replacer_id:
+        try:
+            new_replacer = Person.objects.get(id=new_replacer_id)
+            new_replacer_name = f"{new_replacer.first_name} {new_replacer.last_name}"
+        except Person.DoesNotExist:
+            pass
+    
+    history = History.objects.create(
+        id=f"{person.history_id}_{uuid.uuid4().hex[:8]}",
+        table_name='person',
+        table_id=person.id,
+        event=json.dumps([{
+            'type': 'update',
+            'details': f"Replacer changed from '{old_replacer_name}' to '{new_replacer_name}'",
+            'timestamp': datetime.now().isoformat(),
+            'user': get_current_user()
+        }])
+    )
+    return history

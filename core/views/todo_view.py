@@ -245,6 +245,7 @@ class TodoViewSet(viewsets.ModelViewSet):
         user_id = request.data.get('user_id')
         output_id = request.data.get('output_id')
         permission_name = request.data.get('permission_name', 'r')  # Default to read permission
+        role = request.data.get('role', 'contributor')  # Default to contributor role
         
         if not all([user_id, output_id]):
             return Response(
@@ -253,7 +254,7 @@ class TodoViewSet(viewsets.ModelViewSet):
             )
         
         try:
-            todo = create_todo(user_id, output_id, permission_name)
+            todo = create_todo(user_id, output_id, permission_name, role)
             serializer = self.get_serializer(todo)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
@@ -341,6 +342,7 @@ class TodoViewSet(viewsets.ModelViewSet):
             user_id = todo_data.get('user_id')
             output_id = todo_data.get('output_id')
             permission_name = todo_data.get('permission_name', 'r')
+            role = todo_data.get('role', 'contributor')
             
             if not all([user_id, output_id]):
                 errors.append({
@@ -350,7 +352,7 @@ class TodoViewSet(viewsets.ModelViewSet):
                 continue
             
             try:
-                todo = create_todo(user_id, output_id, permission_name)
+                todo = create_todo(user_id, output_id, permission_name, role)
                 created_todos.append(self.get_serializer(todo).data)
             except Exception as e:
                 errors.append({
@@ -363,4 +365,4 @@ class TodoViewSet(viewsets.ModelViewSet):
             "errors": errors,
             "success_count": len(created_todos),
             "error_count": len(errors)
-        })        
+        })

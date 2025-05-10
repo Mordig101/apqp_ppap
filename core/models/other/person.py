@@ -11,6 +11,9 @@ class Person(models.Model):
     department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True, related_name='persons')
     is_user = models.BooleanField(default=False)
     history_id = models.CharField(max_length=100, unique=True)
+    # New fields
+    role = models.CharField(max_length=255, blank=True, null=True)
+    replacer = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replacing')
 
     class Meta:
         db_table = 'person'

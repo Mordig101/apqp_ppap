@@ -60,7 +60,7 @@ export default function HistoryPage() {
         setError(null)
         
         // Call the API that gets nested history for all projects
-        const response = await historyApi.getAllProjectsNestedHistory(page, pageSize)
+        const response = await historyApi.getAllProjectsNestedHistory(page, pageSize) as AllProjectsHistoryResponse
         
         if (!response || !response.results) {
           throw new Error("Invalid response format from API")
@@ -80,10 +80,10 @@ export default function HistoryPage() {
           
           // Add project history
           if (nestedHistory.project && Array.isArray(nestedHistory.project) && nestedHistory.project.length > 0) {
-            nestedHistory.project.forEach(record => {
+            nestedHistory.project.forEach((record: HistoryRecord) => {
               // For each event in the record, create a separate history item
               if (record.events && record.events.length > 0) {
-                record.events.forEach((event, index) => {
+                record.events.forEach((event: HistoryEvent, index: number) => {
                   flattenedRecords.push({
                     ...record,
                     title: projectName,
@@ -109,9 +109,9 @@ export default function HistoryPage() {
           
           // Add PPAP history
           if (nestedHistory.ppap && nestedHistory.ppap.history && Array.isArray(nestedHistory.ppap.history) && nestedHistory.ppap.history.length > 0) {
-            nestedHistory.ppap.history.forEach(record => {
+            nestedHistory.ppap.history.forEach((record: HistoryRecord) => {
               if (record.events && record.events.length > 0) {
-                record.events.forEach((event, index) => {
+                record.events.forEach((event: HistoryEvent, index: number) => {
                   flattenedRecords.push({
                     ...record,
                     title: `PPAP for ${projectName}`,
@@ -137,15 +137,18 @@ export default function HistoryPage() {
           // Add phase history
           if (nestedHistory.ppap && nestedHistory.ppap.phases) {
             Object.entries(nestedHistory.ppap.phases).forEach(([phaseId, phase]) => {
+              // Type assertion to help TypeScript understand the data structure
+              const phaseData = phase as PhaseData
+              
               // Add phase history
-              if (phase.history && Array.isArray(phase.history) && phase.history.length > 0) {
-                phase.history.forEach(record => {
+              if (phaseData.history && Array.isArray(phaseData.history) && phaseData.history.length > 0) {
+                phaseData.history.forEach((record: HistoryRecord) => {
                   if (record.events && record.events.length > 0) {
-                    record.events.forEach((event, index) => {
+                    record.events.forEach((event: HistoryEvent, index: number) => {
                       flattenedRecords.push({
                         ...record,
-                        title: phase.name,
-                        sourceName: phase.name,
+                        title: phaseData.name,
+                        sourceName: phaseData.name,
                         parentName: 'PPAP',
                         grandparentName: projectName,
                         table_name: 'phase',
@@ -156,8 +159,8 @@ export default function HistoryPage() {
                   } else {
                     flattenedRecords.push({
                       ...record,
-                      title: phase.name,
-                      sourceName: phase.name,
+                      title: phaseData.name,
+                      sourceName: phaseData.name,
                       parentName: 'PPAP',
                       grandparentName: projectName,
                       table_name: 'phase'
@@ -167,17 +170,19 @@ export default function HistoryPage() {
               }
               
               // Add output history
-              if (phase.outputs) {
-                Object.entries(phase.outputs).forEach(([outputId, output]) => {
-                  if (output.history && Array.isArray(output.history) && output.history.length > 0) {
-                    output.history.forEach(record => {
+              if (phaseData.outputs) {
+                Object.entries(phaseData.outputs).forEach(([outputId, output]) => {
+                  const outputData = output as OutputData
+                  
+                  if (outputData.history && Array.isArray(outputData.history) && outputData.history.length > 0) {
+                    outputData.history.forEach((record: HistoryRecord) => {
                       if (record.events && record.events.length > 0) {
-                        record.events.forEach((event, index) => {
+                        record.events.forEach((event: HistoryEvent, index: number) => {
                           flattenedRecords.push({
                             ...record,
-                            title: output.name,
-                            sourceName: output.name,
-                            parentName: phase.name, 
+                            title: outputData.name,
+                            sourceName: outputData.name,
+                            parentName: phaseData.name, 
                             grandparentName: projectName,
                             table_name: 'output',
                             id: index === 0 ? record.id : `${record.id}-${index}`,
@@ -187,9 +192,9 @@ export default function HistoryPage() {
                       } else {
                         flattenedRecords.push({
                           ...record,
-                          title: output.name,
-                          sourceName: output.name,
-                          parentName: phase.name, 
+                          title: outputData.name,
+                          sourceName: outputData.name,
+                          parentName: phaseData.name, 
                           grandparentName: projectName,
                           table_name: 'output'
                         })
@@ -198,18 +203,20 @@ export default function HistoryPage() {
                   }
                   
                   // Add document history
-                  if (output.documents) {
-                    Object.entries(output.documents).forEach(([docId, doc]) => {
-                      if (doc.history && Array.isArray(doc.history) && doc.history.length > 0) {
-                        doc.history.forEach(record => {
+                  if (outputData.documents) {
+                    Object.entries(outputData.documents).forEach(([docId, doc]) => {
+                      const docData = doc as DocumentData
+                      
+                      if (docData.history && Array.isArray(docData.history) && docData.history.length > 0) {
+                        docData.history.forEach((record: HistoryRecord) => {
                           if (record.events && record.events.length > 0) {
-                            record.events.forEach((event, index) => {
+                            record.events.forEach((event: HistoryEvent, index: number) => {
                               flattenedRecords.push({
                                 ...record,
-                                title: doc.name,
-                                sourceName: doc.name,
-                                parentName: output.name,
-                                grandparentName: phase.name,
+                                title: docData.name,
+                                sourceName: docData.name,
+                                parentName: outputData.name,
+                                grandparentName: phaseData.name,
                                 table_name: 'document',
                                 id: index === 0 ? record.id : `${record.id}-${index}`,
                                 events: [event]
@@ -218,10 +225,10 @@ export default function HistoryPage() {
                           } else {
                             flattenedRecords.push({
                               ...record,
-                              title: doc.name,
-                              sourceName: doc.name,
-                              parentName: output.name,
-                              grandparentName: phase.name,
+                              title: docData.name,
+                              sourceName: docData.name,
+                              parentName: outputData.name,
+                              grandparentName: phaseData.name,
                               table_name: 'document'
                             })
                           }
@@ -236,9 +243,9 @@ export default function HistoryPage() {
           
           // Add team history
           if (nestedHistory.team && nestedHistory.team.history && Array.isArray(nestedHistory.team.history) && nestedHistory.team.history.length > 0) {
-            nestedHistory.team.history.forEach(record => {
+            nestedHistory.team.history.forEach((record: HistoryRecord) => {
               if (record.events && record.events.length > 0) {
-                record.events.forEach((event, index) => {
+                record.events.forEach((event: HistoryEvent, index: number) => {
                   flattenedRecords.push({
                     ...record,
                     title: `Team for ${projectName}`,
@@ -263,14 +270,16 @@ export default function HistoryPage() {
             // Add person history
             if (nestedHistory.team.persons) {
               Object.entries(nestedHistory.team.persons).forEach(([personId, person]) => {
-                if (person.history && Array.isArray(person.history) && person.history.length > 0) {
-                  person.history.forEach(record => {
+                const personData = person as PersonData
+                
+                if (personData.history && Array.isArray(personData.history) && personData.history.length > 0) {
+                  personData.history.forEach((record: HistoryRecord) => {
                     if (record.events && record.events.length > 0) {
-                      record.events.forEach((event, index) => {
+                      record.events.forEach((event: HistoryEvent, index: number) => {
                         flattenedRecords.push({
                           ...record,
-                          title: person.name,
-                          sourceName: person.name,
+                          title: personData.name,
+                          sourceName: personData.name,
                           parentName: 'Team',
                           grandparentName: projectName,
                           table_name: 'person',
@@ -281,8 +290,8 @@ export default function HistoryPage() {
                     } else {
                       flattenedRecords.push({
                         ...record,
-                        title: person.name,
-                        sourceName: person.name,
+                        title: personData.name,
+                        sourceName: personData.name,
                         parentName: 'Team',
                         grandparentName: projectName,
                         table_name: 'person'
@@ -296,11 +305,11 @@ export default function HistoryPage() {
           
           // Add user history
           if (nestedHistory.users && Array.isArray(nestedHistory.users) && nestedHistory.users.length > 0) {
-            nestedHistory.users.forEach(user => {
+            nestedHistory.users.forEach((user: UserData) => {
               if (user.history && Array.isArray(user.history) && user.history.length > 0) {
-                user.history.forEach(record => {
+                user.history.forEach((record: HistoryRecord) => {
                   if (record.events && record.events.length > 0) {
-                    record.events.forEach((event, index) => {
+                    record.events.forEach((event: HistoryEvent, index: number) => {
                       flattenedRecords.push({
                         ...record,
                         title: user.username,

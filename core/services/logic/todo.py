@@ -2,9 +2,9 @@
 from core.models import Todo, User, Output, Permission
 from django.db.models import Q
 
-def create_todo(user_id, output_id, permission_name):
+def create_todo(user_id, output_id, permission_name, role='contributor'):
     """
-    Create a todo for a user
+    Create a todo for a user with a specified role
     """
     user = User.objects.get(id=user_id)
     output = Output.objects.get(id=output_id)
@@ -13,12 +13,13 @@ def create_todo(user_id, output_id, permission_name):
     todo = Todo.objects.create(
         user=user,
         output=output,
-        permission=permission
+        permission=permission,
+        role=role
     )
     
     return todo
 
-def assign_todos_for_phase(phase_id, responsible_id):
+def assign_todos_for_phase(phase_id, responsible_id, role='responsible'):
     """
     Assign todos for all outputs in a phase to a responsible user
     """
@@ -35,7 +36,10 @@ def assign_todos_for_phase(phase_id, responsible_id):
         todo, created = Todo.objects.get_or_create(
             user_id=responsible_id,
             output=output,
-            defaults={'permission': edit_permission}
+            defaults={
+                'permission': edit_permission,
+                'role': role
+            }
         )
         todos.append(todo)
     
@@ -67,7 +71,9 @@ def get_user_todos(user_id):
             'project_id': project.id,
             'project_name': project.name,
             'permission': todo.permission.name,
-            'status': output.status
+            'status': output.status,
+            'role': todo.role,
+            'role_display': todo.get_role_display()
         })
     
     return todo_list
@@ -97,7 +103,9 @@ def get_pending_todos(user_id):
             'project_id': project.id,
             'project_name': project.name,
             'permission': todo.permission.name,
-            'status': output.status
+            'status': output.status,
+            'role': todo.role,
+            'role_display': todo.get_role_display()
         })
     
     return todo_list

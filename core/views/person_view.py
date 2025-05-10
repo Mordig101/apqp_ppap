@@ -9,7 +9,9 @@ from core.services.history.person import (
     record_person_update, 
     record_person_team_change, 
     record_person_department_change,
-    record_person_deletion
+    record_person_deletion,
+    record_person_role_change,
+    record_person_replacer_change
 )
 from core.services.history.contact import record_contact_creation
 
@@ -26,6 +28,9 @@ class PersonViewSet(viewsets.ModelViewSet):
         department_id = request.data.get('department_id')
         is_user = request.data.get('is_user', False)
         contact_data = request.data.get('contact', {})
+        # New fields
+        role = request.data.get('role')
+        replacer_id = request.data.get('replacer_id')
         
         # Validate required fields
         if not all([first_name, last_name]):
@@ -40,8 +45,18 @@ class PersonViewSet(viewsets.ModelViewSet):
                 first_name=first_name,
                 last_name=last_name,
                 is_user=is_user,
-                department_id=department_id
+                department_id=department_id,
+                role=role
             )
+            
+            # Set replacer if provided
+            if replacer_id:
+                try:
+                    replacer = Person.objects.get(id=replacer_id)
+                    person.replacer = replacer
+                    person.save()
+                except Person.DoesNotExist:
+                    pass
             
             # Add to teams if provided
             if team_ids:
@@ -101,6 +116,37 @@ class PersonViewSet(viewsets.ModelViewSet):
         if is_user != person.is_user:
             person.is_user = is_user
             updated_fields.append('is_user')
+        
+        # Handle role change
+        if 'role' in request.data:
+            role = request.data.get('role')
+            old_role = person.role
+            
+            if role != old_role:
+                person.role = role
+                updated_fields.append('role')
+                record_person_role_change(person, old_role, role)
+        
+        # Handle replacer change
+        if 'replacer_id' in request.data:
+            replacer_id = request.data.get('replacer_id')
+            old_replacer_id = person.replacer.id if person.replacer else None
+            
+            if replacer_id != old_replacer_id:
+                if replacer_id:
+                    try:
+                        replacer = Person.objects.get(id=replacer_id)
+                        # Make sure we don't create circular replacer relationships
+                        if replacer.id != person.id:
+                            person.replacer = replacer
+                            updated_fields.append('replacer')
+                            record_person_replacer_change(person, old_replacer_id, replacer_id)
+                    except Person.DoesNotExist:
+                        pass
+                else:
+                    person.replacer = None
+                    updated_fields.append('replacer')
+                    record_person_replacer_change(person, old_replacer_id, None)
         
         # Handle department change
         if 'department_id' in request.data:

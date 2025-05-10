@@ -8,6 +8,7 @@ class TodoSerializer(serializers.ModelSerializer):
     user_details = UserSerializer(source='user', read_only=True)
     output_details = OutputSerializer(source='output', read_only=True)
     permission_details = PermissionSerializer(source='permission', read_only=True)
+    role_display = serializers.CharField(source='get_role_display', read_only=True)
     
     class Meta:
         model = Todo
