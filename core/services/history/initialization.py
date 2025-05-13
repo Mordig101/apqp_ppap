@@ -140,3 +140,129 @@ def ensure_history_id(model_instance):
         model_instance.save(update_fields=['history_id'])
     
     return model_instance.history_id
+
+def update_history_attributes(history, attributes, auto_update_related_model=True, related_model=None):
+    """
+    Update history attributes and record the changes as events
+    
+    Args:
+        history (History): History record to update
+        attributes (dict): Dictionary with history attributes
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
+        auto_update_related_model (bool): Whether to update the related model's status based on date changes
+        related_model: The related model instance (optional, required if auto_update_related_model is True)
+            
+    Returns:
+        History: Updated history record
+        list: List of attributes that were changed
+    """
+    import json
+    from django.utils import timezone
+    from django.utils.dateparse import parse_datetime
+    
+    if not history:
+        return None, []
+    
+    # Track history attribute changes to record them properly
+    changed_attributes = []
+    
+    # Track if we need to update related model status based on dates
+    status_updated = False
+    
+    # Update title if provided
+    if 'title' in attributes and attributes['title']:
+        old_title = history.title
+        history.title = attributes['title']
+        if old_title != attributes['title']:
+            changed_attributes.append(f"title changed from '{old_title}' to '{history.title}'")
+    
+    # Update deadline if provided
+    if 'deadline' in attributes and attributes['deadline']:
+        deadline_str = attributes['deadline']
+        deadline = parse_datetime(deadline_str)
+        
+        if deadline:
+            old_deadline = history.deadline
+            history.deadline = deadline
+            
+            if old_deadline:
+                changed_attributes.append(f"deadline changed from {old_deadline.strftime('%Y-%m-%d')} to {deadline.strftime('%Y-%m-%d')}")
+            else:
+                changed_attributes.append(f"deadline set to {deadline.strftime('%Y-%m-%d')}")
+    
+    # Update started_at if provided
+    if 'started_at' in attributes and attributes['started_at']:
+        started_at_str = attributes['started_at']
+        started_at = parse_datetime(started_at_str)
+        
+        if started_at:
+            old_started_at = history.started_at
+            history.started_at = started_at
+            
+            # Add to changed attributes
+            if old_started_at:
+                changed_attributes.append(f"start date changed from {old_started_at.strftime('%Y-%m-%d')} to {started_at.strftime('%Y-%m-%d')}")
+            else:
+                changed_attributes.append(f"start date set to {started_at.strftime('%Y-%m-%d')}")
+            
+            # If setting started_at and related model is not started,
+            # update model status to In Progress
+            if auto_update_related_model and related_model and hasattr(related_model, 'status'):
+                if related_model.status == 'Not Started':
+                    old_status = related_model.status
+                    related_model.status = 'In Progress'
+                    related_model.save(update_fields=['status'])
+                    status_updated = True
+                    
+                    # Add a status change event in history
+                    add_history_event(
+                        history,
+                        "status_change",
+                        f"{related_model.__class__.__name__} status changed from '{old_status}' to 'In Progress'"
+                    )
+    
+    # Update finished_at if provided
+    if 'finished_at' in attributes and attributes['finished_at']:
+        finished_at_str = attributes['finished_at']
+        finished_at = parse_datetime(finished_at_str)
+        
+        if finished_at:
+            old_finished_at = history.finished_at
+            history.finished_at = finished_at
+            
+            # Add to changed attributes
+            if old_finished_at:
+                changed_attributes.append(f"completion date changed from {old_finished_at.strftime('%Y-%m-%d')} to {finished_at.strftime('%Y-%m-%d')}")
+            else:
+                changed_attributes.append(f"completion date set to {finished_at.strftime('%Y-%m-%d')}")
+            
+            # If setting finished_at and related model is not completed,
+            # update model status to Completed
+            if auto_update_related_model and not status_updated and related_model and hasattr(related_model, 'status'):
+                if related_model.status != 'Completed':
+                    old_status = related_model.status
+                    related_model.status = 'Completed'
+                    related_model.save(update_fields=['status'])
+                    
+                    # Add a status change event in history
+                    add_history_event(
+                        history,
+                        "status_change",
+                        f"{related_model.__class__.__name__} status changed from '{old_status}' to 'Completed'"
+                    )
+    
+    # Record the history attribute changes as an event if any changes were made
+    if changed_attributes:
+        add_history_event(
+            history,
+            "history_update",
+            f"History attributes updated: {'; '.join(changed_attributes)}"
+        )
+    
+    # Save history changes
+    history.save()
+    
+    return history, changed_attributes

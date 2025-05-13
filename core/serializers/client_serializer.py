@@ -2,11 +2,25 @@ from rest_framework import serializers
 from core.models import Client, Contact, Team, Person
 from core.serializers.contact_serializer import ContactSerializer
 from core.serializers.team_serializer import TeamSerializer
+from core.serializers.history_serializer import HistorySerializer
+from core.models import History
 
 class ClientSerializer(serializers.ModelSerializer):
     contact = ContactSerializer(read_only=True)
     contact_details = serializers.SerializerMethodField(read_only=True)
     team_details = serializers.SerializerMethodField(read_only=True)
+    history_details = serializers.SerializerMethodField()
+    
+    
+    def get_history_details(self, obj):
+        """Get history details for this object"""
+        if hasattr(obj, 'history_id') and obj.history_id:
+            try:
+                history = History.objects.get(id=obj.history_id)
+                return HistorySerializer(history).data
+            except History.DoesNotExist:
+                return None
+        return None
     
     class Meta:
         model = Client

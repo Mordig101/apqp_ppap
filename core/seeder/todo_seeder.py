@@ -1,8 +1,9 @@
 """
-Seeder for Todo model
+Seeder for Todo model with roles
 """
 import os
 import django
+import random
 from faker import Faker
 
 # Set up Django environment
@@ -15,54 +16,64 @@ from core.models import Todo, User, Output, Permission
 fake = Faker()
 
 @transaction.atomic
-def seed_todos():
-    """Seed todo data"""
+def seed_todos(num_todos=50):
+    """Seed todo data with roles"""
     print("Seeding todos...")
     
-    # Clear existing data
-    Todo.objects.all().delete()
+    # Make sure we have users, outputs and permissions first
+    users = list(User.objects.all())
+    outputs = list(Output.objects.all())
     
-    # Get users, outputs, and permissions
-    users = User.objects.all()
-    outputs = Output.objects.filter(status__in=['Not Started', 'In Progress'])
-    read_permission = Permission.objects.get(name='r')
-    edit_permission = Permission.objects.get(name='e')
+    # Get read and edit permissions
+    try:
+        read_permission = Permission.objects.get(name='r')
+        edit_permission = Permission.objects.get(name='e')
+        permissions = [read_permission, edit_permission]
+    except Permission.DoesNotExist:
+        print("Permissions 'r' and 'e' not found. Please run permission seeder first.")
+        return []
     
-    if not users or not outputs or not read_permission or not edit_permission:
-        print("Error: Users, Outputs, and Permissions must be seeded first")
-        return
+    if not users:
+        print("No users found. Please run user seeder first.")
+        return []
+        
+    if not outputs:
+        print("No outputs found. Please run output seeder first.")
+        return []
+    
+    # Define possible roles for todos
+    roles = [
+        'reviewer', 
+        'approver', 
+        'contributor', 
+        'observer', 
+        'responsible', 
+        'consultant'
+    ]
     
     # Create todos
-    todos = []
-    
-    # Assign todos to output owners (edit permission)
-    for output in outputs:
-        if output.user:
-            todo_data = {
-                'permission': edit_permission,
-                'user': output.user,
-                'output': output
-            }
-            todos.append(Todo.objects.create(**todo_data))
-    
-    # Assign additional todos to random users (read permission)
-    for i in range(30):
-        user = fake.random_element(users)
-        output = fake.random_element(outputs)
+    created_todos = []
+    for _ in range(num_todos):
+        # Get random user and output
+        user = random.choice(users)
+        output = random.choice(outputs)
+        permission = random.choice(permissions)
+        role = random.choice(roles)
         
-        # Skip if user already has a todo for this output
-        if Todo.objects.filter(user=user, output=output).exists():
-            continue
+        # Check if this user-output combination already exists
+        todo_exists = Todo.objects.filter(user=user, output=output).exists()
         
-        todo_data = {
-            'permission': read_permission,
-            'user': user,
-            'output': output
-        }
-        todos.append(Todo.objects.create(**todo_data))
+        if not todo_exists:
+            todo = Todo.objects.create(
+                user=user,
+                output=output,
+                permission=permission,
+                role=role
+            )
+            created_todos.append(todo)
     
-    print(f"Created {len(todos)} todos")
-    return todos
+    print(f"Created {len(created_todos)} todos with roles")
+    return created_todos
 
 if __name__ == "__main__":
     seed_todos()

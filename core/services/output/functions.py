@@ -148,3 +148,92 @@ def get_output_details(output_id):
     }
     
     return output_details
+
+@transaction.atomic
+def create_output(data):
+    """
+    Create a new output with optional history attributes
+    
+    Args:
+        data: Dictionary with output creation data
+            - template_id: ID of OutputTemplate
+            - phase_id: ID of Phase
+            - description: Output description (optional)
+            - status: Initial status (default: 'Not Started')
+            - history: Dictionary with history attributes (optional)
+                - title: Custom history title
+                - deadline: Deadline date (ISO format string)
+                - started_at: Start date (ISO format string)
+                - finished_at: Completion date (ISO format string)
+    
+    Returns:
+        Output: Created output
+    """
+    from core.models import Output, OutputTemplate, Phase
+    from core.services.history.output import record_output_creation
+    
+    # Extract history data if present
+    history_attrs = data.pop('history', None)
+    
+    # Get required objects
+    template_id = data.get('template_id')
+    phase_id = data.get('phase_id')
+    
+    template = OutputTemplate.objects.get(id=template_id)
+    phase = Phase.objects.get(id=phase_id)
+    
+    # Create output with basic fields
+    output = Output.objects.create(
+        template=template,
+        phase=phase,
+        description=data.get('description', ''),
+        status=data.get('status', 'Not Started'),
+        user_id=data.get('user_id')  # Responsible user
+    )
+    
+    # Let the service create the history record
+    history = record_output_creation(output)
+    
+    # Update history attributes if provided
+    if history and history_attrs and isinstance(history_attrs, dict):
+        from core.services.history.initialization import update_history_attributes
+        update_history_attributes(history, history_attrs, auto_update_related_model=True, related_model=output)
+    
+    return output
+
+@transaction.atomic
+def update_output_history(output_id, history_attrs):
+    """
+    Update history attributes for an output
+    
+    Args:
+        output_id: ID of the output
+        history_attrs: Dictionary with history attributes
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
+    
+    Returns:
+        History: Updated history record or None if not found
+    """
+    from core.models import Output
+    from core.services.history.output import get_output_history
+    from core.services.history.initialization import update_history_attributes
+    
+    # Get output
+    output = Output.objects.get(id=output_id)
+    
+    # Get history record
+    history = get_output_history(output_id)
+    
+    if not history:
+        return None
+    
+    # Use the generic history attribute update function
+    return update_history_attributes(
+        history=history,
+        attributes=history_attrs,
+        auto_update_related_model=True,
+        related_model=output
+    )[0]  # Return just the history object

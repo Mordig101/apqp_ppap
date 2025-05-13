@@ -33,15 +33,22 @@ def seed_authorizations():
         {
             'name': 'edit',
             'history_id': f"{uuid.uuid4().hex}authorization"
+        },
+        # You could add more authorization types if needed
+        {
+            'name': 'view',
+            'history_id': f"{uuid.uuid4().hex}authorization"
         }
     ]
     
     # Insert authorizations
+    created_authorizations = []
     for auth_data in authorizations:
-        Authorization.objects.create(**auth_data)
+        auth = Authorization.objects.create(**auth_data)
+        created_authorizations.append(auth)
     
     print(f"Created {len(authorizations)} authorizations")
-    return Authorization.objects.all()
+    return created_authorizations
 
 if __name__ == "__main__":
     seed_authorizations()

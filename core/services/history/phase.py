@@ -44,6 +44,7 @@ def record_phase_update(phase, updated_fields=None):
     history = get_history(phase)
     
     if not history:
+        print("History not found for phase:", phase.id)  # Debug
         return None
     
     # Make sure title stays updated
@@ -56,7 +57,13 @@ def record_phase_update(phase, updated_fields=None):
     else:
         event_details = "Phase updated."
     
-    return add_history_event(history, "update", event_details)
+    print("Recording phase update:", event_details)  # Debug
+    
+    # Check if add_history_event is actually creating new events
+    result = add_history_event(history, "update", event_details)
+    print("Result of adding event:", bool(result))  # Debug
+    
+    return result
 
 def record_phase_status_change(phase, old_status, new_status):
     """

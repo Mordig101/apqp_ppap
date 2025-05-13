@@ -3,11 +3,26 @@ from core.models import Output, OutputTemplate, Phase, Person
 from core.serializers.output_template_serializer import OutputTemplateSerializer
 from core.serializers.document_serializer import DocumentSerializer
 from core.serializers.user_serializer import UserSerializer
+from core.serializers.history_serializer import HistorySerializer
+from core.models import History
+
 
 class OutputSerializer(serializers.ModelSerializer):
     template_details = OutputTemplateSerializer(source='template', read_only=True)
     documents = DocumentSerializer(many=True, read_only=True)
     user_details = UserSerializer(source='user', read_only=True)
+    history_details = serializers.SerializerMethodField()
+ 
+    
+    def get_history_details(self, obj):
+        """Get history details for this object"""
+        if hasattr(obj, 'history_id') and obj.history_id:
+            try:
+                history = History.objects.get(id=obj.history_id)
+                return HistorySerializer(history).data
+            except History.DoesNotExist:
+                return None
+        return None
     
     class Meta:
         model = Output

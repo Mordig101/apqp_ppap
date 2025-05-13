@@ -1,0 +1,12 @@
+contact :
+POST /api/contacts/
+{
+  "address": "456 Oak St, Somecity, USA",
+  "email": "jane.smith@example.com",
+  "phone": "+1987654321",
+  "type": "person",
+  "history_title": "New Contact Record",
+  "history_event": "Contact created through API",
+  "history_deadline": "2025-06-15T00:00:00Z",
+  "history_started_at": "2025-05-12T00:00:00Z"
+}
