@@ -52,6 +52,7 @@ export default function OutputTemplatesPage() {
     name: "",
     description: "",
     phase_id: 0,
+    ppap_element_id: 0,  // Add this field
     document_type: "document",
     is_required: true,
     is_active: true,
@@ -60,6 +61,11 @@ export default function OutputTemplatesPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
   const [refreshing, setRefreshing] = useState(false)
   const [phaseFilter, setPhaseFilter] = useState<number | "all">("all")
+  const [ppapElements, setPpapElements] = useState<Array<{
+    id: number;
+    name: string;
+    level: string;
+  }>>([])
 
   useEffect(() => {
     fetchData()
@@ -71,20 +77,30 @@ export default function OutputTemplatesPage() {
       setError(null)
       setRefreshing(true)
 
-      // Fetch both output templates and phase templates (for dropdown)
-      const [outputResponse, phaseResponse] = await Promise.all([
+      // Fetch output templates, phase templates, and PPAP elements
+      const [outputResponse, phaseResponse, ppapResponse] = await Promise.all([
         templateApi.getAllOutputTemplates(),
         templateApi.getAllPhaseTemplates(),
+        templateApi.getAllPPAPElements(),
       ])
 
       setOutputTemplates(Array.isArray(outputResponse) ? outputResponse : [])
       setPhaseTemplates(Array.isArray(phaseResponse) ? phaseResponse : [])
+      setPpapElements(Array.isArray(ppapResponse) ? ppapResponse : [])
 
       // Set the default phase_id if we have phases
       if (Array.isArray(phaseResponse) && phaseResponse.length > 0) {
         setNewTemplate((prev) => ({
           ...prev,
           phase_id: phaseResponse[0].id,
+        }))
+      }
+      
+      // Set the default ppap_element_id if we have PPAP elements
+      if (Array.isArray(ppapResponse) && ppapResponse.length > 0) {
+        setNewTemplate((prev) => ({
+          ...prev,
+          ppap_element_id: ppapResponse[0].id,
         }))
       }
     } catch (err) {
@@ -136,9 +152,35 @@ export default function OutputTemplatesPage() {
         })
         return
       }
+      
+      if (!newTemplate.ppap_element_id) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a PPAP element",
+          variant: "destructive",
+        })
+        return
+      }
 
       setLoading(true)
-      const response = await templateApi.createOutputTemplate(newTemplate)
+      
+      // Prepare request based on the exact API format expected
+      const requestData = {
+        name: newTemplate.name,
+        description: newTemplate.description,
+        phase_id: newTemplate.phase_id,
+        ppap_element_id: newTemplate.ppap_element_id,
+        configuration: {
+          document_type: newTemplate.document_type,
+          is_required: newTemplate.is_required,
+          is_active: newTemplate.is_active
+        }
+      }
+      
+      console.log("Creating template with data:", requestData)
+      
+      // Send the properly formatted request
+      const response = await templateApi.createOutputTemplate(requestData)
 
       setOutputTemplates([...outputTemplates, response])
       setIsAddDialogOpen(false)
@@ -146,6 +188,7 @@ export default function OutputTemplatesPage() {
         name: "",
         description: "",
         phase_id: phaseTemplates.length > 0 ? phaseTemplates[0].id : 0,
+        ppap_element_id: ppapElements.length > 0 ? ppapElements[0].id : 0,
         document_type: "document",
         is_required: true,
         is_active: true,
@@ -168,50 +211,55 @@ export default function OutputTemplatesPage() {
   }
 
   const handleEditTemplate = async () => {
-    if (!selectedTemplate) return
+    if (!selectedTemplate) return;
 
     try {
-      // Validate input
-      if (!selectedTemplate.name.trim()) {
-        toast({
-          title: "Validation Error",
-          description: "Output name is required",
-          variant: "destructive",
-        })
-        return
-      }
-
-      setLoading(true)
-      const { id, name, description, phase, document_type, is_required, is_active } = selectedTemplate
-
-      const response = await templateApi.updateOutputTemplate(id, {
-        name,
-        description,
-        phase_id: phase,
-        document_type,
-        is_required,
-        is_active,
-      })
-
-      setOutputTemplates(outputTemplates.map((template) => (template.id === id ? response : template)))
-      setIsEditDialogOpen(false)
-      setSelectedTemplate(null)
-
+      setLoading(true);
+      
+      // Format the request exactly according to what your API expects
+      const requestData = {
+        name: selectedTemplate.name,
+        description: selectedTemplate.description,
+        phase: selectedTemplate.phase, 
+        ppap_element: selectedTemplate.ppap_element,
+        configuration: {
+          document_type: selectedTemplate.document_type || 'document',
+          is_required: selectedTemplate.is_required !== false,
+          is_active: selectedTemplate.is_active !== false
+        }
+      };
+      
+      console.log("Updating template with data:", requestData);
+      
+      // Use your existing templateApi instead of direct fetch
+      // This will handle authentication and CSRF tokens properly
+      const response = await templateApi.updateOutputTemplate(selectedTemplate.id, requestData);
+      
+      // Update the local state with the response
+      setOutputTemplates(
+        outputTemplates.map((template) => 
+          template.id === selectedTemplate.id ? response : template
+        )
+      );
+      
+      setIsEditDialogOpen(false);
+      setSelectedTemplate(null);
+      
       toast({
         title: "Success",
         description: "Output template updated successfully",
-      })
+      });
     } catch (err) {
-      console.error("Error updating output template:", err)
+      console.error("Error updating output template:", err);
       toast({
         title: "Error",
         description: "Failed to update output template. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDeleteTemplate = async (templateId: number) => {
     if (confirm("Are you sure you want to delete this output template? This action cannot be undone.")) {
@@ -348,6 +396,22 @@ export default function OutputTemplatesPage() {
     }
   })
 
+  // When opening the Edit dialog, prepare the template data for editing
+  const openEditDialog = (template: OutputTemplate) => {
+    // Extract configuration values with defaults
+    const config = template.configuration || {};
+    
+    setSelectedTemplate({
+      ...template,
+      // Set these properties for form handling
+      document_type: config.document_type || 'document',
+      is_required: config.is_required !== false, // default to true if undefined
+      is_active: config.is_active !== false      // default to true if undefined
+    });
+    
+    setIsEditDialogOpen(true);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -453,7 +517,7 @@ export default function OutputTemplatesPage() {
                         Phase <span className="text-red-500">*</span>
                       </Label>
                       <Select
-                        value={newTemplate.phase_id.toString()}
+                        value={newTemplate.phase_id ? newTemplate.phase_id.toString() : ""}
                         onValueChange={(value) => handleSelectChange("phase_id", Number.parseInt(value))}
                       >
                         <SelectTrigger id="phase_id">
@@ -463,6 +527,27 @@ export default function OutputTemplatesPage() {
                           {phaseTemplates.map((phase) => (
                             <SelectItem key={phase.id} value={phase.id.toString()}>
                               {phase.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Add PPAP Element select field */}
+                    <div className="space-y-2">
+                      <Label htmlFor="ppap_element_id">
+                        PPAP Element <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={newTemplate.ppap_element_id ? newTemplate.ppap_element_id.toString() : ""}
+                        onValueChange={(value) => handleSelectChange("ppap_element_id", Number.parseInt(value))}
+                      >
+                        <SelectTrigger id="ppap_element_id">
+                          <SelectValue placeholder="Select PPAP element" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ppapElements.map((element) => (
+                            <SelectItem key={element.id} value={element.id.toString()}>
+                              {element.name} ({element.level})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -532,6 +617,7 @@ export default function OutputTemplatesPage() {
                       <TableHead className="cursor-pointer" onClick={() => handleSort("phase")}>
                         Phase {sortField === "phase" && (sortDirection === "asc" ? "↑" : "↓")}
                       </TableHead>
+                      <TableHead>PPAP Element</TableHead>
                       <TableHead>Document Type</TableHead>
                       <TableHead>Required</TableHead>
                       <TableHead>Status</TableHead>
@@ -542,35 +628,25 @@ export default function OutputTemplatesPage() {
                     {loading && outputTemplates.length === 0 ? (
                       Array.from({ length: 5 }).map((_, index) => (
                         <TableRow key={index}>
-                          <TableCell>
-                            <Skeleton className="h-4 w-40" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-4 w-32" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-4 w-24" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Skeleton className="h-8 w-8 ml-auto" />
-                          </TableCell>
+                          {/* Skeleton loading state */}
+                          <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                          <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                          <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                         </TableRow>
                       ))
                     ) : error ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center text-red-500">
+                        <TableCell colSpan={7} className="h-24 text-center text-red-500">
                           {error}
                         </TableCell>
                       </TableRow>
                     ) : sortedTemplates.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center">
+                        <TableCell colSpan={7} className="h-24 text-center">
                           {searchTerm || phaseFilter !== "all"
                             ? "No matching output templates found"
                             : "No output templates found"}
@@ -592,29 +668,43 @@ export default function OutputTemplatesPage() {
                             </div>
                           </TableCell>
                           <TableCell>{getPhaseName(template.phase)}</TableCell>
-                          <TableCell className="capitalize">{template.document_type}</TableCell>
+                          <TableCell>
+                            {template.ppap_element_details ? (
+                              <>
+                                {template.ppap_element_details.name}
+                                <span className="text-xs text-muted-foreground ml-1">
+                                  ({template.ppap_element_details.level})
+                                </span>
+                              </>
+                            ) : (
+                              `Element #${template.ppap_element}`
+                            )}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {template.configuration?.document_type || "document"}
+                          </TableCell>
                           <TableCell>
                             <Badge
                               variant="outline"
                               className={
-                                template.is_required
+                                template.configuration?.is_required !== false
                                   ? "bg-blue-100 text-blue-800 hover:bg-blue-100"
                                   : "bg-gray-100 text-gray-800 hover:bg-gray-100"
                               }
                             >
-                              {template.is_required ? "Required" : "Optional"}
+                              {template.configuration?.is_required !== false ? "Required" : "Optional"}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             <Badge
                               variant="outline"
                               className={
-                                template.is_active
+                                template.configuration?.is_active !== false
                                   ? "bg-green-100 text-green-800 hover:bg-green-100"
                                   : "bg-gray-100 text-gray-800 hover:bg-gray-100"
                               }
                             >
-                              {template.is_active ? "Active" : "Inactive"}
+                              {template.configuration?.is_active !== false ? "Active" : "Inactive"}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
@@ -628,26 +718,10 @@ export default function OutputTemplatesPage() {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuItem
-                                  onClick={() => {
-                                    setSelectedTemplate(template)
-                                    setIsEditDialogOpen(true)
-                                  }}
+                                  onClick={() => openEditDialog(template)} 
                                 >
                                   <Edit className="mr-2 h-4 w-4" />
                                   Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleToggleStatus(template)}>
-                                  {template.is_active ? (
-                                    <>
-                                      <AlertTriangle className="mr-2 h-4 w-4" />
-                                      Deactivate
-                                    </>
-                                  ) : (
-                                    <>
-                                      <RefreshCw className="mr-2 h-4 w-4" />
-                                      Activate
-                                    </>
-                                  )}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
@@ -708,11 +782,11 @@ export default function OutputTemplatesPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="edit_phase_id">
+                      <Label htmlFor="edit_phase">
                         Phase <span className="text-red-500">*</span>
                       </Label>
                       <Select
-                        value={selectedTemplate.phase.toString()}
+                        value={selectedTemplate.phase?.toString()}
                         onValueChange={(value) =>
                           setSelectedTemplate({
                             ...selectedTemplate,
@@ -720,7 +794,7 @@ export default function OutputTemplatesPage() {
                           })
                         }
                       >
-                        <SelectTrigger id="edit_phase_id">
+                        <SelectTrigger id="edit_phase">
                           <SelectValue placeholder="Select phase" />
                         </SelectTrigger>
                         <SelectContent>
@@ -733,9 +807,34 @@ export default function OutputTemplatesPage() {
                       </Select>
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="edit_ppap_element">
+                        PPAP Element <span className="text-red-500">*</span>
+                      </Label>
+                      <Select
+                        value={selectedTemplate.ppap_element?.toString()}
+                        onValueChange={(value) =>
+                          setSelectedTemplate({
+                            ...selectedTemplate,
+                            ppap_element: Number.parseInt(value),
+                          })
+                        }
+                      >
+                        <SelectTrigger id="edit_ppap_element">
+                          <SelectValue placeholder="Select PPAP element" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ppapElements.map((element) => (
+                            <SelectItem key={element.id} value={element.id.toString()}>
+                              {element.name} ({element.level})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="edit_document_type">Document Type</Label>
                       <Select
-                        value={selectedTemplate.document_type}
+                        value={selectedTemplate.document_type || 'document'}
                         onValueChange={(value) =>
                           setSelectedTemplate({
                             ...selectedTemplate,
@@ -760,7 +859,7 @@ export default function OutputTemplatesPage() {
                       <div className="flex items-center space-x-2">
                         <Switch
                           id="edit_is_required"
-                          checked={selectedTemplate.is_required}
+                          checked={selectedTemplate.is_required !== false}
                           onCheckedChange={(checked) =>
                             setSelectedTemplate({
                               ...selectedTemplate,
@@ -769,7 +868,7 @@ export default function OutputTemplatesPage() {
                           }
                         />
                         <Label htmlFor="edit_is_required">
-                          {selectedTemplate.is_required ? "Required" : "Optional"}
+                          {selectedTemplate.is_required !== false ? "Required" : "Optional"}
                         </Label>
                       </div>
                     </div>
@@ -778,7 +877,7 @@ export default function OutputTemplatesPage() {
                       <div className="flex items-center space-x-2">
                         <Switch
                           id="edit_is_active"
-                          checked={selectedTemplate.is_active}
+                          checked={selectedTemplate.is_active !== false}
                           onCheckedChange={(checked) =>
                             setSelectedTemplate({
                               ...selectedTemplate,
@@ -786,7 +885,7 @@ export default function OutputTemplatesPage() {
                             })
                           }
                         />
-                        <Label htmlFor="edit_is_active">{selectedTemplate.is_active ? "Active" : "Inactive"}</Label>
+                        <Label htmlFor="edit_is_active">{selectedTemplate.is_active !== false ? "Active" : "Inactive"}</Label>
                       </div>
                     </div>
                   </div>

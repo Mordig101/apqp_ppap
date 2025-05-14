@@ -1,15 +1,17 @@
 from rest_framework import serializers
 from core.models import User
 from core.serializers.person_serializer import PersonSerializer
-from core.serializers.contact_serializer import ContactSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     person_details = PersonSerializer(source='person', read_only=True)
-    contact_details = serializers.SerializerMethodField(read_only=True)
+    # Add these fields to expose them directly at the user level
+    role = serializers.CharField(source='person.role', required=False, allow_null=True)
+    replacer_id = serializers.IntegerField(source='person.replacer_id', required=False, allow_null=True)
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'person', 'person_details', 'contact_details', 'authorization', 'last_login', 'is_active', 'history_id']
+        fields = ['id', 'username', 'authorization', 'is_active', 'is_staff', 
+                  'is_superuser', 'person', 'person_details', 'role', 'replacer_id']
         extra_kwargs = {'password': {'write_only': True}}
     
     def get_contact_details(self, obj):

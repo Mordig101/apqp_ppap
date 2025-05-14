@@ -17,6 +17,7 @@ class PPAPElementViewSet(viewsets.ModelViewSet):
     """
     queryset = PPAPElement.objects.all()
     serializer_class = PPAPElementSerializer
+    pagination_class = None  # Disable pagination
 
     @action(detail=False, methods=['get'])
     def by_level(self, request):

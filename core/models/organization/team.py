@@ -6,8 +6,9 @@ class Team(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     history_id = models.CharField(max_length=100, unique=True)
-    # Remove the related_name='persons' since we're now using ManyToManyField in Person model
-
+    # Add field to distinguish between user teams and client teams
+    is_user_team = models.BooleanField(default=False, help_text="True for user teams, False for client teams")
+    
     class Meta:
         db_table = 'team'
         ordering = ['name']
@@ -45,3 +46,8 @@ class Team(models.Model):
         else:
             # For existing records, save normally
             super().save(*args, **kwargs)
+    
+    @property
+    def has_users(self):
+        """Check if any team member is a user"""
+        return self.members.filter(is_user=True).exists()

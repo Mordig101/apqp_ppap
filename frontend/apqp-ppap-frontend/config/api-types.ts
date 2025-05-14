@@ -1,22 +1,49 @@
 // User related types
 export interface User {
-  id: number
-  username: string
-  is_staff: boolean
-  is_superuser: boolean
-  person: number
-  authorization: number
-  last_login: string | null
-  is_active: boolean
-  history_id: string
+  id: number;
+  username: string;
+  authorization: number;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  person: number;
   person_details?: {
-    id: number
-    first_name: string
-    last_name: string
-    contact_id: string
-    is_user: boolean
-    history_id: string
-  }
+    id: number;
+    first_name: string;
+    last_name: string;
+    contact_id: string;
+    is_user: boolean;
+    role: string | null;
+    department: number | null;
+    replacer: number | null;
+    history_id: string;
+    teams?: Array<{
+      id: number;
+      name: string;
+    }>;
+    replacer_details?: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    } | null;
+    history_details?: {
+      id: string;
+      title: string;
+      table_name: string;
+      created_at: string;
+      started_at: string | null;
+      updated_at: string | null;
+      deadline: string | null;
+      finished_at: string | null;
+      events: Array<{
+        type: string;
+        details: string;
+        timestamp: string;
+      }>;
+    } | null;
+  };
+  role?: string | null;
+  replacer_id?: number | null;
 }
 
 export interface LoginRequest {
@@ -30,111 +57,341 @@ export interface LoginResponse {
 }
 
 // Project related types
-// Update the Project interface to match the actual API response structure
 export interface Project {
   id: number;
   name: string;
   description?: string;
-  status: string;
-  history_id: string;
   client: number;
-  team: number | null;
-  ppap: number | null;
+  team: number;
+  status: string;
+  ppap?: number;
+  history_id: string;
   client_details?: {
     id: number;
     name: string;
-    address: string;
-    code: {
-      duns?: string;
-      fiscal?: string;
-    };
-    description?: string;
-    contact_id?: string;
-    history_id?: string;
-    team?: number | null;
   };
   team_details?: {
     id: number;
     name: string;
-    description?: string;
-    history_id?: string;
-    members?: {
-      id: number;
-      first_name?: string;
-      last_name?: string;
-      contact_id?: string;
-      is_user?: boolean;
-      history_id?: string;
-      department?: number;
-    }[];
   };
   ppap_details?: {
     id: number;
     level: number;
-    status?: string;
-    review?: string | null;
+    status: string;
+    review?: string;
     history_id?: string;
-    project: number;
-    phases?: Phase[];
   };
+  history_details?: History;
+}
+
+export interface ProjectCreateRequest {
+  name: string;
+  description?: string;
+  client_id: number;
+  team_id: number;
+  ppap_level?: number;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface ProjectUpdateRequest {
+  name?: string;
+  description?: string;
+  client_id?: number;
+  team_id?: number;
+  status?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface ProjectHistoryUpdateRequest {
+  title?: string;
+  deadline?: string;
+  started_at?: string;
+  finished_at?: string;
+}
+
+export interface ProjectDetails {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  client: {
+    id: number;
+    name: string;
+  };
+  team: {
+    id: number;
+    name: string;
+  };
+  ppap: {
+    id: number;
+    level: number;
+    status: string;
+    review: string | null;
+  } | null;
+  phases: PhaseInProject[];
+  history: HistoryEvent[];
+}
+
+export interface PhaseInProject {
+  id: number;
+  name: string;
+  status: string;
+  responsible: string | null;
+  responsible_details?: {
+    id: number;
+    username: string;
+    person?: number;
+    person_details?: {
+      first_name: string;
+      last_name: string;
+      role: string;
+    };
+  };
+  history_details?: History;
+  outputs: OutputInPhase[];
+}
+
+export interface OutputInPhase {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  user: number;
+  user_details?: {
+    id: number;
+    username: string;
+  };
+  history_details?: History;
+  documents: DocumentInOutput[];
+}
+
+export interface DocumentInOutput {
+  id: number;
+  name: string;
+  version: string;
+  status: string;
+}
+
+export interface HistoryEvent {
+  type: string;
+  details: string;
+  timestamp: string;
 }
 
 // Update the Client interface to match the actual API response structure
 export interface Client {
-  id: number
-  name: string
-  address: string
-  code: Record<string, any>
-  description: string
-  contact_id: string
-  history_id: string
-  team?: number
+  id: number;
+  name: string;
+  address: string | null;
+  description: string | null;
+  code: Record<string, any>;
+  contact_id: string;
+  history_id: string;
+  team?: number | null;
   contact_details?: {
-    id: string
-    email: string
-    phone: string
-    address: string
-    type: string
-  }
-  team_details?: Team
+    id: string;
+    email: string;
+    phone: string;
+    address: string;
+    type: string;
+  } | null;
+  team_details?: {
+    id: number;
+    name: string;
+    description: string;
+    history_id: string;
+    members?: Array<{
+      id: number;
+      first_name: string;
+      last_name: string;
+      role: string;
+      contact_details?: {
+        id: string;
+        email: string;
+        phone: string;
+        address: string;
+      } | null;
+    }>;
+  } | null;
+  history_details?: {
+    id: string;
+    title: string;
+    table_name: string;
+    created_at: string;
+    updated_at: string | null;
+    deadline: string | null;
+    finished_at: string | null;
+    events: Array<{
+      type: string;
+      details: string;
+      timestamp: string;
+    }>;
+  } | null;
+}
+
+// Add new interface for team member
+export interface TeamMember {
+  id?: number;
+  first_name: string;
+  last_name: string;
+  role: string;
+  contact: {
+    email: string;
+    phone: string;
+    address: string;
+  };
+}
+
+// Add request interfaces for client operations
+export interface ClientCreateRequest {
+  name: string;
+  address?: string;
+  description?: string;
+  code?: Record<string, any>;
+  contact?: {
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  team?: {
+    name: string;
+    description?: string;
+    is_user_team?: boolean; // Add this property
+  };
+  team_id?: number;
+  team_members?: TeamMember[];
+}
+
+export interface ClientUpdateRequest {
+  name?: string;
+  address?: string;
+  description?: string;
+  code?: Record<string, any>;
+  contact?: {
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  team?: {
+    name: string;
+    description?: string;
+  };
+  team_id?: number | null;
+  team_members?: TeamMember[];
+  replace_all_members?: boolean;
 }
 
 // Update the Team interface to match the actual API response structure
 export interface Team {
-  id: number
-  name: string
-  description: string
-  history_id: string
+  id: number;
+  name: string;
+  description: string;
+  history_id: string;
+  is_user_team: boolean; // Add this field to match the backend model
   members?: Array<{
-    id: number
+    id: number;
     teams?: Array<{
-      id: number
-      name: string
-    }>
-    first_name: string
-    last_name: string
-    contact_id: string
-    is_user: boolean
-    history_id: string
-    department: number
+      id: number;
+      name: string;
+    }>;
+    first_name: string;
+    last_name: string;
+    contact_id: string;
+    is_user: boolean;
+    history_id: string;
+    department: number;
     contact_details?: {
-      id: string
-      email: string
-      phone: string
-      address: string
-    }
-  }>
+      id: string;
+      email: string;
+      phone: string;
+      address: string;
+    };
+  }>;
 }
 
-// Update the PPAP interface to match the actual API response structure
+// PPAP related types
 export interface PPAP {
-  id: number
-  project: number
-  level: number
-  status: string
-  review: string | null
-  history_id: string
-  phases?: Phase[]
+  id: number;
+  project: number;
+  level: number;
+  status: string;
+  review?: string;
+  history_id: string;
+  history_details?: History;
+}
+
+export interface PPAPCreateRequest {
+  project: number;
+  level: number;
+  status?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface PPAPUpdateRequest {
+  level?: number;
+  status?: string;
+  review?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface PPAPHistoryUpdateRequest {
+  title?: string;
+  deadline?: string;
+  started_at?: string;
+  finished_at?: string;
+}
+
+export interface PPAPDetails {
+  id: number;
+  project_id: number;
+  level: number;
+  status: string;
+  review: string | null;
+  phases: PPAPPhaseDetail[];
+}
+
+export interface PPAPPhaseDetail {
+  id: number;
+  name: string;
+  status: string;
+  responsible: string | null;
+  outputs: PPAPOutputDetail[];
+}
+
+export interface PPAPOutputDetail {
+  id: number;
+  name: string;
+  description: string;
+  status: string;
+  responsible: string | null;
+  documents: PPAPDocumentDetail[];
+}
+
+export interface PPAPDocumentDetail {
+  id: number;
+  name: string;
+  version: string;
+  status: string;
 }
 
 export interface ProjectCreateRequest {
@@ -174,7 +431,6 @@ export interface PhaseTemplate {
 // Update the Phase interface to match the actual API response structure
 export interface Phase {
   id: number;
-  project: number;
   template: number;
   ppap: number;
   status: string;
@@ -189,70 +445,196 @@ export interface Phase {
   };
   outputs?: Output[];
   responsible_details?: User;
-  started_at?: string | null;
-  deadline?: string | null;
-  finished_at?: string | null;
+  history_details?: History; // Add this to match your updated backend response
+}
+
+// Add or update these interfaces for Phase requests
+
+// For creating a new Phase
+export interface PhaseCreateRequest {
+  template_id: number;
+  ppap_id: number;
+  responsible_id?: number | null;
+  status?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+// For updating an existing Phase
+export interface PhaseUpdateRequest {
+  responsible_id?: number | null;
+  status?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+// For updating only history attributes
+export interface PhaseHistoryUpdateRequest {
+  title?: string;
+  deadline?: string;
+  started_at?: string;
+  finished_at?: string;
 }
 
 // Output related types
+// Update the OutputTemplate interface to match the API response
 export interface OutputTemplate {
-  id: number
-  name: string
-  description?: string
-  configuration: Record<string, any>
-  phase: number
-  ppap_element: number
-  document_type: string
-  is_required: boolean
-  is_active: boolean
+  id: number;
+  name: string;
+  description?: string;
+  configuration: Record<string, any>;
+  phase: number;
+  ppap_element: number;
   ppap_element_details?: {
-    id: number
-    name: string
-    level: string
-  }
-  phase_name?: string
+    id: number;
+    name: string;
+    level: string;
+  };
+  document_type?: string; 
+  is_required?: boolean;  
+  is_active?: boolean;    
 }
 
-// Update the Output interface to match the actual API response structure
+// Add this interface for creating output templates
+export interface OutputTemplateCreateRequest {
+  name: string;
+  description?: string;
+  phase_id: number;
+  ppap_element_id: number;
+  document_type?: string;
+  is_required?: boolean;
+  is_active?: boolean;
+  configuration?: Record<string, any>;
+}
+
+// Add this interface for updating output templates
+export interface OutputTemplateUpdateRequest {
+  name?: string;
+  description?: string;
+  phase_id?: number;
+  ppap_element_id?: number;
+  phase?: number; // Allow both naming conventions
+  ppap_element?: number; // Allow both naming conventions
+  document_type?: string;
+  is_required?: boolean;
+  is_active?: boolean;
+  configuration?: Record<string, any>;
+}
+
+// Output related interfaces
+export interface OutputCreateRequest {
+  template_id: number;
+  phase_id: number;
+  description?: string;
+  status?: string;
+  user_id?: number | null;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface OutputUpdateRequest {
+  description?: string;
+  status?: string;
+  user_id?: number | null;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface OutputHistoryUpdateRequest {
+  title?: string;
+  deadline?: string;
+  started_at?: string;
+  finished_at?: string;
+}
+
+// Update the Output interface to include history details
 export interface Output {
-  id: number
-  template: number
-  description: string | null
-  document: number | null
-  user: number | null
-  phase: number
-  status: string
-  history_id: string
-  template_details?: {
-    id: number
-    name: string
-    configuration?: Record<string, any>
-    phase?: number
-    ppap_element?: number
-    ppap_element_details?: {
-      id: number
-      name: string
-      level: string
-    }
-  }
-  documents?: Document[]
-  user_details?: User
+  id: number;
+  template: number;
+  phase: number;
+  description?: string;
+  status: string;
+  user?: number | null;
+  document?: number | null;
+  history_id: string;
+  template_details?: OutputTemplate;
+  user_details?: User;
+  documents?: Document[];
+  history_details?: History;
 }
 
 // Document related types
 export interface Document {
-  id: number
-  name: string
-  description: string
-  file_path: string
-  file_type: string
-  file_size: number
-  uploader: number
-  output: number
-  version: string
-  status: string
-  history_id: string
-  uploader_details?: User
+  id: number;
+  name: string;
+  description?: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  uploader?: number;
+  output?: number;
+  version: string;
+  status: string;
+  history_id?: string;
+  uploader_details?: {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+  };
+  history_details?: History;
+}
+
+// Document request interfaces
+export interface DocumentCreateRequest {
+  name: string;
+  file: File;  // For FormData
+  output_id?: number;
+  uploader?: number;
+  version?: string;
+  status?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface DocumentUpdateRequest {
+  name?: string;
+  description?: string;
+  version?: string;
+  status?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface DocumentHistoryUpdateRequest {
+  title?: string;
+  deadline?: string;
+  started_at?: string;
+  finished_at?: string;
 }
 
 // History related types
@@ -263,20 +645,16 @@ export interface HistoryEvent {
 }
 
 export interface History {
-  id: string
-  title: string
-  event: string
-  table_name: string
-  created_at: string
-  started_at?: string | null
-  updated_at?: string | null
-  deadline?: string | null
-  finished_at?: string | null
-  events?: Array<{
-    type: string
-    details: string
-    timestamp: string
-  }>
+  id: string;
+  title: string;
+  event: string; // Raw event data as saved in DB
+  table_name: string;
+  created_at: string;
+  started_at?: string | null;
+  updated_at?: string | null;
+  deadline?: string | null;
+  finished_at?: string | null;
+  events?: Array<HistoryEvent>; // Parsed events
 }
 
 // Dashboard related types
@@ -409,16 +787,17 @@ export interface PaginatedResponse<T> {
 }
 
 export interface PPAPElement {
-  id: number
-  name: string
-  description?: string
-  level: string
-  level_1_required?: boolean
-  level_2_required?: boolean
-  level_3_required?: boolean
-  level_4_required?: boolean
-  level_5_required?: boolean
-  is_active?: boolean
+  id: number;
+  name: string;
+  description?: string;
+  level: string;
+  is_active?: boolean;
+  // These fields are added on the frontend for UI convenience
+  level_1_required?: boolean;
+  level_2_required?: boolean;
+  level_3_required?: boolean;
+  level_4_required?: boolean;
+  level_5_required?: boolean;
 }
 
 export interface PPAPElementResponse {
@@ -455,4 +834,88 @@ export interface DepartmentCreateRequest {
 export interface DepartmentUpdateRequest {
   name?: string
   responsible?: number | null
+}
+
+// Todo related types
+export interface Todo {
+  id: number;
+  user: number;
+  output: number;
+  permission: number;
+  role: string;
+  history_id?: string;
+  user_details?: {
+    id: number;
+    username: string;
+    first_name: string;
+    last_name: string;
+  };
+  output_details?: {
+    id: number;
+    name: string;
+    status: string;
+  };
+  permission_details?: {
+    id: number;
+    name: string;
+    description: string;
+  };
+  role_display?: string;
+  history_details?: History;
+}
+
+export interface TodoCreateRequest {
+  user_id: number;
+  output_id: number;
+  permission_name?: string;
+  role?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface TodoUpdateRequest {
+  user_id?: number;
+  output_id?: number;
+  permission_name?: string;
+  role?: string;
+  history?: {
+    title?: string;
+    deadline?: string;
+    started_at?: string;
+    finished_at?: string;
+  };
+}
+
+export interface TodoHistoryUpdateRequest {
+  title?: string;
+  deadline?: string;
+  started_at?: string;
+  finished_at?: string;
+}
+
+export interface TodoBulkCreateRequest {
+  todos: Array<{
+    user_id: number;
+    output_id: number;
+    permission_name?: string;
+    role?: string;
+  }>;
+}
+
+export interface TodoSummary {
+  id: number;
+  output_id: number;
+  output_name: string;
+  phase_id: number;
+  phase_name: string;
+  project_id: number;
+  project_name: string;
+  permission: string;
+  status: string;
+  role: string;
+  role_display: string;
 }

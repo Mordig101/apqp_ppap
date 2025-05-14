@@ -2,8 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.db import transaction
-from core.models import Document, Output ,User
+from core.models import Document, Output, User, History
 from core.serializers.document_serializer import DocumentSerializer
+from core.serializers.history_serializer import HistorySerializer
 from core.services.document.api import (
     initialize_document,
     update_document,
@@ -27,8 +28,33 @@ class DocumentViewSet(viewsets.ModelViewSet):
         uploaded_file = request.FILES.get('file')  # Get the actual uploaded file
         output_id = request.data.get('output_id')
         uploader_id = request.data.get('uploader')
-        version = request.data.get('version', 1)
-        status_value = request.data.get('status', 'draft')
+        version = request.data.get('version', '1.0')
+        status_value = request.data.get('status', 'Draft')
+        
+        # Extract history attributes
+        history_attrs = {}
+        if 'history' in request.data:
+            try:
+                if isinstance(request.data['history'], dict):
+                    history_data = request.data['history']
+                else:
+                    # Try to parse JSON string
+                    import json
+                    history_data = json.loads(request.data['history'])
+                    
+                if 'title' in history_data:
+                    history_attrs['title'] = history_data['title']
+                if 'deadline' in history_data:
+                    history_attrs['deadline'] = history_data['deadline']
+                if 'started_at' in history_data:
+                    history_attrs['started_at'] = history_data['started_at']
+                if 'finished_at' in history_data:
+                    history_attrs['finished_at'] = history_data['finished_at']
+            except (json.JSONDecodeError, TypeError, ValueError):
+                return Response(
+                    {"error": "Invalid history data format"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         # Validate required fields
         if not name or not uploaded_file:
@@ -63,14 +89,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
             # Save the uploaded file
             file_path = self._save_uploaded_file(uploaded_file)
             
-            # Create document
+            # Create document with history attributes
             document = initialize_document(
                 name=name,
                 file_path=file_path,
                 output=output,
                 uploader=uploader,
                 status=status_value,
-                version=version
+                version=version,
+                history_attrs=history_attrs if history_attrs else None
             )
             
             serializer = self.get_serializer(document)
@@ -115,14 +142,44 @@ class DocumentViewSet(viewsets.ModelViewSet):
         
         # Extract document data
         name = request.data.get('name')
+        description = request.data.get('description')
         status_value = request.data.get('status')
+        version = request.data.get('version')
+        
+        # Extract history attributes
+        history_attrs = {}
+        if 'history' in request.data:
+            try:
+                if isinstance(request.data['history'], dict):
+                    history_data = request.data['history']
+                else:
+                    # Try to parse JSON string
+                    import json
+                    history_data = json.loads(request.data['history'])
+                    
+                if 'title' in history_data:
+                    history_attrs['title'] = history_data['title']
+                if 'deadline' in history_data:
+                    history_attrs['deadline'] = history_data['deadline']
+                if 'started_at' in history_data:
+                    history_attrs['started_at'] = history_data['started_at']
+                if 'finished_at' in history_data:
+                    history_attrs['finished_at'] = history_data['finished_at']
+            except (json.JSONDecodeError, TypeError, ValueError):
+                return Response(
+                    {"error": "Invalid history data format"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         try:
-            # Update document
+            # Update document with all provided attributes
             updated_document = update_document(
                 document=document,
                 name=name,
-                status=status_value
+                description=description,
+                status=status_value,
+                version=version,
+                history_attrs=history_attrs if history_attrs else None
             )
             
             serializer = self.get_serializer(updated_document)
@@ -233,5 +290,71 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response(
                 {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['put'])
+    def update_history(self, request, pk=None):
+        """Update only history attributes for this document"""
+        document = self.get_object()
+        
+        # Extract history attributes
+        history_attrs = {}
+        if 'title' in request.data:
+            history_attrs['title'] = request.data.get('title')
+        if 'deadline' in request.data:
+            history_attrs['deadline'] = request.data.get('deadline')
+        if 'started_at' in request.data:
+            history_attrs['started_at'] = request.data.get('started_at')
+        if 'finished_at' in request.data:
+            history_attrs['finished_at'] = request.data.get('finished_at')
+        
+        try:
+            # Update history
+            from core.services.document.functions import update_document_history
+            history = update_document_history(pk, history_attrs)
+            
+            if not history:
+                return Response(
+                    {'error': 'History record not found for this document'}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Return updated history
+            serializer = HistorySerializer(history)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    @action(detail=True, methods=['get'])
+    def history(self, request, pk=None):
+        """Get history details for this document"""
+        document = self.get_object()
+        
+        try:
+            # Get document history
+            from core.models import History
+            
+            if not document.history_id:
+                return Response(
+                    {'error': 'No history found for this document'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            history_records = History.objects.filter(id=document.history_id)
+            if not history_records.exists():
+                return Response(
+                    {'error': 'History record not found for this document'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            serializer = HistorySerializer(history_records, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )

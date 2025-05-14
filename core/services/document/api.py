@@ -5,6 +5,8 @@ from core.services.document.functions import (
     get_documents_by_output,
     get_documents_by_status,
     update_document,
+    update_document_history,  # New function
+    get_document_history,     # New function
     update_document_file,
     delete_document,
     change_document_output
@@ -20,6 +22,8 @@ __all__ = [
     'get_documents_by_output',
     'get_documents_by_status',
     'update_document',
+    'update_document_history',  # New function
+    'get_document_history',     # New function
     'update_document_file',
     'delete_document',
     'change_document_output'

@@ -94,6 +94,7 @@ class PhaseTemplateViewSet(viewsets.ModelViewSet):
 class OutputTemplateViewSet(viewsets.ModelViewSet):
     queryset = OutputTemplate.objects.all()
     serializer_class = OutputTemplateSerializer
+    pagination_class = None  # Disable pagination for this viewset
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):

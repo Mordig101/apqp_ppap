@@ -7,9 +7,18 @@ from core.services.history.api import (
 )
 
 @transaction.atomic
-def update_project(project_id, data):
+def update_project(project_id, data, history_attrs=None):
     """
     Update project details
+    
+    Args:
+        project_id: Project ID
+        data: Dictionary with project fields to update
+        history_attrs: Dictionary with history attributes (optional)
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
     """
     project = Project.objects.get(id=project_id)
     
@@ -17,12 +26,40 @@ def update_project(project_id, data):
     updated_fields = []
     for field, value in data.items():
         if hasattr(project, field) and getattr(project, field) != value:
-            setattr(project, field, value)
+            # Special handling for name changes
+            if field == 'name' and project.name != value:
+                old_name = project.name
+                project.name = value
+                from core.services.history.project import record_project_name_change
+                record_project_name_change(project, old_name, value)
+            # Special handling for status changes
+            elif field == 'status' and project.status != value:
+                old_status = project.status
+                project.status = value
+                from core.services.history.project import record_project_status_change
+                record_project_status_change(project, old_status, value)
+            else:
+                setattr(project, field, value)
+            
             updated_fields.append(field)
     
     if updated_fields:
-        project.save()
+        project.save(update_fields=updated_fields)
+        from core.services.history.project import record_project_update
         record_project_update(project, updated_fields)
+    
+    # Update history attributes if provided
+    if history_attrs and isinstance(history_attrs, dict):
+        from core.services.history.initialization import update_history_attributes
+        from core.services.history.project import get_project_history
+        history = get_project_history(project_id)
+        if history:
+            update_history_attributes(
+                history, 
+                history_attrs, 
+                auto_update_related_model=False,
+                related_model=project
+            )
     
     return project
 
@@ -53,6 +90,45 @@ def archive_project(project_id):
     record_project_update(project, ['status'])
     
     return project
+
+@transaction.atomic
+def update_project_history(project_id, history_attrs):
+    """
+    Update history attributes for a project
+    
+    Args:
+        project_id: Project ID
+        history_attrs: Dictionary with history attributes
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
+    
+    Returns:
+        History: Updated history record or None if not found
+    """
+    from core.models import Project
+    from core.services.history.project import get_project_history
+    from core.services.history.initialization import update_history_attributes
+    
+    # Get project
+    project = Project.objects.get(id=project_id)
+    
+    # Get history record
+    history = get_project_history(project_id)
+    
+    if not history:
+        return None
+    
+    # Update history attributes
+    updated_history, _ = update_history_attributes(
+        history=history,
+        attributes=history_attrs,
+        auto_update_related_model=False,
+        related_model=project
+    )
+    
+    return updated_history
 
 def get_project_details(project_id):
     """

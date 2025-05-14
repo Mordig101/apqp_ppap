@@ -174,6 +174,7 @@ export interface PhaseTemplate {
 // Update the Phase interface to match the actual API response structure
 export interface Phase {
   id: number;
+  project: number;
   template: number;
   ppap: number;
   status: string;
@@ -188,43 +189,9 @@ export interface Phase {
   };
   outputs?: Output[];
   responsible_details?: User;
-  history_details?: History; // Add this to match your updated backend response
-}
-
-// Add or update these interfaces for Phase requests
-
-// For creating a new Phase
-export interface PhaseCreateRequest {
-  template_id: number;
-  ppap_id: number;
-  responsible_id?: number | null;
-  status?: string;
-  history?: {
-    title?: string;
-    deadline?: string;
-    started_at?: string;
-    finished_at?: string;
-  };
-}
-
-// For updating an existing Phase
-export interface PhaseUpdateRequest {
-  responsible_id?: number | null;
-  status?: string;
-  history?: {
-    title?: string;
-    deadline?: string;
-    started_at?: string;
-    finished_at?: string;
-  };
-}
-
-// For updating only history attributes
-export interface PhaseHistoryUpdateRequest {
-  title?: string;
-  deadline?: string;
-  started_at?: string;
-  finished_at?: string;
+  started_at?: string | null;
+  deadline?: string | null;
+  finished_at?: string | null;
 }
 
 // Output related types
@@ -246,54 +213,30 @@ export interface OutputTemplate {
   phase_name?: string
 }
 
-// Output related interfaces
-export interface OutputCreateRequest {
-  template_id: number;
-  phase_id: number;
-  description?: string;
-  status?: string;
-  user_id?: number | null;
-  history?: {
-    title?: string;
-    deadline?: string;
-    started_at?: string;
-    finished_at?: string;
-  };
-}
-
-export interface OutputUpdateRequest {
-  description?: string;
-  status?: string;
-  user_id?: number | null;
-  history?: {
-    title?: string;
-    deadline?: string;
-    started_at?: string;
-    finished_at?: string;
-  };
-}
-
-export interface OutputHistoryUpdateRequest {
-  title?: string;
-  deadline?: string;
-  started_at?: string;
-  finished_at?: string;
-}
-
-// Update the Output interface to include history details
+// Update the Output interface to match the actual API response structure
 export interface Output {
-  id: number;
-  template: number;
-  phase: number;
-  description?: string;
-  status: string;
-  user?: number | null;
-  document?: number | null;
-  history_id: string;
-  template_details?: OutputTemplate;
-  user_details?: User;
-  documents?: Document[];
-  history_details?: History;
+  id: number
+  template: number
+  description: string | null
+  document: number | null
+  user: number | null
+  phase: number
+  status: string
+  history_id: string
+  template_details?: {
+    id: number
+    name: string
+    configuration?: Record<string, any>
+    phase?: number
+    ppap_element?: number
+    ppap_element_details?: {
+      id: number
+      name: string
+      level: string
+    }
+  }
+  documents?: Document[]
+  user_details?: User
 }
 
 // Document related types
@@ -322,14 +265,18 @@ export interface HistoryEvent {
 export interface History {
   id: string
   title: string
-  event: string // Raw event data as saved in DB
+  event: string
   table_name: string
   created_at: string
   started_at?: string | null
   updated_at?: string | null
   deadline?: string | null
   finished_at?: string | null
-  events?: Array<HistoryEvent> // Parsed events
+  events?: Array<{
+    type: string
+    details: string
+    timestamp: string
+  }>
 }
 
 // Dashboard related types

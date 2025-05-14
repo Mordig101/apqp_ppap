@@ -1,6 +1,6 @@
 import { HistoryEntry, NestedHistory } from "@/app/projects/[projectId]/history/types"
 import { API_ENDPOINTS } from "./api"
-import type { ApiError, PaginatedResponse, Project, Client, Team, OutputTemplate, Phase, PhaseTemplate, Document ,Department , DepartmentCreateRequest,DepartmentUpdateRequest ,History, PhaseCreateRequest, PhaseUpdateRequest, PhaseHistoryUpdateRequest, Output, OutputCreateRequest, OutputUpdateRequest, OutputHistoryUpdateRequest } from "./api-types"
+import type { ApiError, PaginatedResponse, Project, Client, Team, OutputTemplate, Phase, PhaseTemplate, Document ,Department , DepartmentCreateRequest,DepartmentUpdateRequest ,History} from "./api-types"
 
 // Define DocumentData interface
 interface DocumentData extends Document {
@@ -401,7 +401,6 @@ export const projectApi = {
 
 // Phase specific API functions
 export const phaseApi = {
-  // Keep existing functions
   getAllPhases: async () => {
     try {
       return await api.get(API_ENDPOINTS.phases)
@@ -413,51 +412,19 @@ export const phaseApi = {
 
   getPhase: async (id: number) => {
     try {
-      return await api.get<Phase>(`${API_ENDPOINTS.phases}${id}/`)
+      return await api.get(`${API_ENDPOINTS.phases}${id}/`)
     } catch (error: any) {
       console.error("Get phase error:", error)
       throw new Error(error.message || "Failed to get phase")
     }
   },
 
-  // Add new function for creating a phase with history attributes
-  createPhase: async (data: PhaseCreateRequest) => {
+  updatePhase: async (id: number, data: any) => {
     try {
-      return await api.post<Phase>(API_ENDPOINTS.phases, data)
-    } catch (error: any) {
-      console.error("Create phase error:", error)
-      throw new Error(error.message || "Failed to create phase")
-    }
-  },
-
-  // Update the existing updatePhase function to handle history attributes
-  updatePhase: async (id: number, data: PhaseUpdateRequest) => {
-    try {
-      return await api.put<Phase>(`${API_ENDPOINTS.phases}${id}/`, data)
+      return await api.put(`${API_ENDPOINTS.phases}${id}/`, data)
     } catch (error: any) {
       console.error("Update phase error:", error)
       throw new Error(error.message || "Failed to update phase")
-    }
-  },
-
-  // Add new function for updating only history attributes
-  updatePhaseHistory: async (phaseId: number, historyData: PhaseHistoryUpdateRequest) => {
-    try {
-      const endpoint = API_ENDPOINTS.updatePhaseHistory.replace(':phaseId', phaseId.toString());
-      return await api.put<History>(endpoint, historyData);
-    } catch (error: any) {
-      console.error("Update phase history error:", error);
-      throw new Error(error.message || "Failed to update phase history");
-    }
-  },
-
-  // Get phase history records
-  getPhaseHistory: async (phaseId: number) => {
-    try {
-      return await api.get<History[]>(`${API_ENDPOINTS.phases}${phaseId}/history/`);
-    } catch (error: any) {
-      console.error("Get phase history error:", error);
-      throw new Error(error.message || "Failed to get phase history");
     }
   },
 
@@ -485,77 +452,69 @@ export const outputApi = {
     }
   },
 
-  getOutputsByPhase: async (phaseId: number) => {
-    try {
-      return await api.get(`${API_ENDPOINTS.outputs}?phase=${phaseId}`)
-    } catch (error: any) {
-      console.error("Get outputs by phase error:", error)
-      throw new Error(error.message || "Failed to get outputs for phase")
-    }
-  },
-
   getOutput: async (id: number) => {
     try {
-      return await api.get<Output>(API_ENDPOINTS.output(id))
+      return await api.get(`${API_ENDPOINTS.outputs}${id}/`)
     } catch (error: any) {
       console.error("Get output error:", error)
       throw new Error(error.message || "Failed to get output")
     }
   },
 
-  createOutput: async (data: OutputCreateRequest) => {
+  updateOutput: async (id: number, data: any) => {
     try {
-      return await api.post<Output>(API_ENDPOINTS.outputs, data)
-    } catch (error: any) {
-      console.error("Create output error:", error)
-      throw new Error(error.message || "Failed to create output")
-    }
-  },
-
-  updateOutput: async (id: number, data: OutputUpdateRequest) => {
-    try {
-      return await api.put<Output>(API_ENDPOINTS.output(id), data)
+      return await api.put(`${API_ENDPOINTS.outputs}${id}/`, data)
     } catch (error: any) {
       console.error("Update output error:", error)
       throw new Error(error.message || "Failed to update output")
     }
   },
 
-  deleteOutput: async (id: number) => {
+  assignPermission: async (userId: number, outputId: number, permissionType: "r" | "e") => {
     try {
-      return await api.delete(API_ENDPOINTS.output(id))
+      return await api.post(API_ENDPOINTS.assignPermission, {
+        user_id: userId,
+        output_id: outputId,
+        permission_type: permissionType,
+      })
     } catch (error: any) {
-      console.error("Delete output error:", error)
-      throw new Error(error.message || "Failed to delete output")
+      console.error("Assign permission error:", error)
+      throw new Error(error.message || "Failed to assign permission")
     }
   },
 
-  getOutputHistory: async (id: number) => {
+  getAllOutputTemplates: async () => {
     try {
-      return await api.get<History[]>(API_ENDPOINTS.outputHistory(id))
+      // First, get all phase templates
+      const phaseTemplatesResponse = await api.get<PaginatedResponse<PhaseTemplate>>(API_ENDPOINTS.phaseTemplates);
+      
+      // Extract all output templates from all phases
+      if (Array.isArray(phaseTemplatesResponse.results)) {
+        const outputTemplates: OutputTemplate[] = [];
+        
+        // Loop through each phase template
+        phaseTemplatesResponse.results.forEach((phase: PhaseTemplate) => {
+          // If phase has output templates, add them to our array
+          if (Array.isArray(phase.output_templates)) {
+            phase.output_templates.forEach((template: OutputTemplate) => {
+              // Add phase information to make it easier to identify the phase
+              outputTemplates.push({
+                ...template,
+                phase_name: phase.name  // Add a reference to the phase name
+              });
+            });
+          }
+        });
+        
+        return outputTemplates;
+      }
+      
+      return [];
     } catch (error: any) {
-      console.error("Get output history error:", error)
-      throw new Error(error.message || "Failed to get output history")
+      console.error("Get all output templates error:", error);
+      throw new Error(error.message || "Failed to get all output templates");
     }
   },
-
-  updateOutputHistory: async (id: number, historyData: OutputHistoryUpdateRequest) => {
-    try {
-      return await api.put<History>(API_ENDPOINTS.updateOutputHistory(id), historyData)
-    } catch (error: any) {
-      console.error("Update output history error:", error)
-      throw new Error(error.message || "Failed to update output history")
-    }
-  },
-  
-  addDocument: async (outputId: number, documentData: any) => {
-    try {
-      return await api.post(`${API_ENDPOINTS.output(outputId)}/documents/`, documentData)
-    } catch (error: any) {
-      console.error("Add document error:", error)
-      throw new Error(error.message || "Failed to add document")
-    }
-  }
 }
 
 // Document API functions

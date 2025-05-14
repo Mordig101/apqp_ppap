@@ -26,14 +26,14 @@ from core.services.history.team import (
     record_team_deletion
 )
 
-def initialize_team(name, description=None, department=None):
+def initialize_team(name, is_user_team, description=None):
     """
     Initialize a new team
     
     Args:
         name (str): Team name
+        is_user_team (bool): Whether this team is a user team
         description (str, optional): Team description
-        department (Department, optional): Associated department
         
     Returns:
         Team: The created team
@@ -41,16 +41,12 @@ def initialize_team(name, description=None, department=None):
     # Create new team
     team = Team.objects.create(
         name=name,
-        description=description
+        description=description,
+        is_user_team=is_user_team
     )
     
     # Record in history
     record_team_creation(team)
-    
-    # Associate with department if provided
-    if department:
-        # Handle department relation if needed
-        pass
         
     return team
 

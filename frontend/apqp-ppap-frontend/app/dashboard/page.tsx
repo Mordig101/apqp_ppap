@@ -3,24 +3,38 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { fetchApi } from "@/config/api-utils"
-import type { DashboardResponse } from "@/config/api-types"
+import type { DashboardResponse, TodoSummary, User } from "@/config/api-types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, Loader2 } from "lucide-react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { todoApi, authApi } from "@/config/api-utils"
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null)
+  const [userTodos, setUserTodos] = useState<TodoSummary[]>([])
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchDashboard = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
+        // Fetch dashboard data
         const data = await fetchApi<DashboardResponse>("/dashboard/")
         setDashboardData(data)
+        
+        // Get current user
+        const user = await authApi.getCurrentUser()
+        setCurrentUser(user)
+        
+        // If user is logged in, fetch their todos
+        if (user && user.id) {
+          const todos = await todoApi.getUserTodos(user.id)
+          setUserTodos(todos)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch dashboard data")
         console.error("Error fetching dashboard data:", err)
@@ -29,7 +43,7 @@ export default function DashboardPage() {
       }
     }
 
-    fetchDashboard()
+    fetchData()
   }, [])
 
   // Get appropriate color for status badge
@@ -96,17 +110,23 @@ export default function DashboardPage() {
             <CardTitle>My Tasks</CardTitle>
           </CardHeader>
           <CardContent>
-            {!dashboardData || !dashboardData.todos || dashboardData.todos.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+              </div>
+            ) : userTodos.length === 0 ? (
               <p>No tasks assigned to you</p>
             ) : (
               <div className="space-y-4">
-                {dashboardData.todos.slice(0, 5).map((todo) => (
+                {userTodos.slice(0, 5).map((todo) => (
                   <div key={todo.id} className="flex justify-between items-center">
                     <div>
                       <Link href={`/projects/${todo.project_id}/workspace`} className="font-medium hover:underline">
                         {todo.output_name}
                       </Link>
-                      <p className="text-sm text-gray-500">{todo.project_name}</p>
+                      <p className="text-sm text-gray-500">
+                        {todo.project_name} • {todo.role_display}
+                      </p>
                     </div>
                     <Badge className={getStatusColor(todo.status)}>{todo.status}</Badge>
                   </div>
@@ -156,7 +176,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">
-              {dashboardData?.todos?.length || 0}
+              {userTodos?.length || 0}
             </div>
             <p className="text-sm text-gray-500">Assigned to you</p>
           </CardContent>
@@ -169,7 +189,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="text-center py-10">Loading dashboard...</div>
+        <div className="text-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto text-gray-500 mb-2" />
+          <p>Loading dashboard...</p>
+        </div>
       </DashboardLayout>
     )
   }

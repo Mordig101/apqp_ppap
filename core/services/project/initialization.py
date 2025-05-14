@@ -6,30 +6,50 @@ from core.services.ppap.initialization import initialize_ppap
 from core.services.history.project import record_project_creation
 
 @transaction.atomic
-def initialize_project(name, description, client_id, team_id, ppap_level=3):
+def initialize_project(name, description, client_id, team_id, ppap_level=3, history_attrs=None):
     """
     Initialize a new project with all related records
-    """
-    # Generate history ID
-    history_id = f"{uuid.uuid4().hex}project"
     
+    Args:
+        name: Project name
+        description: Project description
+        client_id: Client ID
+        team_id: Team ID
+        ppap_level: PPAP level (default: 3)
+        history_attrs: Dictionary with history attributes (optional)
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
+    """
     # Create project record
     project = Project.objects.create(
         name=name,
         description=description,
         client_id=client_id,
         team_id=team_id,
-        status='Planning',
+        status='Not Started',
     )
     
-    record_project_creation(project)
+    # Record creation in history
+    history = record_project_creation(project)
+    
+    # Update history attributes if provided
+    if history and history_attrs and isinstance(history_attrs, dict):
+        from core.services.history.initialization import update_history_attributes
+        update_history_attributes(
+            history, 
+            history_attrs, 
+            auto_update_related_model=False,
+            related_model=project
+        )
     
     # Initialize PPAP
     ppap = initialize_ppap(project.id, ppap_level)
     
     # Update project with PPAP ID
     project.ppap = ppap
-    project.save()
+    project.save(update_fields=['ppap'])
     
     # Initialize FastQuery
     initialize_fastquery(project.id)

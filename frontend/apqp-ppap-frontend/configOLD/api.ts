@@ -4,13 +4,7 @@ export const API_ENDPOINTS = {
   projects: `${API_BASE_URL}/projects/`,
   ppaps: `${API_BASE_URL}/ppaps/`,
   phases: `${API_BASE_URL}/phases/`,
-  
-  // Update output endpoints  
   outputs: `${API_BASE_URL}/outputs/`,
-  output: (id: number) => `${API_BASE_URL}/outputs/${id}/`,
-  outputHistory: (id: number) => `${API_BASE_URL}/outputs/${id}/history/`,
-  updateOutputHistory: (id: number) => `${API_BASE_URL}/outputs/${id}/update_history/`,
-  
   documents: `${API_BASE_URL}/documents/`,
   users: `${API_BASE_URL}/users/`,
   clients: `${API_BASE_URL}/clients/`,
@@ -35,7 +29,4 @@ export const API_ENDPOINTS = {
   nestedHistory: `${API_BASE_URL}/projects/:projectId/nested-history/`,
   allNestedHistory: `${API_BASE_URL}/projects/nested-history/`,
   projectsHistory: `${API_BASE_URL}/projects-history/all-projects-history/`,
-  
-  // Add new endpoint for phase history update
-  updatePhaseHistory: `${API_BASE_URL}/phases/:phaseId/update_history/`,
 }

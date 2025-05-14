@@ -68,6 +68,7 @@ class ClientSerializer(serializers.ModelSerializer):
                 'id': person.id,
                 'first_name': person.first_name,
                 'last_name': person.last_name,
+                'role': person.role,
                 'contact_details': None
             }
             

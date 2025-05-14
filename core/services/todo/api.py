@@ -10,7 +10,10 @@ from core.services.todo.functions import (
     update_todo_description,
     update_todo_priority,
     update_todo_status,
-    update_todo_assigned_to
+    update_todo_assigned_to,
+    update_todo,
+    update_todo_role,
+    update_todo_history
 )
 # Import the missing functions from logic.todo
 from core.services.logic.todo import (
@@ -33,6 +36,8 @@ __all__ = [
     'update_todo_status',
     'update_todo_assigned_to',
     'update_todo',
+    'update_todo_role',
+    'update_todo_history',
     'change_todo_status',
     'reassign_todo',
     'delete_todo',
@@ -95,9 +100,11 @@ def reassign_todo(todo, person):
 
 def delete_todo(todo):
     """
-    Delete todo
+    Delete todo with history tracking
     
     Args:
         todo (Todo): Todo to delete
     """
+    from core.services.history.todo import record_todo_deletion
+    record_todo_deletion(todo)
     todo.delete()

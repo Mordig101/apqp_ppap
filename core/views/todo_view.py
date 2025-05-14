@@ -240,12 +240,25 @@ class TodoViewSet(viewsets.ModelViewSet):
     @transaction.atomic
     def create(self, request):
         """
-        Create a new todo
+        Create a new todo with history support
         """
         user_id = request.data.get('user_id')
         output_id = request.data.get('output_id')
-        permission_name = request.data.get('permission_name', 'r')  # Default to read permission
-        role = request.data.get('role', 'contributor')  # Default to contributor role
+        permission_name = request.data.get('permission_name', 'r')
+        role = request.data.get('role', 'contributor')
+        
+        # Extract history attributes
+        history_attrs = {}
+        if 'history' in request.data and isinstance(request.data['history'], dict):
+            history_data = request.data['history']
+            if 'title' in history_data:
+                history_attrs['title'] = history_data['title']
+            if 'deadline' in history_data:
+                history_attrs['deadline'] = history_data['deadline']
+            if 'started_at' in history_data:
+                history_attrs['started_at'] = history_data['started_at']
+            if 'finished_at' in history_data:
+                history_attrs['finished_at'] = history_data['finished_at']
         
         if not all([user_id, output_id]):
             return Response(
@@ -254,7 +267,15 @@ class TodoViewSet(viewsets.ModelViewSet):
             )
         
         try:
-            todo = create_todo(user_id, output_id, permission_name, role)
+            from core.services.todo.initialization import initialize_todo
+            todo = initialize_todo(
+                user_id=user_id, 
+                output_id=output_id, 
+                permission_name=permission_name, 
+                role=role,
+                history_attrs=history_attrs if history_attrs else None
+            )
+            
             serializer = self.get_serializer(todo)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
@@ -366,3 +387,50 @@ class TodoViewSet(viewsets.ModelViewSet):
             "success_count": len(created_todos),
             "error_count": len(errors)
         })
+
+    @action(detail=True, methods=['put'])
+    def update_history(self, request, pk=None):
+        """Update only history attributes for this todo"""
+        try:
+            # Get history attributes from request
+            history_attrs = {}
+            if 'title' in request.data:
+                history_attrs['title'] = request.data.get('title')
+            if 'deadline' in request.data:
+                history_attrs['deadline'] = request.data.get('deadline')
+            if 'started_at' in request.data:
+                history_attrs['started_at'] = request.data.get('started_at')
+            if 'finished_at' in request.data:
+                history_attrs['finished_at'] = request.data.get('finished_at')
+            
+            # Update history
+            from core.services.todo.api import update_todo_history
+            history = update_todo_history(pk, history_attrs)
+            if not history:
+                return Response(
+                    {'error': 'History record not found for this todo'}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            # Return updated history
+            from core.serializers.history_serializer import HistorySerializer
+            serializer = HistorySerializer(history)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def history(self, request, pk=None):
+        """Get history records for this todo"""
+        todo = self.get_object()
+        from core.models import History
+        try:
+            history_record = History.objects.get(id=todo.history_id)
+            from core.serializers.history_serializer import HistorySerializer
+            serializer = HistorySerializer(history_record)
+            return Response(serializer.data)
+        except History.DoesNotExist:
+            return Response(
+                {'error': 'History record not found for this todo'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )

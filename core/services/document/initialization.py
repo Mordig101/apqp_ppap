@@ -11,25 +11,29 @@ import os
 import shutil
 from django.utils import timezone
 
-def initialize_document(name, file_path, output, uploader, status='draft', version=1, file_size=None, file_type=None):
+def initialize_document(name, file_path, output=None, uploader=None, status='Draft', version='1.0', file_size=None, file_type=None, history_attrs=None):
     """
-    Initialize a new document
+    Initialize a new document with history attributes
     
     Args:
         name (str): Document name
         file_path (str): Path to the document file
-        output (Output): Associated output
-        uploader (User): User who uploaded the document
-        status (str, optional): Document status, defaults to 'draft'
-        version (int, optional): Document version, defaults to 1
+        output (Output, optional): Associated output
+        uploader (User, optional): User who uploaded the document
+        status (str, optional): Document status, defaults to 'Draft'
+        version (str, optional): Document version, defaults to '1.0'
         file_size (int, optional): Size of the file in bytes
         file_type (str, optional): Type/extension of the file
+        history_attrs (dict, optional): Dictionary with history attributes
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
     
     Returns:
         Document: The created document
     """
-    # Generate history ID
-    history_id = f"{uuid.uuid4().hex}document"
+    from core.services.history.initialization import update_history_attributes
     
     # If file_size wasn't provided and file_path is a local path, calculate it
     if file_size is None:
@@ -51,11 +55,21 @@ def initialize_document(name, file_path, output, uploader, status='draft', versi
         version=version,
         uploader=uploader,
         file_size=file_size,
-        file_type=file_type or ""  # Ensure it's not NULL
+        file_type=file_type or "",  # Ensure it's not NULL
+        description=""  # Empty string default for description
     )
     
     # Record creation in history
-    record_document_creation(document)
+    history = record_document_creation(document)
+    
+    # Update history attributes if provided
+    if history and history_attrs and isinstance(history_attrs, dict):
+        update_history_attributes(
+            history, 
+            history_attrs, 
+            auto_update_related_model=False,  # Disable automatic status updates
+            related_model=document
+        )
     
     return document
 

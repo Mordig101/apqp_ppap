@@ -46,23 +46,40 @@ def get_documents_by_status(status):
     """
     return Document.objects.filter(status=status)
 
-def update_document(document, name=None, status=None):
+def update_document(document, name=None, description=None, status=None, version=None, history_attrs=None):
     """
-    Update document information
+    Update document information with history attributes
     
     Args:
         document: Document object
         name (str): New name (if None, keep existing)
+        description (str): New description (if None, keep existing)
         status (str): New status (if None, keep existing)
+        version (str): New version (if None, keep existing)
+        history_attrs (dict, optional): Dictionary with history attributes
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
     
     Returns:
         Document: The updated document
     """
+    from core.services.history.document import get_document_history
+    from core.services.history.initialization import update_history_attributes
+    
     updated_fields = []
     
     if name is not None and name != document.name:
+        old_name = document.name
         document.name = name
         updated_fields.append('name')
+        # Add specific name change record if you have a function for it
+        # record_document_name_change(document, old_name, name)
+    
+    if description is not None and description != document.description:
+        document.description = description
+        updated_fields.append('description')
     
     if status is not None and status != document.status:
         old_status = document.status
@@ -70,9 +87,26 @@ def update_document(document, name=None, status=None):
         updated_fields.append('status')
         record_document_status_change(document, old_status, status)
     
+    if version is not None and version != document.version:
+        old_version = document.version
+        document.version = version
+        updated_fields.append('version')
+        record_document_version_change(document, old_version, version)
+    
     if updated_fields:
-        document.save()
+        document.save(update_fields=updated_fields)
         record_document_update(document, updated_fields)
+    
+    # Update history attributes if provided
+    if history_attrs and isinstance(history_attrs, dict):
+        history = get_document_history(document.id)
+        if history:
+            update_history_attributes(
+                history, 
+                history_attrs, 
+                auto_update_related_model=False,  # Don't auto-update status based on dates
+                related_model=document
+            )
     
     return document
 
@@ -145,3 +179,53 @@ def change_document_output(document, output):
     )
     
     return document
+
+def update_document_history(document_id, history_attrs):
+    """
+    Update history attributes for a document
+    
+    Args:
+        document_id: ID of the document
+        history_attrs: Dictionary with history attributes
+            - title: Custom history title
+            - deadline: Deadline date (ISO format string)
+            - started_at: Start date (ISO format string)
+            - finished_at: Completion date (ISO format string)
+    
+    Returns:
+        History: Updated history record or None if not found
+    """
+    from core.services.history.document import get_document_history
+    from core.services.history.initialization import update_history_attributes
+    
+    # Get document
+    document = Document.objects.get(id=document_id)
+    
+    # Get history record
+    history = get_document_history(document_id)
+    
+    if not history:
+        return None
+    
+    # Use the generic history attribute update function
+    updated_history, _ = update_history_attributes(
+        history=history,
+        attributes=history_attrs,
+        auto_update_related_model=False,  # Don't auto-update status
+        related_model=document
+    )
+    
+    return updated_history
+
+def get_document_history(document_id):
+    """
+    Get history record for a document
+    
+    Args:
+        document_id: ID of the document
+    
+    Returns:
+        History: The history record or None if not found
+    """
+    from core.services.history.document import get_document_history
+    return get_document_history(document_id)

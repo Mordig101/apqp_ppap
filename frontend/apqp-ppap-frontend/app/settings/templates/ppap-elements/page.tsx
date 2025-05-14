@@ -72,10 +72,10 @@ export default function PPAPElementsPage() {
       setError(null)
       setRefreshing(true)
       
-      // Get the paginated response
+      // Get elements - now the response should be a direct array
       const response = await templateApi.getAllPPAPElements()
       
-      // Check if we got a valid array back
+      // Make sure we have an array
       if (!Array.isArray(response)) {
         throw new Error("Invalid response format from API")
       }

@@ -2,6 +2,7 @@
 from core.services.project.initialization import initialize_project, initialize_fastquery
 from core.services.project.functions import (
     update_project,
+    update_project_history,  # Add this new function
     delete_project,
     archive_project,
     get_project_details
@@ -12,6 +13,7 @@ __all__ = [
     'initialize_project',
     'initialize_fastquery',
     'update_project',
+    'update_project_history',  # Add this new function
     'delete_project',
     'archive_project',
     'get_project_details'

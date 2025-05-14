@@ -1,6 +1,54 @@
 import { HistoryEntry, NestedHistory } from "@/app/projects/[projectId]/history/types"
 import { API_ENDPOINTS } from "./api"
-import type { ApiError, PaginatedResponse, Project, Client, Team, OutputTemplate, Phase, PhaseTemplate, Document ,Department , DepartmentCreateRequest,DepartmentUpdateRequest ,History} from "./api-types"
+import type { 
+  User,
+  ApiError, 
+  PaginatedResponse, 
+  Project, 
+  Client, 
+  Team, 
+  OutputTemplate, 
+  Phase, 
+  PhaseTemplate, 
+  Document, 
+  Department, 
+  DepartmentCreateRequest,
+  DepartmentUpdateRequest, 
+  History, 
+  PhaseCreateRequest, 
+  PhaseUpdateRequest, 
+  PhaseHistoryUpdateRequest, 
+  Output, 
+  OutputCreateRequest, 
+  OutputUpdateRequest, 
+  OutputHistoryUpdateRequest,
+  DocumentUpdateRequest,
+  DocumentHistoryUpdateRequest,
+  // Add PPAP related types
+  PPAP,
+  PPAPCreateRequest,
+  PPAPUpdateRequest,
+  PPAPDetails,
+  PPAPElement,
+  
+  ProjectDetails,
+  ProjectCreateRequest,
+  ProjectUpdateRequest,
+  ProjectHistoryUpdateRequest,
+
+  Todo,
+  TodoCreateRequest,
+  TodoUpdateRequest,
+  TodoHistoryUpdateRequest,
+  TodoSummary,
+  TodoBulkCreateRequest,
+
+  OutputTemplateCreateRequest,
+  OutputTemplateUpdateRequest,
+
+  ClientCreateRequest,
+  ClientUpdateRequest,
+} from "./api-types"
 
 // Define DocumentData interface
 interface DocumentData extends Document {
@@ -250,12 +298,12 @@ export const authApi = {
     }
   },
 
-  getCurrentUser: async () => {
+  getCurrentUser: async (): Promise<User> => {  // Add proper return type
     try {
-      return await api.get(API_ENDPOINTS.authUser)
+      return await api.get<User>(API_ENDPOINTS.authUser);
     } catch (error: any) {
-      console.error("Get current user error:", error)
-      throw new Error(error.message || "Failed to get current user")
+      console.error("Get current user error:", error);
+      throw new Error(error.message || "Failed to get current user");
     }
   },
 
@@ -321,15 +369,15 @@ export const authApi = {
   }
 }
 
-// Project specific API functions
+// Project API functions
 export const projectApi = {
   getAllProjects: async () => {
     try {
-      const data = await api.get<PaginatedResponse<Project>>(API_ENDPOINTS.projects)
-      return data.results || []
+      const response = await api.get<PaginatedResponse<Project>>(API_ENDPOINTS.projects);
+      return response.results || [];
     } catch (error: any) {
-      console.error("Get all projects error:", error)
-      throw new Error(error.message || "Failed to get all projects")
+      console.error("Get all projects error:", error);
+      throw new Error(error.message || "Failed to get all projects");
     }
   },
 
@@ -340,67 +388,95 @@ export const projectApi = {
           Authorization: `Bearer ${getAuthToken()}`,
         },
         credentials: "include",
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch projects: ${response.statusText}`)
+        throw new Error(`Failed to fetch projects: ${response.statusText}`);
       }
 
-      return await response.json() as PaginatedResponse<Project>
+      return await response.json() as PaginatedResponse<Project>;
     } catch (error: any) {
-      console.error("Get projects page error:", error)
-      throw new Error(error.message || "Failed to get projects page")
+      console.error("Get projects page error:", error);
+      throw new Error(error.message || "Failed to get projects page");
     }
   },
 
   getProject: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.projects}${id}/`)
+      return await api.get<Project>(API_ENDPOINTS.project(id));
     } catch (error: any) {
-      console.error("Get project error:", error)
-      throw new Error(error.message || "Failed to get project")
+      console.error(`Get project ${id} error:`, error);
+      throw new Error(error.message || `Failed to get project ${id}`);
+    }
+  },
+  
+  getProjectDetails: async (id: number) => {
+    try {
+      return await api.get<ProjectDetails>(API_ENDPOINTS.projectDetails(id));
+    } catch (error: any) {
+      console.error(`Get project ${id} details error:`, error);
+      throw new Error(error.message || `Failed to get project ${id} details`);
     }
   },
 
-  createProject: async (data: any) => {
+  createProject: async (data: ProjectCreateRequest) => {
     try {
-      return await api.post(API_ENDPOINTS.projects, data)
+      return await api.post<Project>(API_ENDPOINTS.projects, data);
     } catch (error: any) {
-      console.error("Create project error:", error)
-      throw new Error(error.message || "Failed to create project")
+      console.error("Create project error:", error);
+      throw new Error(error.message || "Failed to create project");
     }
   },
 
-  updateProject: async (id: number, data: any) => {
+  updateProject: async (id: number, data: ProjectUpdateRequest) => {
     try {
-      return await api.put(`${API_ENDPOINTS.projects}${id}/`, data)
+      return await api.put<Project>(API_ENDPOINTS.project(id), data);
     } catch (error: any) {
-      console.error("Update project error:", error)
-      throw new Error(error.message || "Failed to update project")
+      console.error(`Update project ${id} error:`, error);
+      throw new Error(error.message || `Failed to update project ${id}`);
+    }
+  },
+
+  updateProjectHistory: async (id: number, historyData: ProjectHistoryUpdateRequest) => {
+    try {
+      return await api.put<History>(API_ENDPOINTS.updateProjectHistory(id), historyData);
+    } catch (error: any) {
+      console.error(`Update project ${id} history error:`, error);
+      throw new Error(error.message || `Failed to update project ${id} history`);
+    }
+  },
+
+  archiveProject: async (id: number) => {
+    try {
+      return await api.post<Project>(API_ENDPOINTS.archiveProject(id), {});
+    } catch (error: any) {
+      console.error(`Archive project ${id} error:`, error);
+      throw new Error(error.message || `Failed to archive project ${id}`);
     }
   },
 
   deleteProject: async (id: number) => {
     try {
-      return await api.delete(`${API_ENDPOINTS.projects}${id}/`)
+      return await api.delete(API_ENDPOINTS.project(id));
     } catch (error: any) {
-      console.error("Delete project error:", error)
-      throw new Error(error.message || "Failed to delete project")
+      console.error(`Delete project ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete project ${id}`);
     }
   },
 
   getProjectHistory: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.projects}${id}/history/`)
+      return await api.get<History[]>(API_ENDPOINTS.projectHistory(id));
     } catch (error: any) {
-      console.error("Get project history error:", error)
-      throw new Error(error.message || "Failed to get project history")
+      console.error(`Get project ${id} history error:`, error);
+      throw new Error(error.message || `Failed to get project ${id} history`);
     }
-  },
-}
+  }
+};
 
 // Phase specific API functions
 export const phaseApi = {
+  // Keep existing functions
   getAllPhases: async () => {
     try {
       return await api.get(API_ENDPOINTS.phases)
@@ -412,19 +488,51 @@ export const phaseApi = {
 
   getPhase: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.phases}${id}/`)
+      return await api.get<Phase>(`${API_ENDPOINTS.phases}${id}/`)
     } catch (error: any) {
       console.error("Get phase error:", error)
       throw new Error(error.message || "Failed to get phase")
     }
   },
 
-  updatePhase: async (id: number, data: any) => {
+  // Add new function for creating a phase with history attributes
+  createPhase: async (data: PhaseCreateRequest) => {
     try {
-      return await api.put(`${API_ENDPOINTS.phases}${id}/`, data)
+      return await api.post<Phase>(API_ENDPOINTS.phases, data)
+    } catch (error: any) {
+      console.error("Create phase error:", error)
+      throw new Error(error.message || "Failed to create phase")
+    }
+  },
+
+  // Update the existing updatePhase function to handle history attributes
+  updatePhase: async (id: number, data: PhaseUpdateRequest) => {
+    try {
+      return await api.put<Phase>(`${API_ENDPOINTS.phases}${id}/`, data)
     } catch (error: any) {
       console.error("Update phase error:", error)
       throw new Error(error.message || "Failed to update phase")
+    }
+  },
+
+  // Add new function for updating only history attributes
+  updatePhaseHistory: async (phaseId: number, historyData: PhaseHistoryUpdateRequest) => {
+    try {
+      const endpoint = API_ENDPOINTS.updatePhaseHistory.replace(':phaseId', phaseId.toString());
+      return await api.put<History>(endpoint, historyData);
+    } catch (error: any) {
+      console.error("Update phase history error:", error);
+      throw new Error(error.message || "Failed to update phase history");
+    }
+  },
+
+  // Get phase history records
+  getPhaseHistory: async (phaseId: number) => {
+    try {
+      return await api.get<History[]>(`${API_ENDPOINTS.phases}${phaseId}/history/`);
+    } catch (error: any) {
+      console.error("Get phase history error:", error);
+      throw new Error(error.message || "Failed to get phase history");
     }
   },
 
@@ -452,105 +560,128 @@ export const outputApi = {
     }
   },
 
+  getOutputsByPhase: async (phaseId: number) => {
+    try {
+      return await api.get(`${API_ENDPOINTS.outputs}?phase=${phaseId}`)
+    } catch (error: any) {
+      console.error("Get outputs by phase error:", error)
+      throw new Error(error.message || "Failed to get outputs for phase")
+    }
+  },
+
   getOutput: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.outputs}${id}/`)
+      return await api.get<Output>(API_ENDPOINTS.output(id))
     } catch (error: any) {
       console.error("Get output error:", error)
       throw new Error(error.message || "Failed to get output")
     }
   },
 
-  updateOutput: async (id: number, data: any) => {
+  createOutput: async (data: OutputCreateRequest) => {
     try {
-      return await api.put(`${API_ENDPOINTS.outputs}${id}/`, data)
+      return await api.post<Output>(API_ENDPOINTS.outputs, data)
+    } catch (error: any) {
+      console.error("Create output error:", error)
+      throw new Error(error.message || "Failed to create output")
+    }
+  },
+
+  updateOutput: async (id: number, data: OutputUpdateRequest) => {
+    try {
+      return await api.put<Output>(API_ENDPOINTS.output(id), data)
     } catch (error: any) {
       console.error("Update output error:", error)
       throw new Error(error.message || "Failed to update output")
     }
   },
 
-  assignPermission: async (userId: number, outputId: number, permissionType: "r" | "e") => {
+  deleteOutput: async (id: number) => {
     try {
-      return await api.post(API_ENDPOINTS.assignPermission, {
-        user_id: userId,
-        output_id: outputId,
-        permission_type: permissionType,
-      })
+      return await api.delete(API_ENDPOINTS.output(id))
     } catch (error: any) {
-      console.error("Assign permission error:", error)
-      throw new Error(error.message || "Failed to assign permission")
+      console.error("Delete output error:", error)
+      throw new Error(error.message || "Failed to delete output")
     }
   },
 
-  getAllOutputTemplates: async () => {
+  getOutputHistory: async (id: number) => {
     try {
-      // First, get all phase templates
-      const phaseTemplatesResponse = await api.get<PaginatedResponse<PhaseTemplate>>(API_ENDPOINTS.phaseTemplates);
-      
-      // Extract all output templates from all phases
-      if (Array.isArray(phaseTemplatesResponse.results)) {
-        const outputTemplates: OutputTemplate[] = [];
-        
-        // Loop through each phase template
-        phaseTemplatesResponse.results.forEach((phase: PhaseTemplate) => {
-          // If phase has output templates, add them to our array
-          if (Array.isArray(phase.output_templates)) {
-            phase.output_templates.forEach((template: OutputTemplate) => {
-              // Add phase information to make it easier to identify the phase
-              outputTemplates.push({
-                ...template,
-                phase_name: phase.name  // Add a reference to the phase name
-              });
-            });
-          }
-        });
-        
-        return outputTemplates;
-      }
-      
-      return [];
+      return await api.get<History[]>(API_ENDPOINTS.outputHistory(id))
     } catch (error: any) {
-      console.error("Get all output templates error:", error);
-      throw new Error(error.message || "Failed to get all output templates");
+      console.error("Get output history error:", error)
+      throw new Error(error.message || "Failed to get output history")
     }
   },
+
+  updateOutputHistory: async (id: number, historyData: OutputHistoryUpdateRequest) => {
+    try {
+      return await api.put<History>(API_ENDPOINTS.updateOutputHistory(id), historyData)
+    } catch (error: any) {
+      console.error("Update output history error:", error)
+      throw new Error(error.message || "Failed to update output history")
+    }
+  },
+  
+  addDocument: async (outputId: number, documentData: any) => {
+    try {
+      return await api.post(`${API_ENDPOINTS.output(outputId)}/documents/`, documentData)
+    } catch (error: any) {
+      console.error("Add document error:", error)
+      throw new Error(error.message || "Failed to add document")
+    }
+  }
 }
 
 // Document API functions
 export const documentApi = {
+  // Get all documents
   getAllDocuments: async () => {
     try {
-      const response = await api.get<PaginatedResponse<Document>>(API_ENDPOINTS.documents);
-      return response.results || [];
+      const response = await api.get<Document[]>(API_ENDPOINTS.documents);
+      return response;
     } catch (error: any) {
       console.error("Get all documents error:", error);
       throw new Error(error.message || "Failed to get all documents");
     }
   },
   
+  // Get documents by output ID
   getDocumentsByOutput: async (outputId: number) => {
     try {
-      const response = await api.get<PaginatedResponse<Document>>(`${API_ENDPOINTS.documents}?output=${outputId}`);
-      return response.results || [];
+      const response = await api.get<Document[]>(API_ENDPOINTS.documentsByOutput(outputId));
+      return response;
     } catch (error: any) {
       console.error(`Get documents for output ${outputId} error:`, error);
       throw new Error(error.message || `Failed to get documents for output ${outputId}`);
     }
   },
   
-  getDocument: async (id: number) => {
+  // Get documents by status
+  getDocumentsByStatus: async (status: string) => {
     try {
-      return await api.get(`${API_ENDPOINTS.documents}${id}/`)
+      const response = await api.get<Document[]>(API_ENDPOINTS.documentsByStatus(status));
+      return response;
     } catch (error: any) {
-      console.error(`Get document ${id} error:`, error)
-      throw new Error(error.message || `Failed to get document ${id}`)
+      console.error(`Get documents with status ${status} error:`, error);
+      throw new Error(error.message || `Failed to get documents with status ${status}`);
     }
   },
   
+  // Get a specific document by ID with history details
+  getDocument: async (id: number) => {
+    try {
+      return await api.get<Document>(API_ENDPOINTS.document(id));
+    } catch (error: any) {
+      console.error(`Get document ${id} error:`, error);
+      throw new Error(error.message || `Failed to get document ${id}`);
+    }
+  },
+  
+  // Upload a new document with FormData (supports history attributes)
   uploadDocument: async (formData: FormData) => {
     try {
-      const token = getAuthToken()
+      const token = getAuthToken();
       
       const response = await fetch(API_ENDPOINTS.documents, {
         method: 'POST',
@@ -559,38 +690,190 @@ export const documentApi = {
         },
         body: formData,
         credentials: 'include',
-      })
+      });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || `Upload failed with status ${response.status}`)
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Upload failed with status ${response.status}`);
       }
       
-      return await response.json()
+      return await response.json() as Document;
     } catch (error: any) {
-      console.error("Upload document error:", error)
-      throw new Error(error.message || "Failed to upload document")
+      console.error("Upload document error:", error);
+      throw new Error(error.message || "Failed to upload document");
     }
   },
   
-  updateDocument: async (id: number, data: any) => {
+  // Update document metadata with optional history attributes
+  updateDocument: async (id: number, data: DocumentUpdateRequest) => {
     try {
-      return await api.put(`${API_ENDPOINTS.documents}${id}/`, data)
+      return await api.put<Document>(API_ENDPOINTS.document(id), data);
     } catch (error: any) {
-      console.error(`Update document ${id} error:`, error)
-      throw new Error(error.message || `Failed to update document ${id}`)
+      console.error(`Update document ${id} error:`, error);
+      throw new Error(error.message || `Failed to update document ${id}`);
     }
   },
   
-  deleteDocument: async (id: number) => {
+  // Update only history attributes
+  updateDocumentHistory: async (id: number, historyData: DocumentHistoryUpdateRequest) => {
     try {
-      return await api.delete(`${API_ENDPOINTS.documents}${id}/`)
+      return await api.put<History>(API_ENDPOINTS.updateDocumentHistory(id), historyData);
     } catch (error: any) {
-      console.error(`Delete document ${id} error:`, error)
-      throw new Error(error.message || `Failed to delete document ${id}`)
+      console.error(`Update document ${id} history error:`, error);
+      throw new Error(error.message || `Failed to update document ${id} history`);
+    }
+  },
+  
+  // Get document history records
+  getDocumentHistory: async (id: number) => {
+    try {
+      return await api.get<History[]>(API_ENDPOINTS.documentHistory(id));
+    } catch (error: any) {
+      console.error(`Get document ${id} history error:`, error);
+      throw new Error(error.message || `Failed to get document ${id} history`);
+    }
+  },
+  
+  // Update document file
+  updateDocumentFile: async (id: number, formData: FormData) => {
+    try {
+      const token = getAuthToken();
+      
+      const response = await fetch(API_ENDPOINTS.updateDocumentFile(id), {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `File update failed with status ${response.status}`);
+      }
+      
+      return await response.json() as Document;
+    } catch (error: any) {
+      console.error(`Update document ${id} file error:`, error);
+      throw new Error(error.message || `Failed to update document ${id} file`);
+    }
+  },
+  
+  // Change document output
+  changeDocumentOutput: async (id: number, outputId: number) => {
+    try {
+      return await api.post<Document>(API_ENDPOINTS.changeDocumentOutput(id), { output_id: outputId });
+    } catch (error: any) {
+      console.error(`Change document ${id} output error:`, error);
+      throw new Error(error.message || `Failed to change document ${id} output`);
+    }
+  },
+  
+  // Delete document
+  deleteDocument: async (id: number, deleteFile: boolean = true) => {
+    try {
+      const url = `${API_ENDPOINTS.document(id)}?delete_file=${deleteFile}`;
+      return await api.delete(url);
+    } catch (error: any) {
+      console.error(`Delete document ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete document ${id}`);
     }
   }
-}
+};
+
+// Helper function for document upload with progress tracking and history support
+export const uploadDocumentWithProgress = async (
+  file: File, 
+  data: {
+    name: string;
+    output_id?: number;
+    uploader?: number;
+    version?: string;
+    status?: string;
+    history?: {
+      title?: string;
+      deadline?: string;
+      started_at?: string;
+      finished_at?: string;
+    };
+  },
+  onProgress?: (percent: number) => void
+): Promise<Document> => {
+  return new Promise<Document>((resolve, reject) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', data.name);
+    
+    if (data.output_id !== undefined) {
+      formData.append('output_id', data.output_id.toString());
+    }
+    
+    if (data.uploader !== undefined) {
+      formData.append('uploader', data.uploader.toString());
+    }
+    
+    if (data.version) {
+      formData.append('version', data.version);
+    }
+    
+    if (data.status) {
+      formData.append('status', data.status);
+    }
+    
+    if (data.history) {
+      formData.append('history', JSON.stringify(data.history));
+    }
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', API_ENDPOINTS.documents);
+    
+    const token = getAuthToken();
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+    }
+    
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        onProgress(percentComplete);
+      }
+    };
+    
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          resolve(response);
+        } catch (error) {
+          reject(new Error('Invalid response format'));
+        }
+      } else {
+        let errorMsg;
+        try {
+          const errorResponse = JSON.parse(xhr.responseText);
+          errorMsg = errorResponse.error || `Upload failed with status ${xhr.status}`;
+          
+          // Special handling for auth errors
+          if (xhr.status === 401 || xhr.status === 403) {
+            // Trigger token refresh or redirect to login
+            handleAuthError();
+          }
+        } catch(e) {
+          errorMsg = `Upload failed with status ${xhr.status}`;
+        }
+        reject(new Error(errorMsg));
+      }
+    };
+    
+    xhr.onerror = function() {
+      reject(new Error("Network error occurred during upload"));
+    };
+    
+    // Send the request
+    xhr.send(formData);
+  });
+};
 
 // Add this to your existing api-utils.ts file
 
@@ -712,47 +995,48 @@ export const getDashboard = async (level?: number) => {
 export const userApi = {
   getAllUsers: async () => {
     try {
-      const data = await api.get(API_ENDPOINTS.users)
-      return data
+      // Now API returns a direct array of users instead of paginated response
+      return await api.get<User[]>(API_ENDPOINTS.users);
     } catch (error: any) {
-      console.error("Get all users error:", error)
-      throw new Error(error.message || "Failed to get all users")
+      console.error("Get all users error:", error);
+      throw new Error(error.message || "Failed to get all users");
     }
   },
 
+  // Rest of userApi functions remain the same
   getUser: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.users}${id}/`)
+      return await api.get<User>(`${API_ENDPOINTS.users}${id}/`);
     } catch (error: any) {
-      console.error("Get user error:", error)
-      throw new Error(error.message || "Failed to get user")
+      console.error("Get user error:", error);
+      throw new Error(error.message || "Failed to get user");
     }
   },
 
   createUser: async (data: any) => {
     try {
-      return await api.post(API_ENDPOINTS.users, data)
+      return await api.post<User>(API_ENDPOINTS.users, data);
     } catch (error: any) {
-      console.error("Create user error:", error)
-      throw new Error(error.message || "Failed to create user")
+      console.error("Create user error:", error);
+      throw new Error(error.message || "Failed to create user");
     }
   },
 
   updateUser: async (id: number, data: any) => {
     try {
-      return await api.put(`${API_ENDPOINTS.users}${id}/`, data)
+      return await api.put<User>(`${API_ENDPOINTS.users}${id}/`, data);
     } catch (error: any) {
-      console.error("Update user error:", error)
-      throw new Error(error.message || "Failed to update user")
+      console.error("Update user error:", error);
+      throw new Error(error.message || "Failed to update user");
     }
   },
 
   deleteUser: async (id: number) => {
     try {
-      return await api.delete(`${API_ENDPOINTS.users}${id}/`)
+      return await api.delete(`${API_ENDPOINTS.users}${id}/`);
     } catch (error: any) {
-      console.error("Delete user error:", error)
-      throw new Error(error.message || "Failed to delete user")
+      console.error("Delete user error:", error);
+      throw new Error(error.message || "Failed to delete user");
     }
   },
 }
@@ -761,67 +1045,49 @@ export const userApi = {
 export const clientApi = {
   getAllClients: async () => {
     try {
-      const data = await api.get<PaginatedResponse<Client>>(API_ENDPOINTS.clients)
-      return data.results || []
+      // Modified to expect a direct array instead of paginated response
+      return await api.get<Client[]>(API_ENDPOINTS.clients);
     } catch (error: any) {
-      console.error("Get all clients error:", error)
-      throw new Error(error.message || "Failed to get all clients")
+      console.error("Get all clients error:", error);
+      throw new Error(error.message || "Failed to get all clients");
     }
   },
 
-  getClientsPage: async (url: string) => {
-    try {
-      const data = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
-        credentials: "include",
-      })
-
-      if (!data.ok) {
-        throw new Error(`Failed to fetch clients: ${data.statusText}`)
-      }
-
-      return (await data.json()) as PaginatedResponse<Client>
-    } catch (error: any) {
-      console.error("Get clients page error:", error)
-      throw new Error(error.message || "Failed to get clients page")
-    }
-  },
+  // Remove getClientsPage function since pagination is no longer needed
 
   getClient: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.clients}${id}/`)
+      return await api.get<Client>(`${API_ENDPOINTS.clients}${id}/`);
     } catch (error: any) {
-      console.error("Get client error:", error)
-      throw new Error(error.message || "Failed to get client")
+      console.error("Get client error:", error);
+      throw new Error(error.message || "Failed to get client");
     }
   },
 
-  createClient: async (data: any) => {
+  createClient: async (data: ClientCreateRequest) => {
     try {
-      return await api.post(API_ENDPOINTS.clients, data)
+      return await api.post<Client>(API_ENDPOINTS.clients, data);
     } catch (error: any) {
-      console.error("Create client error:", error)
-      throw new Error(error.message || "Failed to create client")
+      console.error("Create client error:", error);
+      throw new Error(error.message || "Failed to create client");
     }
   },
 
-  updateClient: async (id: number, data: any) => {
+  updateClient: async (id: number, data: ClientUpdateRequest) => {
     try {
-      return await api.put(`${API_ENDPOINTS.clients}${id}/`, data)
+      return await api.put<Client>(`${API_ENDPOINTS.clients}${id}/`, data);
     } catch (error: any) {
-      console.error("Update client error:", error)
-      throw new Error(error.message || "Failed to update client")
+      console.error("Update client error:", error);
+      throw new Error(error.message || "Failed to update client");
     }
   },
 
   deleteClient: async (id: number) => {
     try {
-      return await api.delete(`${API_ENDPOINTS.clients}${id}/`)
+      return await api.delete(`${API_ENDPOINTS.clients}${id}/`);
     } catch (error: any) {
-      console.error("Delete client error:", error)
-      throw new Error(error.message || "Failed to delete client")
+      console.error("Delete client error:", error);
+      throw new Error(error.message || "Failed to delete client");
     }
   },
 }
@@ -879,31 +1145,7 @@ export const templateApi = {
   // Output templates
   getAllOutputTemplates: async () => {
     try {
-      // First, get all phase templates
-      const phaseTemplatesResponse = await api.get<PaginatedResponse<PhaseTemplate>>(API_ENDPOINTS.phaseTemplates);
-      
-      // Extract all output templates from all phases
-      if (Array.isArray(phaseTemplatesResponse.results)) {
-        const outputTemplates: OutputTemplate[] = [];
-        
-        // Loop through each phase template
-        phaseTemplatesResponse.results.forEach((phase: PhaseTemplate) => {
-          // If phase has output templates, add them to our array
-          if (Array.isArray(phase.output_templates)) {
-            phase.output_templates.forEach((template: OutputTemplate) => {
-              // Add phase information to make it easier to identify the phase
-              outputTemplates.push({
-                ...template,
-                phase_name: phase.name  // Add a reference to the phase name
-              });
-            });
-          }
-        });
-        
-        return outputTemplates;
-      }
-      
-      return [];
+      return await api.get<OutputTemplate[]>(API_ENDPOINTS.outputTemplates);
     } catch (error: any) {
       console.error("Get all output templates error:", error);
       throw new Error(error.message || "Failed to get all output templates");
@@ -912,28 +1154,45 @@ export const templateApi = {
 
   getOutputTemplate: async (id: number) => {
     try {
-      return await api.get(`${API_ENDPOINTS.outputTemplates}${id}/`)
+      return await api.get<OutputTemplate>(`${API_ENDPOINTS.outputTemplates}${id}/`);
     } catch (error: any) {
-      console.error("Get output template error:", error)
-      throw new Error(error.message || "Failed to get output template")
+      console.error(`Get output template ${id} error:`, error);
+      throw new Error(error.message || `Failed to get output template ${id}`);
     }
   },
 
-  createOutputTemplate: async (data: any) => {
+  createOutputTemplate: async (data: OutputTemplateCreateRequest) => {
     try {
-      return await api.post(API_ENDPOINTS.outputTemplates, data)
+      // Convert from frontend form fields to API request format
+      const requestData = {
+        name: data.name,
+        description: data.description,
+        phase_id: data.phase_id,
+        ppap_element_id: data.ppap_element_id,
+        configuration: {
+          document_type: data.document_type || "document",
+          is_required: data.is_required !== undefined ? data.is_required : true,
+          is_active: data.is_active !== undefined ? data.is_active : true,
+          ...data.configuration
+        }
+      };
+      
+      return await api.post<OutputTemplate>(API_ENDPOINTS.outputTemplates, requestData);
     } catch (error: any) {
-      console.error("Create output template error:", error)
-      throw new Error(error.message || "Failed to create output template")
+      console.error("Create output template error:", error);
+      throw new Error(error.message || "Failed to create output template");
     }
   },
 
+  // This should be part of your templateApi object
   updateOutputTemplate: async (id: number, data: any) => {
     try {
-      return await api.put(`${API_ENDPOINTS.outputTemplates}${id}/`, data)
+      // No need to convert phase or ppap_element - send exactly as received
+      // The API expects phase and ppap_element, not phase_id and ppap_element_id
+      return await api.put<OutputTemplate>(`${API_ENDPOINTS.outputTemplates}${id}/`, data);
     } catch (error: any) {
-      console.error("Update output template error:", error)
-      throw new Error(error.message || "Failed to update output template")
+      console.error(`Update output template ${id} error:`, error);
+      throw new Error(error.message || `Failed to update output template ${id}`);
     }
   },
 
@@ -949,13 +1208,11 @@ export const templateApi = {
   // PPAP elements
   getAllPPAPElements: async () => {
     try {
-      const response = await api.get(API_ENDPOINTS.ppapElements)
-      // Return the results array from the paginated response
-      const data = response as PaginatedResponse<Client>;
-      return data.results || [];
+      // If pagination is disabled on the backend, the response will be a direct array
+      return await api.get<PPAPElement[]>(API_ENDPOINTS.ppapElements);
     } catch (error: any) {
-      console.error("Get all PPAP elements error:", error)
-      throw new Error(error.message || "Failed to get all PPAP elements")
+      console.error("Get all PPAP elements error:", error);
+      throw new Error(error.message || "Failed to get all PPAP elements");
     }
   },
 
@@ -1259,4 +1516,271 @@ export const departmentApi = {
       throw new Error(error.message || `Failed to get department ${id} teams`);
     }
   },
+};
+
+// PPAP API functions
+export const ppapApi = {
+  // Get all PPAPs
+  getAllPPAPs: async () => {
+    try {
+      const response = await api.get<PPAP[]>(API_ENDPOINTS.ppaps);
+      return response;
+    } catch (error: any) {
+      console.error("Get all PPAPs error:", error);
+      throw new Error(error.message || "Failed to get all PPAPs");
+    }
+  },
+  
+  // Get PPAPs by project ID
+  getPPAPsByProject: async (projectId: number) => {
+    try {
+      const response = await api.get<PPAP[]>(API_ENDPOINTS.ppapsByProject(projectId));
+      return response;
+    } catch (error: any) {
+      console.error(`Get PPAPs for project ${projectId} error:`, error);
+      throw new Error(error.message || `Failed to get PPAPs for project ${projectId}`);
+    }
+  },
+  
+  // Get a specific PPAP by ID
+  getPPAP: async (id: number) => {
+    try {
+      return await api.get<PPAP>(API_ENDPOINTS.ppap(id));
+    } catch (error: any) {
+      console.error(`Get PPAP ${id} error:`, error);
+      throw new Error(error.message || `Failed to get PPAP ${id}`);
+    }
+  },
+  
+  // Get detailed PPAP information including phases and outputs
+  getPPAPDetails: async (id: number) => {
+    try {
+      return await api.get<PPAPDetails>(API_ENDPOINTS.ppapDetails(id));
+    } catch (error: any) {
+      console.error(`Get PPAP ${id} details error:`, error);
+      throw new Error(error.message || `Failed to get PPAP ${id} details`);
+    }
+  },
+  
+  // Create a new PPAP
+  createPPAP: async (data: PPAPCreateRequest) => {
+    try {
+      return await api.post<PPAP>(API_ENDPOINTS.ppaps, data);
+    } catch (error: any) {
+      console.error("Create PPAP error:", error);
+      throw new Error(error.message || "Failed to create PPAP");
+    }
+  },
+  
+  // Update an existing PPAP
+  updatePPAP: async (id: number, data: PPAPUpdateRequest) => {
+    try {
+      return await api.put<PPAP>(API_ENDPOINTS.ppap(id), data);
+    } catch (error: any) {
+      console.error(`Update PPAP ${id} error:`, error);
+      throw new Error(error.message || `Failed to update PPAP ${id}`);
+    }
+  },
+  
+  // Delete a PPAP
+  deletePPAP: async (id: number) => {
+    try {
+      return await api.delete(API_ENDPOINTS.ppap(id));
+    } catch (error: any) {
+      console.error(`Delete PPAP ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete PPAP ${id}`);
+    }
+  },
+  
+  // Get PPAP history records
+  getPPAPHistory: async (id: number) => {
+    try {
+      return await api.get<History[]>(API_ENDPOINTS.ppapHistory(id));
+    } catch (error: any) {
+      console.error(`Get PPAP ${id} history error:`, error);
+      throw new Error(error.message || `Failed to get PPAP ${id} history`);
+    }
+  },
+  
+  // Record PPAP customer submission
+  recordCustomerSubmission: async (id: number, submissionDate?: string) => {
+    try {
+      return await api.post<PPAP>(API_ENDPOINTS.ppapCustomerSubmission(id), {
+        submission_date: submissionDate || new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error(`Record customer submission for PPAP ${id} error:`, error);
+      throw new Error(error.message || `Failed to record customer submission for PPAP ${id}`);
+    }
+  },
+  
+  // Record customer decision on PPAP
+  recordCustomerDecision: async (id: number, decision: string, comments?: string) => {
+    try {
+      return await api.post<PPAP>(API_ENDPOINTS.ppapCustomerDecision(id), {
+        decision,
+        comments
+      });
+    } catch (error: any) {
+      console.error(`Record customer decision for PPAP ${id} error:`, error);
+      throw new Error(error.message || `Failed to record customer decision for PPAP ${id}`);
+    }
+  }
+};
+
+// Todo API functions
+export const todoApi = {
+  // Get all todos
+  getAllTodos: async () => {
+    try {
+      const response = await api.get<Todo[]>(API_ENDPOINTS.todos);
+      return response;
+    } catch (error: any) {
+      console.error("Get all todos error:", error);
+      throw new Error(error.message || "Failed to get all todos");
+    }
+  },
+  
+  // Get todos by user ID
+  getTodosByUser: async (userId: number) => {
+    try {
+      const response = await api.get<Todo[]>(API_ENDPOINTS.todosByUser(userId));
+      return response;
+    } catch (error: any) {
+      console.error(`Get todos for user ${userId} error:`, error);
+      throw new Error(error.message || `Failed to get todos for user ${userId}`);
+    }
+  },
+  
+  // Get todos by output ID
+  getTodosByOutput: async (outputId: number) => {
+    try {
+      const response = await api.get<Todo[]>(API_ENDPOINTS.todosByOutput(outputId));
+      return response;
+    } catch (error: any) {
+      console.error(`Get todos for output ${outputId} error:`, error);
+      throw new Error(error.message || `Failed to get todos for output ${outputId}`);
+    }
+  },
+  
+  // Get todos by status
+  getTodosByStatus: async (status: string) => {
+    try {
+      const response = await api.get<Todo[]>(API_ENDPOINTS.todosByStatus(status));
+      return response;
+    } catch (error: any) {
+      console.error(`Get todos with status ${status} error:`, error);
+      throw new Error(error.message || `Failed to get todos with status ${status}`);
+    }
+  },
+  
+  // Get a specific todo by ID
+  getTodo: async (id: number) => {
+    try {
+      return await api.get<Todo>(API_ENDPOINTS.todo(id));
+    } catch (error: any) {
+      console.error(`Get todo ${id} error:`, error);
+      throw new Error(error.message || `Failed to get todo ${id}`);
+    }
+  },
+  
+  // Create a new todo
+  createTodo: async (data: TodoCreateRequest) => {
+    try {
+      return await api.post<Todo>(API_ENDPOINTS.todos, data);
+    } catch (error: any) {
+      console.error("Create todo error:", error);
+      throw new Error(error.message || "Failed to create todo");
+    }
+  },
+  
+  // Update a todo
+  updateTodo: async (id: number, data: TodoUpdateRequest) => {
+    try {
+      return await api.put<Todo>(API_ENDPOINTS.todo(id), data);
+    } catch (error: any) {
+      console.error(`Update todo ${id} error:`, error);
+      throw new Error(error.message || `Failed to update todo ${id}`);
+    }
+  },
+  
+  // Update only history attributes
+  updateTodoHistory: async (id: number, historyData: TodoHistoryUpdateRequest) => {
+    try {
+      return await api.put<History>(API_ENDPOINTS.updateTodoHistory(id), historyData);
+    } catch (error: any) {
+      console.error(`Update todo ${id} history error:`, error);
+      throw new Error(error.message || `Failed to update todo ${id} history`);
+    }
+  },
+  
+  // Get todo history
+  getTodoHistory: async (id: number) => {
+    try {
+      return await api.get<History>(API_ENDPOINTS.todoHistory(id));
+    } catch (error: any) {
+      console.error(`Get todo ${id} history error:`, error);
+      throw new Error(error.message || `Failed to get todo ${id} history`);
+    }
+  },
+  
+  // Change todo status
+  changeTodoStatus: async (id: number, status: string) => {
+    try {
+      return await api.post<Todo>(API_ENDPOINTS.changeTodoStatus(id), { status });
+    } catch (error: any) {
+      console.error(`Change todo ${id} status error:`, error);
+      throw new Error(error.message || `Failed to change todo ${id} status`);
+    }
+  },
+  
+  // Reassign todo to another person
+  reassignTodo: async (id: number, personId: number) => {
+    try {
+      return await api.post<Todo>(API_ENDPOINTS.reassignTodo(id), { person_id: personId });
+    } catch (error: any) {
+      console.error(`Reassign todo ${id} error:`, error);
+      throw new Error(error.message || `Failed to reassign todo ${id}`);
+    }
+  },
+  
+  // Delete todo
+  deleteTodo: async (id: number) => {
+    try {
+      return await api.delete(API_ENDPOINTS.todo(id));
+    } catch (error: any) {
+      console.error(`Delete todo ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete todo ${id}`);
+    }
+  },
+  
+  // Get user todos (summary format)
+  getUserTodos: async (userId: number) => {
+    try {
+      return await api.get<TodoSummary[]>(`${API_ENDPOINTS.userTodos}?user_id=${userId}`);
+    } catch (error: any) {
+      console.error(`Get user ${userId} todos error:`, error);
+      throw new Error(error.message || `Failed to get user ${userId} todos`);
+    }
+  },
+  
+  // Get pending todos (summary format)
+  getPendingTodos: async (userId: number) => {
+    try {
+      return await api.get<TodoSummary[]>(`${API_ENDPOINTS.pendingTodos}?user_id=${userId}`);
+    } catch (error: any) {
+      console.error(`Get pending todos for user ${userId} error:`, error);
+      throw new Error(error.message || `Failed to get pending todos for user ${userId}`);
+    }
+  },
+  
+  // Bulk create todos
+  bulkCreateTodos: async (data: TodoBulkCreateRequest) => {
+    try {
+      return await api.post(API_ENDPOINTS.bulkCreateTodos, data);
+    } catch (error: any) {
+      console.error("Bulk create todos error:", error);
+      throw new Error(error.message || "Failed to bulk create todos");
+    }
+  }
 };

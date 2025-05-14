@@ -23,6 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [PublicRegistrationPermission]
+    pagination_class = None  # Disable pagination for users
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -37,6 +38,10 @@ class UserViewSet(viewsets.ModelViewSet):
         phone = request.data.get('phone')
         address = request.data.get('address')
         department_id = request.data.get('department_id')
+        
+        # Extract person role fields
+        role = request.data.get('role')
+        replacer_id = request.data.get('replacer_id')
         
         # Determine if this is a public registration
         is_public_registration = not request.user.is_authenticated if hasattr(request, 'user') else True
@@ -92,7 +97,22 @@ class UserViewSet(viewsets.ModelViewSet):
                     
                     # Mark the person as a user
                     person.is_user = True
-                    person.save(update_fields=['is_user'])
+                    
+                    # Update role and replacer if provided
+                    if role is not None:
+                        person.role = role
+                    
+                    if replacer_id is not None:
+                        try:
+                            replacer = Person.objects.get(id=replacer_id)
+                            person.replacer = replacer
+                        except Person.DoesNotExist:
+                            return Response(
+                                {"error": f"Replacer with ID {replacer_id} not found"},
+                                status=status.HTTP_404_NOT_FOUND
+                            )
+                            
+                    person.save()
                     
                 except Person.DoesNotExist:
                     return Response(
@@ -101,12 +121,31 @@ class UserViewSet(viewsets.ModelViewSet):
                     )
             else:
                 # Create a new person
-                person = Person.objects.create(
-                    first_name=first_name,
-                    last_name=last_name,
-                    department_id=department_id,
-                    is_user=True
-                )
+                person_data = {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'department_id': department_id,
+                    'is_user': True,
+                }
+                
+                # Add role if provided
+                if role is not None:
+                    person_data['role'] = role
+                    
+                # Create the person first (without replacer)
+                person = Person.objects.create(**person_data)
+                
+                # Add replacer separately if provided (to avoid circular issues)
+                if replacer_id is not None:
+                    try:
+                        replacer = Person.objects.get(id=replacer_id)
+                        person.replacer = replacer
+                        person.save(update_fields=['replacer'])
+                    except Person.DoesNotExist:
+                        return Response(
+                            {"error": f"Replacer with ID {replacer_id} not found"},
+                            status=status.HTTP_404_NOT_FOUND
+                        )
             
             # Ensure contact exists for the person
             try:
@@ -181,6 +220,10 @@ class UserViewSet(viewsets.ModelViewSet):
         # Extract person data if provided
         person_data = request.data.get('person_data', {})
         
+        # Extract role and replacer directly from request or from person_data
+        role = request.data.get('role', person_data.get('role'))
+        replacer_id = request.data.get('replacer_id', person_data.get('replacer_id'))
+        
         try:
             # Track what fields are updated
             user_updated_fields = []
@@ -241,10 +284,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 record_user_password_change(user)
             
             # Update person data if provided
-            if person_data:
+            if person_data or role is not None or replacer_id is not None:
                 person = user.person
                 old_first_name = person.first_name
                 old_last_name = person.last_name
+                old_role = person.role
+                old_replacer_id = person.replacer_id
                 name_changed = False
                 
                 # Update person fields if provided
@@ -286,6 +331,41 @@ class UserViewSet(viewsets.ModelViewSet):
                             # Record department change
                             from core.services.history.person import record_person_department_change
                             record_person_department_change(person, old_department_id, None)
+                
+                # Update role if provided
+                if role is not None and role != person.role:
+                    person.role = role
+                    person_updated_fields.append('role')
+                    
+                    # Add history recording for role change
+                    from core.services.history.person import record_person_role_change
+                    record_person_role_change(person, old_role, role)
+                
+                # Update replacer if provided
+                if replacer_id is not None and str(replacer_id) != str(old_replacer_id):
+                    if replacer_id:
+                        try:
+                            from core.models import Person as PersonModel
+                            replacer = PersonModel.objects.get(id=replacer_id)
+                            person.replacer = replacer
+                            person_updated_fields.append('replacer')
+                            
+                            # Record replacer change in history
+                            from core.services.history.person import record_person_replacer_change
+                            record_person_replacer_change(person, old_replacer_id, replacer_id)
+                        except PersonModel.DoesNotExist:
+                            return Response(
+                                {"error": f"Replacer with ID {replacer_id} not found"},
+                                status=status.HTTP_404_NOT_FOUND
+                            )
+                    else:
+                        # Set replacer to None if empty value provided
+                        person.replacer = None
+                        person_updated_fields.append('replacer')
+                        
+                        # Record replacer removal in history
+                        from core.services.history.person import record_person_replacer_change
+                        record_person_replacer_change(person, old_replacer_id, None)
                 
                 # Save person changes if any fields were updated
                 if person_updated_fields:
