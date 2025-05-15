@@ -18,6 +18,7 @@ from core.services.history.contact import record_contact_creation
 class PersonViewSet(viewsets.ModelViewSet):
     queryset = Person.objects.all()
     serializer_class = PersonSerializer
+    pagination_class = None  # Remove pagination for this viewset
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):

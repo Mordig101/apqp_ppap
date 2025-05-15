@@ -1,1157 +1,1905 @@
+get team respense (when I did remove pignantion )
 [
   {
-    "id": 3,
-    "contact_details": null,
-    "team_details": {
-      "id": 15,
-      "name": "team",
-      "description": "Updated team description",
-      "history_id": "15team",
-      "members": [
-        {
-          "id": 62,
-          "first_name": "Samuel",
-          "last_name": "Anderson",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "62person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+    "id": 16,
+    "members": [
+      {
+        "id": 93,
+        "teams": [
+          {
+            "id": 16,
+            "name": "Client Support Team"
           }
-        },
-        {
-          "id": 56,
-          "first_name": "Julie",
-          "last_name": "Black",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "56person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 51,
-          "first_name": "Christopher",
-          "last_name": "Dawson",
-          "role": "Design Engineer",
-          "contact_details": {
-            "id": "51person",
-            "email": "garzashannon@example.net",
-            "phone": "+1-277-680-3070x896",
-            "address": "638 Hanson Fords\nPort Jonathanport, AK 30486"
-          }
-        },
-        {
-          "id": 59,
-          "first_name": "Steve",
-          "last_name": "Douglas",
-          "role": "Test Engineer",
-          "contact_details": {
-            "id": "59person",
-            "email": "heather26@example.com",
-            "phone": "214.897.6548",
-            "address": "3865 Reid Plaza\nHenrychester, MS 07243"
-          }
-        },
-        {
-          "id": 53,
-          "first_name": "Anthony",
-          "last_name": "Miller",
-          "role": "Technical Lead",
-          "contact_details": {
-            "id": "53person",
-            "email": "philipallen@example.net",
-            "phone": "+1-308-261-5453x652",
-            "address": "41427 Rebecca Prairie\nDianemouth, CT 81974"
-          }
-        },
-        {
-          "id": 85,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "85person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 87,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "87person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 81,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "81person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 83,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "83person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 86,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "86person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 82,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "82person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 80,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Account Manager",
-          "contact_details": {
-            "id": "80person",
-            "email": "john.smith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 84,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "84person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        }
-      ]
-    },
-    "history_details": {
-      "id": "3history",
-      "title": "Ballard-Lee",
-      "table_name": "client",
-      "created_at": "2025-05-12T15:33:52.479428Z",
-      "started_at": null,
-      "updated_at": null,
-      "deadline": null,
-      "finished_at": null,
-      "events": [
-        {
-          "type": "unknown",
-          "details": "Client created",
-          "timestamp": "2025-05-12T15:33:52.479428+00:00"
-        }
-      ]
-    },
-    "name": "Ballard-Lee",
-    "address": "460 Dylan Road Apt. 699\nSouth Davidville, HI 95652",
-    "code": {
-      "DUNS": "190851084",
-      "Fiscal": "FC-598054"
-    },
-    "description": "Sharable discrete model",
-    "contact_id": "3client",
-    "history_id": "3history",
-    "team": 15
-  },
-  {
-    "id": 2,
-    "contact_details": null,
-    "team_details": {
-      "id": 15,
-      "name": "team",
-      "description": "Updated team description",
-      "history_id": "15team",
-      "members": [
-        {
-          "id": 62,
-          "first_name": "Samuel",
-          "last_name": "Anderson",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "62person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 56,
-          "first_name": "Julie",
-          "last_name": "Black",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "56person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 51,
-          "first_name": "Christopher",
-          "last_name": "Dawson",
-          "role": "Design Engineer",
-          "contact_details": {
-            "id": "51person",
-            "email": "garzashannon@example.net",
-            "phone": "+1-277-680-3070x896",
-            "address": "638 Hanson Fords\nPort Jonathanport, AK 30486"
-          }
-        },
-        {
-          "id": 59,
-          "first_name": "Steve",
-          "last_name": "Douglas",
-          "role": "Test Engineer",
-          "contact_details": {
-            "id": "59person",
-            "email": "heather26@example.com",
-            "phone": "214.897.6548",
-            "address": "3865 Reid Plaza\nHenrychester, MS 07243"
-          }
-        },
-        {
-          "id": 53,
-          "first_name": "Anthony",
-          "last_name": "Miller",
-          "role": "Technical Lead",
-          "contact_details": {
-            "id": "53person",
-            "email": "philipallen@example.net",
-            "phone": "+1-308-261-5453x652",
-            "address": "41427 Rebecca Prairie\nDianemouth, CT 81974"
-          }
-        },
-        {
-          "id": 85,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "85person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 87,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "87person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 81,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "81person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 83,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "83person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 86,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "86person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 82,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "82person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 80,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Account Manager",
-          "contact_details": {
-            "id": "80person",
-            "email": "john.smith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 84,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "84person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        }
-      ]
-    },
-    "history_details": {
-      "id": "2history",
-      "title": "Bowman LLC",
-      "table_name": "client",
-      "created_at": "2025-05-12T15:33:52.480079Z",
-      "started_at": null,
-      "updated_at": "2025-02-08T13:51:52Z",
-      "deadline": null,
-      "finished_at": null,
-      "events": [
-        {
-          "type": "unknown",
-          "details": "Client created",
-          "timestamp": "2025-05-12T15:33:52.480079+00:00"
-        }
-      ]
-    },
-    "name": "Bowman LLC",
-    "address": "946 Reed Mission Suite 300\nSouth Jamesshire, WA 59946",
-    "code": {
-      "DUNS": "093411749",
-      "Fiscal": "FC-109430"
-    },
-    "description": "Optimized bandwidth-monitored infrastructure",
-    "contact_id": "2client",
-    "history_id": "2history",
-    "team": 15
-  },
-  {
-    "id": 10,
-    "contact_details": {
-      "id": "10client",
-      "email": "contact@clientcompany.com",
-      "phone": "123-456-7890",
-      "address": "123 Client Street, City",
-      "type": "client"
-    },
-    "team_details": {
-      "id": 17,
-      "name": "Client Support Team",
-      "description": "Team working with this client",
-      "history_id": "17team",
-      "members": [
-        {
-          "id": 79,
-          "first_name": "Sarah",
-          "last_name": "Johnson",
-          "role": "Technical Lead",
-          "contact_details": {
-            "id": "79person",
-            "email": "sarah.j@example.com",
-            "phone": "555-123-4567",
-            "address": "789 Developer Ave"
-          }
-        },
-        {
-          "id": 78,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Account Manager",
-          "contact_details": {
-            "id": "78person",
-            "email": "john.smith@example.com",
-            "phone": "987-654-3210",
-            "address": "456 Team Member St"
-          }
-        }
-      ]
-    },
-    "history_details": {
-      "id": "10history",
-      "title": "Client Company Name",
-      "table_name": "client",
-      "created_at": "2025-05-14T11:41:58.291927Z",
-      "started_at": "2025-05-14T11:41:58.291815Z",
-      "updated_at": null,
-      "deadline": null,
-      "finished_at": null,
-      "events": [
-        {
-          "type": "create",
-          "details": "Client created with ID 10",
-          "timestamp": "2025-05-14T11:41:58.291784+00:00"
-        }
-      ]
-    },
-    "name": "Client Company Name",
-    "address": "123 Client Street, City",
-    "code": {
-      "DUNS": "12345678",
-      "Fiscal": "FC-123456"
-    },
-    "description": "Description of the client",
-    "contact_id": "10client",
-    "history_id": "10history",
-    "team": 17
-  },
-  {
-    "id": 9,
-    "contact_details": {
-      "id": "9client",
-      "email": "contact@clientcompany.com",
-      "phone": "123-456-7890",
-      "address": "123 Client Street, City",
-      "type": "client"
-    },
-    "team_details": {
-      "id": 16,
-      "name": "Client Support Team",
-      "description": "Team working with this client",
-      "history_id": "16team",
-      "members": []
-    },
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Abderrahmane",
+        "last_name": "hafdane",
+        "contact_id": "93person",
+        "is_user": false,
+        "history_id": "93person",
+        "role": "hhhhhhh",
+        "department": null,
+        "replacer": null
+      }
+    ],
     "history_details": null,
-    "name": "Client Company Name",
-    "address": "123 Client Street, City",
-    "code": {
-      "DUNS": "12345678",
-      "Fiscal": "FC-123456"
-    },
-    "description": "Description of the client",
-    "contact_id": "9client",
-    "history_id": "9history",
-    "team": 16
+    "name": "Client Support Team",
+    "description": "Team working with this client",
+    "history_id": "16team",
+    "is_user_team": false
   },
   {
-    "id": 8,
-    "contact_details": {
-      "id": "8client",
-      "email": "",
-      "phone": "",
-      "address": "<ssds",
-      "type": "client"
-    },
-    "team_details": null,
-    "history_details": {
-      "id": "8history",
-      "title": "Abderrahmane hafdane",
-      "table_name": "client",
-      "created_at": "2025-05-13T13:01:28.731895Z",
-      "started_at": "2025-05-13T13:01:28.731756Z",
-      "updated_at": "2025-05-14T11:16:09.554312Z",
-      "deadline": null,
-      "finished_at": null,
-      "events": [
-        {
-          "type": "create",
-          "details": "Client created with ID 8",
-          "timestamp": "2025-05-13T13:01:28.731714+00:00"
-        },
-        {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, description",
-          "timestamp": "2025-05-14T11:16:09.554312+00:00"
-        }
-      ]
-    },
-    "name": "Updated Client Name",
-    "address": "456 New Address St",
-    "code": {},
-    "description": "Updated description",
-    "contact_id": "8client",
-    "history_id": "8history",
-    "team": null
+    "id": 17,
+    "members": [
+      {
+        "id": 103,
+        "teams": [
+          {
+            "id": 17,
+            "name": "Client Support Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Samuel",
+        "last_name": "Anderson",
+        "contact_id": "103person",
+        "is_user": false,
+        "history_id": "103person",
+        "role": "Senior Manager",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 104,
+        "teams": [
+          {
+            "id": 17,
+            "name": "Client Support Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Julie",
+        "last_name": "Black",
+        "contact_id": "104person",
+        "is_user": false,
+        "history_id": "104person",
+        "role": "Project Manager",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 105,
+        "teams": [
+          {
+            "id": 17,
+            "name": "Client Support Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Christopher",
+        "last_name": "Dawson",
+        "contact_id": "105person",
+        "is_user": false,
+        "history_id": "105person",
+        "role": "Design Engineer",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 106,
+        "teams": [
+          {
+            "id": 17,
+            "name": "Client Support Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Steve",
+        "last_name": "Douglas",
+        "contact_id": "106person",
+        "is_user": false,
+        "history_id": "106person",
+        "role": "Test Engineer",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 107,
+        "teams": [
+          {
+            "id": 17,
+            "name": "Client Support Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Anthony",
+        "last_name": "Miller",
+        "contact_id": "107person",
+        "is_user": false,
+        "history_id": "107person",
+        "role": "Technical Lead",
+        "department": null,
+        "replacer": null
+      }
+    ],
+    "history_details": null,
+    "name": "Client Support Team",
+    "description": "Team working with this client",
+    "history_id": "17team",
+    "is_user_team": false
   },
   {
-    "id": 5,
-    "contact_details": {
-      "id": "5client",
-      "email": "updated@clientcompany.com",
-      "phone": "999-888-7777",
-      "address": "New Address, City",
-      "type": "client"
-    },
-    "team_details": {
-      "id": 15,
-      "name": "team",
-      "description": "Updated team description",
-      "history_id": "15team",
-      "members": [
-        {
-          "id": 62,
-          "first_name": "Samuel",
-          "last_name": "Anderson",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "62person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+    "id": 11,
+    "members": [
+      {
+        "id": 56,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "56person",
+          "title": "Julie Black",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.491524Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.491524+00:00"
+            }
+          ]
         },
-        {
-          "id": 56,
-          "first_name": "Julie",
-          "last_name": "Black",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "56person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Julie",
+        "last_name": "Black",
+        "contact_id": "56person",
+        "is_user": true,
+        "history_id": "56person",
+        "role": "Project Manager",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 50,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "50person",
+          "title": "Karen Davies",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.493511Z",
+          "started_at": null,
+          "updated_at": "2025-04-04T22:33:53Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.493511+00:00"
+            }
+          ]
         },
-        {
-          "id": 51,
-          "first_name": "Christopher",
-          "last_name": "Dawson",
-          "role": "Design Engineer",
-          "contact_details": {
-            "id": "51person",
-            "email": "garzashannon@example.net",
-            "phone": "+1-277-680-3070x896",
-            "address": "638 Hanson Fords\nPort Jonathanport, AK 30486"
+        "first_name": "Karen",
+        "last_name": "Davies",
+        "contact_id": "50person",
+        "is_user": false,
+        "history_id": "50person",
+        "role": "Operations Manager",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 54,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "54person",
+          "title": "Adam Gray",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.497349Z",
+          "started_at": null,
+          "updated_at": "2024-10-09T14:53:22Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.497349+00:00"
+            }
+          ]
         },
-        {
-          "id": 59,
-          "first_name": "Steve",
-          "last_name": "Douglas",
-          "role": "Test Engineer",
-          "contact_details": {
-            "id": "59person",
-            "email": "heather26@example.com",
-            "phone": "214.897.6548",
-            "address": "3865 Reid Plaza\nHenrychester, MS 07243"
+        "first_name": "Adam",
+        "last_name": "Gray",
+        "contact_id": "54person",
+        "is_user": true,
+        "history_id": "54person",
+        "role": "Quality Assurance Lead",
+        "department": 11,
+        "replacer": null
+      },
+      {
+        "id": 64,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "64person",
+          "title": "Richard Moore",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.503710Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.503710+00:00"
+            }
+          ]
         },
-        {
-          "id": 53,
-          "first_name": "Anthony",
-          "last_name": "Miller",
-          "role": "Technical Lead",
-          "contact_details": {
-            "id": "53person",
-            "email": "philipallen@example.net",
-            "phone": "+1-308-261-5453x652",
-            "address": "41427 Rebecca Prairie\nDianemouth, CT 81974"
+        "first_name": "Richard",
+        "last_name": "Moore",
+        "contact_id": "64person",
+        "is_user": true,
+        "history_id": "64person",
+        "role": "Manufacturing Engineer",
+        "department": 12,
+        "replacer": null
+      },
+      {
+        "id": 65,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "65person",
+          "title": "Nicole Perez",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.504355Z",
+          "started_at": null,
+          "updated_at": "2025-02-05T02:27:27Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.504355+00:00"
+            }
+          ]
         },
-        {
-          "id": 85,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "85person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Nicole",
+        "last_name": "Perez",
+        "contact_id": "65person",
+        "is_user": true,
+        "history_id": "65person",
+        "role": "Manufacturing Engineer",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 58,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "58person",
+          "title": "Justin Smith",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.508646Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.508646+00:00"
+            }
+          ]
         },
-        {
-          "id": 87,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "87person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Justin",
+        "last_name": "Smith",
+        "contact_id": "58person",
+        "is_user": true,
+        "history_id": "58person",
+        "role": "Quality Assurance Lead",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 61,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "61person",
+          "title": "Peter Smith",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.509268Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.509268+00:00"
+            }
+          ]
         },
-        {
-          "id": 81,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "81person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Peter",
+        "last_name": "Smith",
+        "contact_id": "61person",
+        "is_user": true,
+        "history_id": "61person",
+        "role": "Quality Assurance Lead",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 67,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "67person",
+          "title": "Christy Williams",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.511443Z",
+          "started_at": null,
+          "updated_at": "2025-02-26T05:37:37Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.511443+00:00"
+            }
+          ]
         },
-        {
-          "id": 83,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "83person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 86,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "86person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 82,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "82person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 80,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Account Manager",
-          "contact_details": {
-            "id": "80person",
-            "email": "john.smith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 84,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "84person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        }
-      ]
-    },
+        "first_name": "Christy",
+        "last_name": "Williams",
+        "contact_id": "67person",
+        "is_user": true,
+        "history_id": "67person",
+        "role": "Design Engineer",
+        "department": 13,
+        "replacer": null
+      }
+    ],
     "history_details": {
-      "id": "5history",
-      "title": "Avery LLC",
-      "table_name": "client",
-      "created_at": "2025-05-12T15:33:52.478287Z",
+      "id": "11team",
+      "title": "Engineering Team",
+      "table_name": "team",
+      "created_at": "2025-05-12T15:33:52.485102Z",
       "started_at": null,
-      "updated_at": "2025-05-14T12:04:44.015864Z",
+      "updated_at": "2025-03-22T22:38:22Z",
       "deadline": null,
       "finished_at": null,
       "events": [
         {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:03:09.606323+00:00"
-        },
-        {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:04:24.516511+00:00"
-        },
-        {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:04:44.015864+00:00"
+          "type": "unknown",
+          "details": "Team created",
+          "timestamp": "2025-05-12T15:33:52.485102+00:00"
         }
       ]
     },
-    "name": "Updated Client Name",
-    "address": "Updated Address, City",
-    "code": {
-      "DUNS": "87654321",
-      "Fiscal": "FC-654321"
-    },
-    "description": "Updated description",
-    "contact_id": "5client",
-    "history_id": "5history",
-    "team": 15
+    "name": "Engineering Team",
+    "description": "Team responsible for engineering tasks",
+    "history_id": "11team",
+    "is_user_team": true
   },
   {
-    "id": 6,
-    "contact_details": {
-      "id": "6client",
-      "email": "updated@clientcompany.com",
-      "phone": "999-888-7777",
-      "address": "New Address, City",
-      "type": "client"
-    },
-    "team_details": {
-      "id": 15,
-      "name": "team",
-      "description": "Updated team description",
-      "history_id": "15team",
-      "members": [
-        {
-          "id": 62,
-          "first_name": "Samuel",
-          "last_name": "Anderson",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "62person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+    "id": 14,
+    "members": [
+      {
+        "id": 88,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Samuel",
+        "last_name": "Anderson",
+        "contact_id": "88person",
+        "is_user": false,
+        "history_id": "88person",
+        "role": "Senior Manager",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 89,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Julie",
+        "last_name": "Black",
+        "contact_id": "89person",
+        "is_user": false,
+        "history_id": "89person",
+        "role": "Project Manager",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 51,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "51person",
+          "title": "Christopher Dawson",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.494858Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.494858+00:00"
+            }
+          ]
         },
-        {
-          "id": 56,
-          "first_name": "Julie",
-          "last_name": "Black",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "56person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Christopher",
+        "last_name": "Dawson",
+        "contact_id": "51person",
+        "is_user": false,
+        "history_id": "51person",
+        "role": "Design Engineer",
+        "department": 12,
+        "replacer": null
+      },
+      {
+        "id": 90,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
           }
-        },
-        {
-          "id": 51,
-          "first_name": "Christopher",
-          "last_name": "Dawson",
-          "role": "Design Engineer",
-          "contact_details": {
-            "id": "51person",
-            "email": "garzashannon@example.net",
-            "phone": "+1-277-680-3070x896",
-            "address": "638 Hanson Fords\nPort Jonathanport, AK 30486"
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Steve",
+        "last_name": "Douglas",
+        "contact_id": "90person",
+        "is_user": false,
+        "history_id": "90person",
+        "role": "Test Engineer",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 91,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
           }
-        },
-        {
-          "id": 59,
-          "first_name": "Steve",
-          "last_name": "Douglas",
-          "role": "Test Engineer",
-          "contact_details": {
-            "id": "59person",
-            "email": "heather26@example.com",
-            "phone": "214.897.6548",
-            "address": "3865 Reid Plaza\nHenrychester, MS 07243"
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Anthony",
+        "last_name": "Miller",
+        "contact_id": "91person",
+        "is_user": false,
+        "history_id": "91person",
+        "role": "Technical Lead",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 92,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
           }
-        },
-        {
-          "id": 53,
-          "first_name": "Anthony",
-          "last_name": "Miller",
-          "role": "Technical Lead",
-          "contact_details": {
-            "id": "53person",
-            "email": "philipallen@example.net",
-            "phone": "+1-308-261-5453x652",
-            "address": "41427 Rebecca Prairie\nDianemouth, CT 81974"
-          }
-        },
-        {
-          "id": 85,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "85person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 87,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "87person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 81,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "81person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 83,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "83person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
-        },
-        {
-          "id": 86,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "86person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 82,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "82person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 80,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Account Manager",
-          "contact_details": {
-            "id": "80person",
-            "email": "john.smith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        },
-        {
-          "id": 84,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "84person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
-          }
-        }
-      ]
-    },
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Maria",
+        "last_name": "Rodriguez",
+        "contact_id": "92person",
+        "is_user": false,
+        "history_id": "92person",
+        "role": "Project Manager",
+        "department": null,
+        "replacer": null
+      }
+    ],
     "history_details": {
-      "id": "6history",
-      "title": "Burke-Harvey",
-      "table_name": "client",
-      "created_at": "2025-05-12T15:33:52.481098Z",
+      "id": "14team",
+      "title": "Management Team",
+      "table_name": "team",
+      "created_at": "2025-05-12T15:33:52.486388Z",
       "started_at": null,
-      "updated_at": "2025-05-14T12:25:09.368302Z",
+      "updated_at": null,
       "deadline": null,
       "finished_at": null,
       "events": [
         {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:13:49.203818+00:00"
-        },
-        {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:25:09.368302+00:00"
+          "type": "unknown",
+          "details": "Team created",
+          "timestamp": "2025-05-12T15:33:52.486388+00:00"
         }
       ]
     },
-    "name": "Updated Client Name",
-    "address": "Updated Address, City",
-    "code": {
-      "DUNS": "87654321",
-      "Fiscal": "FC-654321"
-    },
-    "description": "Updated description",
-    "contact_id": "6client",
-    "history_id": "6history",
-    "team": 15
+    "name": "Management Team",
+    "description": "Team responsible for management decisions",
+    "history_id": "14team",
+    "is_user_team": false
   },
   {
-    "id": 4,
-    "contact_details": {
-      "id": "4client",
-      "email": "updated@clientcompany.com",
-      "phone": "999-888-7777",
-      "address": "New Address, City",
-      "type": "client"
-    },
-    "team_details": {
-      "id": 15,
-      "name": "team",
-      "description": "Updated team description",
-      "history_id": "15team",
-      "members": [
-        {
-          "id": 62,
-          "first_name": "Samuel",
-          "last_name": "Anderson",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "62person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+    "id": 13,
+    "members": [
+      {
+        "id": 54,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "54person",
+          "title": "Adam Gray",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.497349Z",
+          "started_at": null,
+          "updated_at": "2024-10-09T14:53:22Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.497349+00:00"
+            }
+          ]
         },
-        {
+        "first_name": "Adam",
+        "last_name": "Gray",
+        "contact_id": "54person",
+        "is_user": true,
+        "history_id": "54person",
+        "role": "Quality Assurance Lead",
+        "department": 11,
+        "replacer": null
+      },
+      {
+        "id": 57,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          }
+        ],
+        "replacer_details": {
           "id": 56,
-          "first_name": "Julie",
-          "last_name": "Black",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "56person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
+          "full_name": "Julie Black"
         },
-        {
-          "id": 51,
-          "first_name": "Christopher",
-          "last_name": "Dawson",
-          "role": "Design Engineer",
-          "contact_details": {
-            "id": "51person",
-            "email": "garzashannon@example.net",
-            "phone": "+1-277-680-3070x896",
-            "address": "638 Hanson Fords\nPort Jonathanport, AK 30486"
-          }
+        "history_details": {
+          "id": "57person",
+          "title": "Hannah Jones",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.498854Z",
+          "started_at": null,
+          "updated_at": "2025-05-06T20:43:21Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.498854+00:00"
+            }
+          ]
         },
-        {
-          "id": 59,
-          "first_name": "Steve",
-          "last_name": "Douglas",
-          "role": "Test Engineer",
-          "contact_details": {
-            "id": "59person",
-            "email": "heather26@example.com",
-            "phone": "214.897.6548",
-            "address": "3865 Reid Plaza\nHenrychester, MS 07243"
+        "first_name": "Hannah",
+        "last_name": "Jones",
+        "contact_id": "57person",
+        "is_user": false,
+        "history_id": "57person",
+        "role": "Quality Engineer",
+        "department": 13,
+        "replacer": 56
+      },
+      {
+        "id": 48,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "48person",
+          "title": "Amber King",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.500949Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.500949+00:00"
+            }
+          ]
         },
-        {
-          "id": 53,
-          "first_name": "Anthony",
-          "last_name": "Miller",
-          "role": "Technical Lead",
-          "contact_details": {
-            "id": "53person",
-            "email": "philipallen@example.net",
-            "phone": "+1-308-261-5453x652",
-            "address": "41427 Rebecca Prairie\nDianemouth, CT 81974"
+        "first_name": "Amber",
+        "last_name": "King",
+        "contact_id": "48person",
+        "is_user": true,
+        "history_id": "48person",
+        "role": "Quality Assurance Lead",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 64,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "64person",
+          "title": "Richard Moore",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.503710Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.503710+00:00"
+            }
+          ]
         },
-        {
-          "id": 85,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "85person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Richard",
+        "last_name": "Moore",
+        "contact_id": "64person",
+        "is_user": true,
+        "history_id": "64person",
+        "role": "Manufacturing Engineer",
+        "department": 12,
+        "replacer": null
+      },
+      {
+        "id": 65,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "65person",
+          "title": "Nicole Perez",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.504355Z",
+          "started_at": null,
+          "updated_at": "2025-02-05T02:27:27Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.504355+00:00"
+            }
+          ]
         },
-        {
-          "id": 87,
-          "first_name": "Marrria",
-          "last_name": "Rodddriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "87person",
-            "email": "maria.r@exajjjjjjmple.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Nicole",
+        "last_name": "Perez",
+        "contact_id": "65person",
+        "is_user": true,
+        "history_id": "65person",
+        "role": "Manufacturing Engineer",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 49,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "49person",
+          "title": "Stefanie Rivers",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.506874Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.506874+00:00"
+            }
+          ]
         },
-        {
-          "id": 81,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "81person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
+        "first_name": "Stefanie",
+        "last_name": "Rivers",
+        "contact_id": "49person",
+        "is_user": false,
+        "history_id": "49person",
+        "role": "Test Engineer",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 52,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
+        ],
+        "replacer_details": {
+          "id": 63,
+          "full_name": "Michael Stephens"
         },
-        {
-          "id": 83,
-          "first_name": "Maria",
-          "last_name": "Rodriguez",
-          "role": "Project Manager",
-          "contact_details": {
-            "id": "83person",
-            "email": "maria.r@example.com",
-            "phone": "444-555-6666",
-            "address": "123 New Member Ave"
-          }
+        "history_details": {
+          "id": "52person",
+          "title": "Anthony Smith",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.507971Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.507971+00:00"
+            }
+          ]
         },
-        {
-          "id": 86,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "86person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+        "first_name": "Anthony",
+        "last_name": "Smith",
+        "contact_id": "52person",
+        "is_user": false,
+        "history_id": "52person",
+        "role": "Quality Engineer",
+        "department": 15,
+        "replacer": 63
+      },
+      {
+        "id": 58,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "58person",
+          "title": "Justin Smith",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.508646Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.508646+00:00"
+            }
+          ]
         },
-        {
-          "id": 82,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "82person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+        "first_name": "Justin",
+        "last_name": "Smith",
+        "contact_id": "58person",
+        "is_user": true,
+        "history_id": "58person",
+        "role": "Quality Assurance Lead",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 61,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "61person",
+          "title": "Peter Smith",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.509268Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.509268+00:00"
+            }
+          ]
         },
-        {
-          "id": 80,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Account Manager",
-          "contact_details": {
-            "id": "80person",
-            "email": "john.smith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+        "first_name": "Peter",
+        "last_name": "Smith",
+        "contact_id": "61person",
+        "is_user": true,
+        "history_id": "61person",
+        "role": "Quality Assurance Lead",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 63,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
           }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "63person",
+          "title": "Michael Stephens",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.509891Z",
+          "started_at": null,
+          "updated_at": "2025-04-01T18:57:06Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.509891+00:00"
+            }
+          ]
         },
-        {
-          "id": 84,
-          "first_name": "John",
-          "last_name": "Smith",
-          "role": "Senior Manager",
-          "contact_details": {
-            "id": "84person",
-            "email": "john.smjjith@example.com",
-            "phone": "111-222-3333",
-            "address": "456 Team Member St"
+        "first_name": "Michael",
+        "last_name": "Stephens",
+        "contact_id": "63person",
+        "is_user": true,
+        "history_id": "63person",
+        "role": "Quality Assurance Lead",
+        "department": 14,
+        "replacer": null
+      },
+      {
+        "id": 67,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
           }
-        }
-      ]
-    },
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "67person",
+          "title": "Christy Williams",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.511443Z",
+          "started_at": null,
+          "updated_at": "2025-02-26T05:37:37Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.511443+00:00"
+            }
+          ]
+        },
+        "first_name": "Christy",
+        "last_name": "Williams",
+        "contact_id": "67person",
+        "is_user": true,
+        "history_id": "67person",
+        "role": "Design Engineer",
+        "department": 13,
+        "replacer": null
+      }
+    ],
     "history_details": {
-      "id": "4history",
-      "title": "Smith, Garcia and Moreno",
-      "table_name": "client",
-      "created_at": "2025-05-12T15:33:52.481768Z",
+      "id": "13team",
+      "title": "Project Team",
+      "table_name": "team",
+      "created_at": "2025-05-12T15:33:52.487036Z",
       "started_at": null,
-      "updated_at": "2025-05-14T12:28:02.471440Z",
+      "updated_at": null,
       "deadline": null,
       "finished_at": null,
       "events": [
         {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:26:08.607790+00:00"
-        },
-        {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:26:50.095654+00:00"
-        },
-        {
-          "type": "update",
-          "details": "Client updated. Fields changed: name, address, code, description, contact, team, team_members",
-          "timestamp": "2025-05-14T12:28:02.471440+00:00"
+          "type": "unknown",
+          "details": "Team created",
+          "timestamp": "2025-05-12T15:33:52.487036+00:00"
         }
       ]
     },
-    "name": "Updated Client Name",
-    "address": "Updated Address, City",
-    "code": {
-      "DUNS": "87654321",
-      "Fiscal": "FC-654321"
+    "name": "Project Team",
+    "description": "Cross-functional project team",
+    "history_id": "13team",
+    "is_user_team": true
+  },
+  {
+    "id": 12,
+    "members": [
+      {
+        "id": 62,
+        "teams": [
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": {
+          "id": 51,
+          "full_name": "Christopher Dawson"
+        },
+        "history_details": {
+          "id": "62person",
+          "title": "Samuel Anderson",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.490342Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.490342+00:00"
+            }
+          ]
+        },
+        "first_name": "Samuel",
+        "last_name": "Anderson",
+        "contact_id": "62person",
+        "is_user": false,
+        "history_id": "62person",
+        "role": "Senior Manager",
+        "department": 13,
+        "replacer": 51
+      },
+      {
+        "id": 56,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "56person",
+          "title": "Julie Black",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.491524Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.491524+00:00"
+            }
+          ]
+        },
+        "first_name": "Julie",
+        "last_name": "Black",
+        "contact_id": "56person",
+        "is_user": true,
+        "history_id": "56person",
+        "role": "Project Manager",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 55,
+        "teams": [
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "55person",
+          "title": "Sergio Cantrell",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.492753Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.492753+00:00"
+            }
+          ]
+        },
+        "first_name": "Sergio",
+        "last_name": "Cantrell",
+        "contact_id": "55person",
+        "is_user": false,
+        "history_id": "55person",
+        "role": "Technical Lead",
+        "department": 11,
+        "replacer": null
+      },
+      {
+        "id": 51,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "51person",
+          "title": "Christopher Dawson",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.494858Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.494858+00:00"
+            }
+          ]
+        },
+        "first_name": "Christopher",
+        "last_name": "Dawson",
+        "contact_id": "51person",
+        "is_user": false,
+        "history_id": "51person",
+        "role": "Design Engineer",
+        "department": 12,
+        "replacer": null
+      },
+      {
+        "id": 54,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "54person",
+          "title": "Adam Gray",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.497349Z",
+          "started_at": null,
+          "updated_at": "2024-10-09T14:53:22Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.497349+00:00"
+            }
+          ]
+        },
+        "first_name": "Adam",
+        "last_name": "Gray",
+        "contact_id": "54person",
+        "is_user": true,
+        "history_id": "54person",
+        "role": "Quality Assurance Lead",
+        "department": 11,
+        "replacer": null
+      },
+      {
+        "id": 48,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "48person",
+          "title": "Amber King",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.500949Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.500949+00:00"
+            }
+          ]
+        },
+        "first_name": "Amber",
+        "last_name": "King",
+        "contact_id": "48person",
+        "is_user": true,
+        "history_id": "48person",
+        "role": "Quality Assurance Lead",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 60,
+        "teams": [
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": {
+          "id": 56,
+          "full_name": "Julie Black"
+        },
+        "history_details": {
+          "id": "60person",
+          "title": "Kent Lyons",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.501800Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.501800+00:00"
+            }
+          ]
+        },
+        "first_name": "Kent",
+        "last_name": "Lyons",
+        "contact_id": "60person",
+        "is_user": true,
+        "history_id": "60person",
+        "role": "Manufacturing Engineer",
+        "department": 15,
+        "replacer": 56
+      },
+      {
+        "id": 65,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "65person",
+          "title": "Nicole Perez",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.504355Z",
+          "started_at": null,
+          "updated_at": "2025-02-05T02:27:27Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.504355+00:00"
+            }
+          ]
+        },
+        "first_name": "Nicole",
+        "last_name": "Perez",
+        "contact_id": "65person",
+        "is_user": true,
+        "history_id": "65person",
+        "role": "Manufacturing Engineer",
+        "department": 15,
+        "replacer": null
+      },
+      {
+        "id": 49,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "49person",
+          "title": "Stefanie Rivers",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.506874Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.506874+00:00"
+            }
+          ]
+        },
+        "first_name": "Stefanie",
+        "last_name": "Rivers",
+        "contact_id": "49person",
+        "is_user": false,
+        "history_id": "49person",
+        "role": "Test Engineer",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 52,
+        "teams": [
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": {
+          "id": 63,
+          "full_name": "Michael Stephens"
+        },
+        "history_details": {
+          "id": "52person",
+          "title": "Anthony Smith",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.507971Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.507971+00:00"
+            }
+          ]
+        },
+        "first_name": "Anthony",
+        "last_name": "Smith",
+        "contact_id": "52person",
+        "is_user": false,
+        "history_id": "52person",
+        "role": "Quality Engineer",
+        "department": 15,
+        "replacer": 63
+      },
+      {
+        "id": 67,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 13,
+            "name": "Project Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "67person",
+          "title": "Christy Williams",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.511443Z",
+          "started_at": null,
+          "updated_at": "2025-02-26T05:37:37Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.511443+00:00"
+            }
+          ]
+        },
+        "first_name": "Christy",
+        "last_name": "Williams",
+        "contact_id": "67person",
+        "is_user": true,
+        "history_id": "67person",
+        "role": "Design Engineer",
+        "department": 13,
+        "replacer": null
+      }
+    ],
+    "history_details": {
+      "id": "12team",
+      "title": "Quality Team",
+      "table_name": "team",
+      "created_at": "2025-05-12T15:33:52.487667Z",
+      "started_at": null,
+      "updated_at": "2025-05-04T10:42:20Z",
+      "deadline": null,
+      "finished_at": null,
+      "events": [
+        {
+          "type": "unknown",
+          "details": "Team created",
+          "timestamp": "2025-05-12T15:33:52.487667+00:00"
+        }
+      ]
     },
-    "description": "Updated description",
-    "contact_id": "4client",
-    "history_id": "4history",
-    "team": 15
+    "name": "Quality Team",
+    "description": "Team responsible for quality assurance",
+    "history_id": "12team",
+    "is_user_team": true
+  },
+  {
+    "id": 18,
+    "members": [
+      {
+        "id": 95,
+        "teams": [
+          {
+            "id": 18,
+            "name": "reneau client team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Abderrahmane",
+        "last_name": "Abderrahmane",
+        "contact_id": "95person",
+        "is_user": false,
+        "history_id": "95person",
+        "role": "ssssssssss",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 94,
+        "teams": [
+          {
+            "id": 18,
+            "name": "reneau client team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Abderrahmane",
+        "last_name": "hafdane",
+        "contact_id": "94person",
+        "is_user": false,
+        "history_id": "94person",
+        "role": "sssssssssss",
+        "department": null,
+        "replacer": null
+      },
+      {
+        "id": 96,
+        "teams": [
+          {
+            "id": 18,
+            "name": "reneau client team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Hafssa",
+        "last_name": "hafdane",
+        "contact_id": "96person",
+        "is_user": false,
+        "history_id": "96person",
+        "role": "ssssss",
+        "department": null,
+        "replacer": null
+      }
+    ],
+    "history_details": null,
+    "name": "reneau client team",
+    "description": "sdsdds",
+    "history_id": "18team",
+    "is_user_team": false
+  },
+  {
+    "id": 15,
+    "members": [
+      {
+        "id": 62,
+        "teams": [
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": {
+          "id": 51,
+          "full_name": "Christopher Dawson"
+        },
+        "history_details": {
+          "id": "62person",
+          "title": "Samuel Anderson",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.490342Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.490342+00:00"
+            }
+          ]
+        },
+        "first_name": "Samuel",
+        "last_name": "Anderson",
+        "contact_id": "62person",
+        "is_user": false,
+        "history_id": "62person",
+        "role": "Senior Manager",
+        "department": 13,
+        "replacer": 51
+      },
+      {
+        "id": 56,
+        "teams": [
+          {
+            "id": 11,
+            "name": "Engineering Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "56person",
+          "title": "Julie Black",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.491524Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.491524+00:00"
+            }
+          ]
+        },
+        "first_name": "Julie",
+        "last_name": "Black",
+        "contact_id": "56person",
+        "is_user": true,
+        "history_id": "56person",
+        "role": "Project Manager",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 51,
+        "teams": [
+          {
+            "id": 14,
+            "name": "Management Team"
+          },
+          {
+            "id": 12,
+            "name": "Quality Team"
+          },
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "51person",
+          "title": "Christopher Dawson",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.494858Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.494858+00:00"
+            }
+          ]
+        },
+        "first_name": "Christopher",
+        "last_name": "Dawson",
+        "contact_id": "51person",
+        "is_user": false,
+        "history_id": "51person",
+        "role": "Design Engineer",
+        "department": 12,
+        "replacer": null
+      },
+      {
+        "id": 59,
+        "teams": [
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": {
+          "id": "59person",
+          "title": "Steve Douglas",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.495580Z",
+          "started_at": null,
+          "updated_at": "2025-02-06T08:27:12Z",
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.495580+00:00"
+            }
+          ]
+        },
+        "first_name": "Steve",
+        "last_name": "Douglas",
+        "contact_id": "59person",
+        "is_user": false,
+        "history_id": "59person",
+        "role": "Test Engineer",
+        "department": 13,
+        "replacer": null
+      },
+      {
+        "id": 53,
+        "teams": [
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": {
+          "id": 67,
+          "full_name": "Christy Williams"
+        },
+        "history_details": {
+          "id": "53person",
+          "title": "Anthony Miller",
+          "table_name": "person",
+          "created_at": "2025-05-12T15:33:52.503113Z",
+          "started_at": null,
+          "updated_at": null,
+          "deadline": null,
+          "finished_at": null,
+          "events": [
+            {
+              "type": "unknown",
+              "details": "Person created",
+              "timestamp": "2025-05-12T15:33:52.503113+00:00"
+            }
+          ]
+        },
+        "first_name": "Anthony",
+        "last_name": "Miller",
+        "contact_id": "53person",
+        "is_user": false,
+        "history_id": "53person",
+        "role": "Technical Lead",
+        "department": 11,
+        "replacer": 67
+      },
+      {
+        "id": 81,
+        "teams": [
+          {
+            "id": 15,
+            "name": "team"
+          }
+        ],
+        "replacer_details": null,
+        "history_details": null,
+        "first_name": "Maria",
+        "last_name": "Rodriguez",
+        "contact_id": "81person",
+        "is_user": false,
+        "history_id": "81person",
+        "role": "Project Manager",
+        "department": null,
+        "replacer": null
+      }
+    ],
+    "history_details": {
+      "id": "15team",
+      "title": "Client Team",
+      "table_name": "team",
+      "created_at": "2025-05-12T15:33:52.483492Z",
+      "started_at": null,
+      "updated_at": null,
+      "deadline": null,
+      "finished_at": null,
+      "events": [
+        {
+          "type": "unknown",
+          "details": "Team created",
+          "timestamp": "2025-05-12T15:33:52.483492+00:00"
+        }
+      ]
+    },
+    "name": "team",
+    "description": "Updated team description",
+    "history_id": "15team",
+    "is_user_team": true
   }
 ]

@@ -21,6 +21,7 @@ from core.services.history.user import record_user_creation
 class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
+    pagination_class = None  # Disable pagination for this viewset
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):

@@ -6,7 +6,7 @@ import type {
   PaginatedResponse, 
   Project, 
   Client, 
-  Team, 
+   
   OutputTemplate, 
   Phase, 
   PhaseTemplate, 
@@ -48,6 +48,15 @@ import type {
 
   ClientCreateRequest,
   ClientUpdateRequest,
+
+  Person,
+  PersonCreateRequest,
+  PersonUpdateRequest,
+
+  Team,
+  TeamCreateRequest,
+  TeamUpdateRequest,
+  
 } from "./api-types"
 
 // Define DocumentData interface
@@ -1337,83 +1346,167 @@ interface AllProjectsHistoryResponse {
 export const teamApi = {
   getAllTeams: async () => {
     try {
-      const data = await api.get<PaginatedResponse<Team>>(API_ENDPOINTS.teams)
-      return data.results || []
+      return await api.get<Team[]>(API_ENDPOINTS.teams);
     } catch (error: any) {
-      console.error("Get all teams error:", error)
-      throw new Error(error.message || "Failed to get all teams")
+      console.error("Get all teams error:", error);
+      throw new Error(error.message || "Failed to get all teams");
     }
   },
 
-  getTeamsPage: async (url: string) => {
+  getUserTeams: async () => {
     try {
-      const data = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
-        credentials: "include",
-      })
+      return await api.get<Team[]>(`${API_ENDPOINTS.teams}?is_user_team=true`);
+    } catch (error: any) {
+      console.error("Get user teams error:", error);
+      throw new Error(error.message || "Failed to get user teams");
+    }
+  },
 
-      if (!data.ok) {
-        throw new Error(`Failed to fetch teams: ${data.statusText}`)
+  getClientTeams: async () => {
+    try {
+      return await api.get<Team[]>(`${API_ENDPOINTS.teams}?is_user_team=false`);
+    } catch (error: any) {
+      console.error("Get client teams error:", error);
+      throw new Error(error.message || "Failed to get client teams");
+    }
+  },
+  
+  getTeamById: async (id: number) => {
+    try {
+      return await api.get<Team>(`${API_ENDPOINTS.teams}${id}/`);
+    } catch (error: any) {
+      console.error(`Get team ${id} error:`, error);
+      throw new Error(error.message || `Failed to get team ${id}`);
+    }
+  },
+  
+  createTeam: async (data: TeamCreateRequest) => {
+    try {
+      // Format the request body according to the API expectations
+      const requestData = {
+        name: data.name,
+        description: data.description || '',
+        is_user_team: data.is_user_team,
+        // Format team members for API
+        members: data.members?.map(member => {
+          if (member.id) {
+            // Existing person, just send ID
+            return { 
+              id: member.id,
+              member_type: member.role || 'member' // Include role as member_type
+            };
+          } else {
+            // New person with required fields
+            const personData: Record<string, any> = {
+              first_name: member.first_name,
+              last_name: member.last_name,
+              role: member.role || '',
+            };
+            
+            // Add contact details if available
+            if (member.contact) {
+              personData.contact = {
+                email: member.contact.email || '',
+                phone: member.contact.phone || '',
+                address: member.contact.address || ''
+              };
+            }
+            
+            // For user team members, add user-specific fields
+            if (data.is_user_team && member.username && member.password) {
+              personData.create_user = true;
+              personData.username = member.username;
+              personData.password = member.password;
+              personData.is_active = member.is_active !== undefined ? member.is_active : true;
+            }
+            
+            return personData;
+          }
+        }) || []
+      };
+      
+      return await api.post<Team>(API_ENDPOINTS.teams, requestData);
+    } catch (error: any) {
+      console.error("Create team error:", error);
+      throw new Error(error.message || "Failed to create team");
+    }
+  },
+  
+  updateTeam: async (id: number, data: TeamUpdateRequest) => {
+    try {
+      // Format the request body according to the API expectations
+      const requestData: Record<string, any> = {};
+      
+      if (data.name !== undefined) requestData.name = data.name;
+      if (data.description !== undefined) requestData.description = data.description;
+      if (data.is_user_team !== undefined) requestData.is_user_team = data.is_user_team;
+      if (data.replace_all_members !== undefined) requestData.replace_all_members = data.replace_all_members;
+      
+      // Format team members for API if provided
+      if (data.members) {
+        requestData.members = data.members.map(member => {
+          if (member.id) {
+            // Existing person, just send ID
+            return { 
+              id: member.id,
+              member_type: member.role || 'member' // Include role as member_type
+            };
+          } else {
+            // New person with required fields
+            const personData: Record<string, any> = {
+              first_name: member.first_name,
+              last_name: member.last_name,
+              role: member.role || '',
+            };
+            
+            // Add contact details if available
+            if (member.contact) {
+              personData.contact = {
+                email: member.contact.email || '',
+                phone: member.contact.phone || '',
+                address: member.contact.address || ''
+              };
+            }
+            
+            // For user team members, add user-specific fields
+            if (data.is_user_team && member.username && member.password) {
+              personData.create_user = true;
+              personData.username = member.username;
+              personData.password = member.password;
+              personData.is_active = member.is_active !== undefined ? member.is_active : true;
+            }
+            
+            return personData;
+          }
+        });
       }
-
-      return (await data.json()) as PaginatedResponse<Team>
+      
+      return await api.put<Team>(`${API_ENDPOINTS.teams}${id}/`, requestData);
     } catch (error: any) {
-      console.error("Get teams page error:", error)
-      throw new Error(error.message || "Failed to get teams page")
-    }
-  },
-
-  getTeam: async (id: number) => {
-    try {
-      return await api.get(`${API_ENDPOINTS.teams}${id}/`)
-    } catch (error: any) {
-      console.error(`Get team ${id} error:`, error)
-      throw new Error(error.message || `Failed to get team ${id}`)
+      console.error(`Update team ${id} error:`, error);
+      throw new Error(error.message || `Failed to update team ${id}`);
     }
   },
   
-  createTeam: async (data: any) => {
-    try {
-      return await api.post(API_ENDPOINTS.teams, data)
-    } catch (error: any) {
-      console.error("Create team error:", error)
-      throw new Error(error.message || "Failed to create team")
-    }
-  },
-  
-  updateTeam: async (id: number, data: any) => {
-    try {
-      return await api.put(`${API_ENDPOINTS.teams}${id}/`, data)
-    } catch (error: any) {
-      console.error(`Update team ${id} error:`, error)
-      throw new Error(error.message || `Failed to update team ${id}`)
-    }
-  },
-  
+  // Rest of teamApi methods remain unchanged
   deleteTeam: async (id: number) => {
     try {
-      return await api.delete(`${API_ENDPOINTS.teams}${id}/`)
+      return await api.delete(`${API_ENDPOINTS.teams}${id}/`);
     } catch (error: any) {
-      console.error(`Delete team ${id} error:`, error)
-      throw new Error(error.message || `Failed to delete team ${id}`)
+      console.error(`Delete team ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete team ${id}`);
     }
   },
   
-  // Add or remove members from a team
-  updateTeamMembers: async (teamId: number, memberIds: number[]) => {
+  getTeamProjects: async (id: number) => {
     try {
-      const data = await api.put(`${API_ENDPOINTS.teams}${teamId}/`, { 
-        member_ids: memberIds 
-      })
-      return data
+      return await api.get<Project[]>(`${API_ENDPOINTS.teams}${id}/projects/`);
     } catch (error: any) {
-      console.error(`Update team ${teamId} members error:`, error)
-      throw new Error(error.message || `Failed to update team ${teamId} members`)
+      console.error(`Get projects for team ${id} error:`, error);
+      throw new Error(error.message || `Failed to get projects for team ${id}`);
     }
   }
-}
+};
 
 // Department management API functions
 export const departmentApi = {
@@ -1781,6 +1874,108 @@ export const todoApi = {
     } catch (error: any) {
       console.error("Bulk create todos error:", error);
       throw new Error(error.message || "Failed to bulk create todos");
+    }
+  }
+};
+
+// Add this personApi object to your api-utils.ts file
+export const personApi = {
+  getAllPeople: async () => {
+    try {
+      return await api.get<Person[]>(API_ENDPOINTS.persons);
+    } catch (error: any) {
+      console.error("Get all people error:", error);
+      throw new Error(error.message || "Failed to get all people");
+    }
+  },
+  
+  // Add a method to get all users (people with is_user=true)
+  getUserPeople: async () => {
+    try {
+      return await api.get<Person[]>(`${API_ENDPOINTS.persons}?is_user=true`);
+    } catch (error: any) {
+      console.error("Get user people error:", error);
+      throw new Error(error.message || "Failed to get user people");
+    }
+  },
+  
+  // Add a method to get all non-users (people with is_user=false)
+  getNonUserPeople: async () => {
+    try {
+      return await api.get<Person[]>(`${API_ENDPOINTS.persons}?is_user=false`);
+    } catch (error: any) {
+      console.error("Get non-user people error:", error);
+      throw new Error(error.message || "Failed to get non-user people");
+    }
+  },
+  
+  getPerson: async (id: number) => {
+    try {
+      return await api.get<Person>(API_ENDPOINTS.person(id));
+    } catch (error: any) {
+      console.error(`Get person ${id} error:`, error);
+      throw new Error(error.message || `Failed to get person ${id}`);
+    }
+  },
+  
+  createPerson: async (data: PersonCreateRequest) => {
+    try {
+      // Format request data according to the API expectations
+      const requestData = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        role: data.role || '',
+        department_id: data.department_id,
+        is_user: data.is_user || false,
+        contact: data.contact,
+        
+        // Include user-specific fields if this will be a user
+        ...(data.is_user ? {
+          username: data.username,
+          password: data.password,
+          authorization_id: data.authorization_id || 1, // Default to lowest level
+          is_active: data.is_active !== undefined ? data.is_active : true
+        } : {})
+      };
+      
+      return await api.post<Person>(API_ENDPOINTS.persons, requestData);
+    } catch (error: any) {
+      console.error("Create person error:", error);
+      throw new Error(error.message || "Failed to create person");
+    }
+  },
+  
+  updatePerson: async (id: number, data: PersonUpdateRequest) => {
+    try {
+      // Only send fields that are provided
+      const requestData: Record<string, any> = {};
+      
+      if (data.first_name !== undefined) requestData.first_name = data.first_name;
+      if (data.last_name !== undefined) requestData.last_name = data.last_name;
+      if (data.role !== undefined) requestData.role = data.role;
+      if (data.department_id !== undefined) requestData.department_id = data.department_id;
+      if (data.is_user !== undefined) requestData.is_user = data.is_user;
+      if (data.contact) requestData.contact = data.contact;
+      
+      // Include user-specific fields if provided
+      if (data.username) requestData.username = data.username;
+      if (data.password) requestData.password = data.password;
+      if (data.authorization_id) requestData.authorization_id = data.authorization_id;
+      if (data.is_active !== undefined) requestData.is_active = data.is_active;
+      
+      return await api.put<Person>(API_ENDPOINTS.person(id), requestData);
+    } catch (error: any) {
+      console.error(`Update person ${id} error:`, error);
+      throw new Error(error.message || `Failed to update person ${id}`);
+    }
+  },
+  
+  deletePerson: async (id: number) => {
+    try {
+      return await api.delete(API_ENDPOINTS.person(id));
+    } catch (error: any) {
+      console.error(`Delete person ${id} error:`, error);
+      throw new Error(error.message || `Failed to delete person ${id}`);
     }
   }
 };

@@ -239,6 +239,64 @@ export interface Client {
   } | null;
 }
 
+export interface Person {
+  id: number;
+  first_name: string;
+  last_name: string;
+  contact_id: string;
+  is_user: boolean;
+  history_id: string;
+  department: number | null;
+  role?: string; // Add role field
+  contact_details?: {
+    id?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  teams?: Array<{
+    id: number;
+    name: string;
+  }>;
+}
+
+// Add request interfaces for Person operations
+export interface PersonCreateRequest {
+  first_name: string;
+  last_name: string;
+  role?: string;
+  department_id?: number;
+  is_user?: boolean;
+  contact?: {
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  // For user-type persons
+  username?: string;
+  password?: string;
+  authorization_id?: number;
+  is_active?: boolean;
+}
+
+export interface PersonUpdateRequest {
+  first_name?: string;
+  last_name?: string;
+  role?: string;
+  department_id?: number;
+  is_user?: boolean;
+  contact?: {
+    email?: string;
+    phone?: string;
+    address?: string;
+  };
+  // For user-type persons
+  username?: string;
+  password?: string;
+  authorization_id?: number;
+  is_active?: boolean;
+}
+
 // Add new interface for team member
 export interface TeamMember {
   id?: number;
@@ -250,6 +308,11 @@ export interface TeamMember {
     phone: string;
     address: string;
   };
+  // For user creation (user teams only)
+  username?: string;
+  password?: string;
+  is_active?: boolean;
+  authorization_id?: number;
 }
 
 // Add request interfaces for client operations
@@ -288,6 +351,23 @@ export interface ClientUpdateRequest {
   };
   team_id?: number | null;
   team_members?: TeamMember[];
+  replace_all_members?: boolean;
+}
+
+// Add or update these interfaces
+export interface TeamCreateRequest {
+  name: string;
+  description?: string;
+  is_user_team: boolean;
+  members?: TeamMember[];
+  replace_all_members?: boolean;
+}
+
+export interface TeamUpdateRequest {
+  name?: string;
+  description?: string;
+  is_user_team?: boolean;
+  members?: TeamMember[];
   replace_all_members?: boolean;
 }
 

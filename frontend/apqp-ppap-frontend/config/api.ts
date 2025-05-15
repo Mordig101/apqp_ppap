@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
   teams: `${API_BASE_URL}/teams/`,
   history: `${API_BASE_URL}/history/`,
   persons: `${API_BASE_URL}/persons/`,
+  person: (id: number) => `${API_BASE_URL}/persons/${id}/`,
   contacts: `${API_BASE_URL}/contacts/`,
   departments: `${API_BASE_URL}/departments/`,
   phaseTemplates: `${API_BASE_URL}/phase-templates/`,
