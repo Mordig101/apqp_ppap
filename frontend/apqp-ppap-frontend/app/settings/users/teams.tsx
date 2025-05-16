@@ -50,17 +50,53 @@ import type {
 interface TeamsTabProps {
   teamType: 'client' | 'organization';
 }
+// Add right after your imports, before TeamsTabProps interface
+interface TeamPerson extends Person {
+    // Add properties that are needed but not in the base Person type
+    role?: string;
+    username?: string;
+    password?: string;
+    is_active?: boolean;
+    // Add these for newly created members that don't have proper Person structure yet
+    contact?: {
+      email?: string;
+      phone?: string;
+      address?: string;
+    };
+  }
+  
+  // Define a type for members as stored in the Team
+  type TeamMemberType = TeamPerson | {
+    id?: number;
+    first_name: string;
+    last_name: string;
+    role?: string;
+    is_user?: boolean;
+    contact_details?: {
+      email?: string;
+      phone?: string;
+      address?: string;
+    };
+    contact?: {
+      email?: string;
+      phone?: string;
+      address?: string;
+    };
+    username?: string;
+    password?: string;
+    is_active?: boolean;
+  };
 
 export function TeamsTab({ teamType }: TeamsTabProps) {
   // Teams state
-  const [teams, setTeams] = useState<Team[]>([])
+  const [teams, setTeams] = useState<(Team & { members?: TeamMemberType[] })[]>([]);
   const [teamSearchTerm, setTeamSearchTerm] = useState("")
   const [teamSortField, setTeamSortField] = useState<"name" | "members">("name")
   const [teamSortDirection, setTeamSortDirection] = useState<"asc" | "desc">("asc")
   const [isAddTeamDialogOpen, setIsAddTeamDialogOpen] = useState(false)
   const [isEditTeamDialogOpen, setIsEditTeamDialogOpen] = useState(false)
   const [isDeleteTeamDialogOpen, setIsDeleteTeamDialogOpen] = useState(false)
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null)
+  const [selectedTeam, setSelectedTeam] = useState<Team & { members?: TeamMemberType[] } | null>(null);
   const [isViewTeamDetailsDialogOpen, setIsViewTeamDetailsDialogOpen] = useState(false)
   const [isAddTeamMemberDialogOpen, setIsAddTeamMemberDialogOpen] = useState(false)
   const [teamProjects, setTeamProjects] = useState<Record<number, Project[]>>({})
@@ -75,7 +111,7 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
   })
 
   // For creating a new team member
-  const [newTeamMember, setNewTeamMember] = useState<any>({
+  const [newTeamMember, setNewTeamMember] = useState<TeamMemberType>({
     first_name: "",
     last_name: "",
     username: "",
@@ -89,7 +125,7 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
   })
 
   // Available people list - using Person type directly
-  const [availablePeople, setAvailablePeople] = useState<Person[]>([]);
+  const [availablePeople, setAvailablePeople] = useState<TeamPerson[]>([]);
 
   // Shared state
   const [loading, setLoading] = useState(true)
@@ -250,8 +286,10 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
     }
   }
 
-  // Add team member
-  const addTeamMember = () => {
+  // Replace your current addTeamMember function with this version
+
+// Add team member
+const addTeamMember = () => {
     // Validation depends on team type
     if (teamType === 'organization') {
       // For user teams, require username and password
@@ -274,13 +312,34 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
         return
       }
     }
-
-    // Add the new member to the team
-    setNewTeam(prev => ({
-      ...prev,
-      members: [...(prev.members || []), { ...newTeamMember }]
-    }))
-
+  
+    // Add the new member to the team using the correct structure for TeamCreateRequest
+    setNewTeam((prev: TeamCreateRequest): TeamCreateRequest => {
+      // Convert contact to the format expected by TeamMember
+      const memberToAdd = {
+        first_name: newTeamMember.first_name,
+        last_name: newTeamMember.last_name,
+        role: newTeamMember.role || "",
+        // Convert contact structure to match API expectations
+        contact: {
+          email: newTeamMember.contact?.email || "",
+          phone: newTeamMember.contact?.phone || "",
+          address: newTeamMember.contact?.address || ""
+        },
+        // Include user-specific fields if needed
+        ...(teamType === 'organization' ? {
+          username: newTeamMember.username,
+          password: newTeamMember.password,
+          is_active: true
+        } : {})
+      };
+      
+      return {
+        ...prev,
+        members: [...(prev.members || []), memberToAdd]
+      };
+    });
+  
     // Reset form
     setNewTeamMember({
       first_name: "",
@@ -294,15 +353,15 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
         address: "",
       }
     })
-
+  
     setIsAddTeamMemberDialogOpen(false)
   }
 
   // Add existing person as team member
   const addExistingPerson = (personId: number) => {
-    const person = availablePeople.find(p => p.id === personId)
-    if (!person) return
-
+    const person = availablePeople.find(p => p.id === personId);
+    if (!person) return;
+  
     // Add the person to the team members by ID
     setNewTeam(prev => ({
       ...prev,
@@ -311,21 +370,22 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
         first_name: person.first_name || "",
         last_name: person.last_name || "",
         role: person.role || "",
+        is_user: person.is_user,
         contact: {
           email: person.contact_details?.email || "",
           phone: person.contact_details?.phone || "",
           address: person.contact_details?.address || ""
         }
       }]
-    }))
+    }));
   }
 
   // Remove team member
   const removeTeamMember = (index: number) => {
-    setNewTeam(prev => ({
-      ...prev,
-      members: (prev.members || []).filter((_, i) => i !== index)
-    }))
+    setNewTeam((prev: TeamCreateRequest) => ({
+        ...prev,
+        members: (prev.members || []).filter((_, i) => i !== index)
+      }));
   }
 
   // Handle team creation using TeamCreateRequest
@@ -393,37 +453,56 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
       setLoading(true);
   
       // Prepare member data for API
-      const memberData = selectedTeam.members?.map(member => {
+      // Prepare member data for API
+    const memberData = selectedTeam.members?.map(member => {
         if ('id' in member && member.id) {
-          // For existing members, just include their ID
-          return { id: member.id };
+        // For existing members, just include their ID and optional role
+        return { 
+            id: member.id,
+            ...('role' in member && member.role ? { member_type: member.role } : {})
+        };
         } else {
-          // For new members, include all necessary data
-          const newMember: any = {
+        // For new members, include all necessary data
+        const newMember: Record<string, any> = {
             first_name: member.first_name,
             last_name: member.last_name,
-            role: member.role
-          };
-          
-          // Include user-specific fields for user teams
-          if (teamType === 'organization') {
-            newMember.username = member.username;
-            newMember.password = member.password;
-            newMember.is_active = true;
-          }
-          
-          // Include contact info if available
-          if (member.contact_details) {
-            newMember.contact = {
-              email: member.contact_details.email,
-              phone: member.contact_details.phone,
-              address: member.contact_details.address
-            };
-          }
-          
-          return newMember;
+        };
+        
+        // Add role if available
+        if ('role' in member && member.role) {
+            newMember.role = member.role;
         }
-      });
+        
+        // Include user-specific fields for user teams
+        if (teamType === 'organization') {
+            if ('username' in member && member.username) {
+            newMember.username = member.username;
+            }
+            if ('password' in member && member.password) {
+            newMember.password = member.password;
+            }
+            newMember.is_active = true;
+        }
+        
+        // Include contact info if available
+        if (member.contact_details) {
+            newMember.contact = {
+            email: member.contact_details.email || "",
+            phone: member.contact_details.phone || "",
+            address: member.contact_details.address || ""
+            };
+        } else if ('contact' in member && member.contact) {
+            const contactObj = member.contact as Record<string, string>;
+            newMember.contact = {
+            email: contactObj.email || "",
+            phone: contactObj.phone || "",
+            address: contactObj.address || ""
+            };
+        }
+        
+        return newMember;
+        }
+    });
   
       // Create update data using TeamUpdateRequest type
       const updateData: TeamUpdateRequest = {
@@ -521,23 +600,34 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
     if (!memberBeingEdited || !selectedTeam) return;
     
     // Update member in selectedTeam
-    const updatedMembers = selectedTeam.members?.map(member => 
-      member.id === memberBeingEdited.id ? {
-        ...member,
-        first_name: memberBeingEdited.first_name,
-        last_name: memberBeingEdited.last_name,
-        role: memberBeingEdited.role || member.role,
-        contact_details: {
-          email: memberBeingEdited.contact?.email || "",
-          phone: memberBeingEdited.contact?.phone || "",
-          address: memberBeingEdited.contact?.address || ""
-        }
-      } : member
-    );
+    const updatedMembers = selectedTeam.members?.map(member => {
+      if (member.id === memberBeingEdited.id) {
+        // Define existing contact details with proper typing
+        const existingContactDetails: {
+          email?: string;
+          phone?: string;
+          address?: string;
+        } = member.contact_details || {};
+        
+        return {
+          ...member,
+          first_name: memberBeingEdited.first_name,
+          last_name: memberBeingEdited.last_name,
+          role: memberBeingEdited.role || (member as any).role || "",
+          contact_details: {
+            ...existingContactDetails,
+            email: memberBeingEdited.contact?.email || existingContactDetails.email || "",
+            phone: memberBeingEdited.contact?.phone || existingContactDetails.phone || "",
+            address: memberBeingEdited.contact?.address || existingContactDetails.address || ""
+          }
+        };
+      }
+      return member;
+    });
     
     setSelectedTeam({
       ...selectedTeam,
-      members: updatedMembers
+      members: updatedMembers as typeof selectedTeam.members
     });
     
     // Close dialog
@@ -1145,7 +1235,7 @@ export function TeamsTab({ teamType }: TeamsTabProps) {
                                 )}
                               </div>
                             </TableCell>
-                            <TableCell>{member.role || "N/A"}</TableCell>
+                            <TableCell>{(member as any).role || "N/A"}</TableCell>
                             <TableCell>
                               {member.contact_details?.email && (
                                 <div className="flex items-center gap-1 text-xs">

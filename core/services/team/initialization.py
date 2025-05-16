@@ -1,7 +1,7 @@
 from core.models import Team
 import uuid
 
-def initialize_team(name, description=''):
+def initialize_team(name, description='' ,is_user_team=False):
     """
     Initialize a new team
     
@@ -13,12 +13,11 @@ def initialize_team(name, description=''):
         Team: The created team
     """
     # Generate unique history ID
-    history_id = f"{uuid.uuid4().hex}team"
     
     team = Team.objects.create(
         name=name,
         description=description,
-        history_id=history_id
+        is_user_team=is_user_team,
     )
     
     return team

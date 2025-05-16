@@ -25,158 +25,243 @@ class TeamViewSet(viewsets.ModelViewSet):
     
     @transaction.atomic
     def create(self, request, *args, **kwargs):
-        # Extract team data
-        name = request.data.get('name')
-        description = request.data.get('description', '')
-        department_id = request.data.get('department_id')
-        is_user_team = request.data.get('is_user_team', False)
-        members_data = request.data.get('members', [])
-        
-        # Validate required fields
-        if not name:
-            return Response(
-                {"error": "Missing required field: name"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
         try:
-            # Get department if provided
-            department = None
-            if department_id:
-                try:
-                    department = Department.objects.get(id=department_id)
-                except Department.DoesNotExist:
-                    return Response(
-                        {"error": f"Department with ID {department_id} not found"},
-                        status=status.HTTP_404_NOT_FOUND
-                    )
+            # Extract team data
+            name = request.data.get('name')
+            description = request.data.get('description', '')
+            department_id = request.data.get('department_id')
+            is_user_team = request.data.get('is_user_team', False)
+            members_data = request.data.get('members', [])
             
-            # Create team
-            team = initialize_team(
-                name=name,
-                description=description,
-                department=department,
-                is_user_team=is_user_team
-            )
+            # Validate required fields
+            if not name:
+                return Response(
+                    {"error": "Missing required field: name"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
-            # Process members data to create or assign members
-            for member_data in members_data:
-                person = None
-                # Option 1: Use existing person/user by ID
-                if 'id' in member_data and member_data['id']:
+            try:
+                # Get department if provided
+                department = None
+                if department_id:
                     try:
-                        person = Person.objects.get(id=member_data['id'])
-                        # If we're adding to a user team but person isn't a user yet,
-                        # we'll just add them without converting (expecting this to be handled elsewhere)
-                    except Person.DoesNotExist:
-                        continue
-                # Option 2: Create new person/user
-                else:
-                    # Extract common person fields
-                    first_name = member_data.get('first_name')
-                    last_name = member_data.get('last_name')
-                    role = member_data.get('role')
-                    member_department_id = member_data.get('department_id', department_id)
-                    
-                    # Skip if required fields are missing
-                    if not (first_name and last_name):
-                        continue
-                    
-                    # Extract contact information
-                    contact_data = member_data.get('contact', {})
-                    email = contact_data.get('email', '')
-                    phone = contact_data.get('phone', '')
-                    address = contact_data.get('address', '')
-                    
-                    # For user teams, check if we should create a user
-                    if is_user_team and member_data.get('create_user', False):
-                        # Extract user-specific fields
-                        username = member_data.get('username')
-                        password = member_data.get('password')
-                        authorization_id = member_data.get('authorization_id')
-                        is_active = member_data.get('is_active', True)
-                        is_staff = member_data.get('is_staff', False)
-                        is_superuser = member_data.get('is_superuser', False)
-                        
-                        if not all([username, password, authorization_id]):
-                            # Skip user creation if missing required fields
-                            continue
-                        
-                        # Create Person object first
-                        person = Person.objects.create(
-                            first_name=first_name,
-                            last_name=last_name,
-                            department_id=member_department_id,
-                            role=role,
-                            is_user=True  # Mark as user
+                        department = Department.objects.get(id=department_id)
+                    except Department.DoesNotExist:
+                        return Response(
+                            {"error": f"Department with ID {department_id} not found"},
+                            status=status.HTTP_404_NOT_FOUND
                         )
-                        
-                        # Create Contact
-                        contact = Contact.objects.create(
-                            id=person.contact_id,
-                            email=email,
-                            phone=phone,
-                            address=address,
-                            type='user'
-                        )
-                        
-                        # Create User
-                        try:
-                            authorization = Authorization.objects.get(id=authorization_id)
-                            user = User.objects.create_user(
-                                username=username,
-                                password=password,
-                                person=person,
-                                authorization=authorization,
-                                is_active=is_active,
-                                is_staff=is_staff,
-                                is_superuser=is_superuser
-                            )
-                            # Record history
-                            record_user_creation(user)
-                        except (Authorization.DoesNotExist, Exception) as e:
-                            # If user creation fails, still keep the person
-                            person.is_user = False
-                            person.save()
-                            # Continue to add as team member
-                    else:
-                        # Create regular person (for both user teams and client teams)
-                        person = Person.objects.create(
-                            first_name=first_name,
-                            last_name=last_name,
-                            department_id=member_department_id,
-                            role=role,
-                            is_user=False
-                        )
-                        
-                        # Record in history
-                        record_person_creation(person)
-                        
-                        # Create Contact
-                        contact = Contact.objects.create(
-                            id=person.contact_id,
-                            email=email,
-                            phone=phone,
-                            address=address,
-                            type='person'
-                        )
-                        
-                        # Record in history
-                        record_contact_creation(contact)
                 
-                if person:
-                    # Add person to the team with optional member_type
-                    member_type = member_data.get('member_type')
-                    add_team_member(team, person, member_type)
-            
-            # Get the updated team with all its members
-            serializer = self.get_serializer(team)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                print("Creating team...")
+                # Create team
+                team = initialize_team(
+                    name=name,
+                    description=description,
+                    is_user_team=is_user_team
+                )
+                print(f"Team created with ID: {team.id}")
+                
+                # Process members data to create or assign members
+                for index, member_data in enumerate(members_data):
+                    try:
+                        person = None
+                        print(f"Processing member {index+1}: {member_data}")
+                        
+                        # Option 1: Use existing person/user by ID
+                        if 'id' in member_data and member_data['id']:
+                            try:
+                                # First try to find the user directly
+                                if is_user_team:
+                                    try:
+                                        # Try to find a user with this ID
+                                        from django.contrib.auth import get_user_model
+                                        User = get_user_model()
+                                        user = User.objects.get(id=member_data['id'])
+                                        person = user.person
+                                        print(f"Found existing user: {user.id} - {person.first_name} {person.last_name}")
+                                    except User.DoesNotExist:
+                                        # If not found as user ID, try as person ID for users
+                                        try:
+                                            person = Person.objects.get(id=member_data['id'], is_user=True)
+                                            print(f"Found existing person (user): {person.id} - {person.first_name} {person.last_name}")
+                                        except Person.DoesNotExist:
+                                            print(f"User/Person with ID {member_data['id']} not found")
+                                            continue
+                                else:
+                                    # For client teams, just look for persons
+                                    try:
+                                        person = Person.objects.get(id=member_data['id'])
+                                        print(f"Found existing person: {person.id} - {person.first_name} {person.last_name}")
+                                    except Person.DoesNotExist:
+                                        print(f"Person with ID {member_data['id']} not found")
+                                        continue
+                            except Exception as find_err:
+                                print(f"Error finding member with ID {member_data['id']}: {str(find_err)}")
+                                continue
+                        # Option 2: Create new person/user
+                        else:
+                            # Extract common person fields
+                            first_name = member_data.get('first_name')
+                            last_name = member_data.get('last_name')
+                            role = member_data.get('role')
+                            member_department_id = member_data.get('department_id', department_id)
+                            
+                            print(f"Creating new person: {first_name} {last_name}, role: {role}")
+                            
+                            # Skip if required fields are missing
+                            if not (first_name and last_name):
+                                print("Skipping member - missing first_name or last_name")
+                                continue
+                            
+                            # Extract contact information
+                            contact_data = member_data.get('contact', {})
+                            email = contact_data.get('email', '')
+                            phone = contact_data.get('phone', '')
+                            address = contact_data.get('address', '')
+                            
+                            # For user teams, check if we should create a user
+                            if is_user_team and member_data.get('create_user', False):
+                                # Extract user-specific fields
+                                username = member_data.get('username')
+                                password = member_data.get('password')
+                                authorization_id = member_data.get('authorization_id')
+                                is_active = member_data.get('is_active', True)
+                                is_staff = member_data.get('is_staff', False)
+                                is_superuser = member_data.get('is_superuser', False)
+                                
+                                print(f"Creating user: {username}, auth_id: {authorization_id}")
+                                
+                                if not all([username, password, authorization_id]):
+                                    print("Skipping user creation - missing required fields")
+                                    continue
+                                
+                                try:
+                                    # Create Person object first
+                                    print("Creating person object...")
+                                    person = Person.objects.create(
+                                        first_name=first_name,
+                                        last_name=last_name,
+                                        department_id=member_department_id,
+                                        role=role,
+                                        is_user=True  # Mark as user
+                                    )
+                                    print(f"Person created: {person.id}")
+                                    
+                                    # Create Contact
+                                    print(f"Creating contact with ID: {person.contact_id}")
+                                    contact = Contact.objects.create(
+                                        id=person.contact_id,
+                                        email=email,
+                                        phone=phone,
+                                        address=address,
+                                        type='user'
+                                    )
+                                    print(f"Contact created: {contact.id}")
+                                    
+                                    # Create User
+                                    print(f"Looking up authorization ID: {authorization_id}")
+                                    try:
+                                        authorization = Authorization.objects.get(id=authorization_id)
+                                        print(f"Found authorization: {authorization.id} - {authorization.name}")
+                                        
+                                        print(f"Creating user for {username}...")
+                                        user = User.objects.create_user(
+                                            username=username,
+                                            password=password,
+                                            person=person,
+                                            authorization=authorization,
+                                            is_active=is_active,
+                                            is_staff=is_staff,
+                                            is_superuser=is_superuser
+                                        )
+                                        print(f"User created: {user.id}")
+                                        
+                                        # Record history
+                                        print("Recording user creation in history...")
+                                        record_user_creation(user)
+                                        print("User history recorded")
+                                        
+                                    except Authorization.DoesNotExist as auth_err:
+                                        print(f"Authorization ID {authorization_id} not found: {str(auth_err)}")
+                                        person.is_user = False
+                                        person.save()
+                                    except Exception as user_err:
+                                        print(f"Error creating user: {str(user_err)}")
+                                        person.is_user = False
+                                        person.save()
+                                except Exception as person_err:
+                                    print(f"Error creating person: {str(person_err)}")
+                                    raise  # Re-raise to be caught by outer handler
+                                    
+                            else:
+                                # Create regular person (for both user teams and client teams)
+                                try:
+                                    print("Creating regular person...")
+                                    person = Person.objects.create(
+                                        first_name=first_name,
+                                        last_name=last_name,
+                                        department_id=member_department_id,
+                                        role=role,
+                                        is_user=False
+                                    )
+                                    print(f"Person created: {person.id}")
+                                    
+                                    # Record in history
+                                    print("Recording person creation in history...")
+                                    record_person_creation(person)
+                                    print("Person history recorded")
+                                    
+                                    # Create Contact
+                                    print(f"Creating contact with ID: {person.contact_id}")
+                                    contact = Contact.objects.create(
+                                        id=person.contact_id,
+                                        email=email,
+                                        phone=phone,
+                                        address=address,
+                                        type='person'
+                                    )
+                                    print(f"Contact created: {contact.id}")
+                                    
+                                    # Record in history
+                                    print("Recording contact creation in history...")
+                                    record_contact_creation(contact)
+                                    print("Contact history recorded")
+                                except Exception as reg_person_err:
+                                    print(f"Error creating regular person: {str(reg_person_err)}")
+                                    raise  # Re-raise to be caught by outer handler
+                        
+                        if person:
+                            # Add person to the team with optional member_type
+                            print(f"Adding {person.first_name} {person.last_name} to team...")
+                            add_team_member(team, person)
+                            print(f"Added {person.first_name} {person.last_name} to team")
+                    
+                    except Exception as member_err:
+                        print(f"Error processing member {index+1}: {str(member_err)}")
+                        raise  # Re-raise to be caught by outer handler
+                
+                # Get the updated team with all its members
+                print("Getting serialized team data...")
+                serializer = self.get_serializer(team)
+                print("Team creation complete!")
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                print(f"Error in try block: {str(e)}")
+                import traceback
+                print(f"Detailed error: {traceback.format_exc()}")
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Error details: {error_details}")
             return Response(
-                {"error": str(e)},
+                {"error": f"Transaction failed: {str(e)}", "details": error_details},
                 status=status.HTTP_400_BAD_REQUEST
-            )
+            )    
+            
     
     @transaction.atomic
     def update(self, request, *args, **kwargs):
@@ -328,8 +413,7 @@ class TeamViewSet(viewsets.ModelViewSet):
                     
                     if person:
                         # Add person to the team with optional member_type
-                        member_type = member_data.get('member_type')
-                        add_team_member(team, person, member_type)
+                        add_team_member(team, person)
             
             # Get the updated team with all its members
             serializer = self.get_serializer(team)
@@ -379,7 +463,7 @@ class TeamViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            add_team_member(team, person, member_type)
+            add_team_member(team, person)
             return Response({"status": "Member added successfully"})
         except Person.DoesNotExist:
             return Response(
